@@ -1,0 +1,48 @@
+{
+  "_metadata": {
+    "program": "medicaid",
+    "period": "CY2026",
+    "calendar_year": 2026,
+    "fpl_basis_year": 2026,
+    "note": "Medicaid uses MAGI-based income, measured against HHS poverty guidelines published each January. CY2026 Medicaid income limits use the 2026 HHS poverty guidelines (published January 2026). Unlike SNAP/WIC, Medicaid follows the calendar year, not the federal fiscal year.",
+    "source": "KFF State Health Facts — Medicaid Income Eligibility Limits (2026)",
+    "source_url": "https://www.kff.org/medicaid/state-indicator/medicaid-income-eligibility-limits/",
+    "cfr_reference": "42 CFR Part 435",
+    "verification_status": "estimated",
+    "verification_note": "Verify expansion status and non-expansion limits against CMS and KFF 2026 state data."
+  },
+  "expansion_income_limit_pct_fpl": 138,
+  "expansion_states": [
+    "AK","AZ","AR","CA","CO","CT","DE","DC","HI","ID","IL","IN","IA",
+    "KS","KY","LA","ME","MD","MA","MI","MN","MO","MT","NE","NV","NH",
+    "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SD","UT","VA",
+    "VT","WA","WV","WI"
+  ],
+  "non_expansion_states": [
+    "AL","FL","GA","MS","SC","TN","TX","WY"
+  ],
+  "non_expansion_income_limits_pct_fpl": {
+    "adults_without_children": {
+      "AL": 0, "FL": 0, "GA": 0, "MS": 0, "SC": 0, "TN": 0, "TX": 0, "WY": 0
+    },
+    "parents_caretaker_relative": {
+      "AL": 18, "FL": 33, "GA": 35, "MS": 29, "SC": 67, "TN": 95, "TX": 15, "WY": 54
+    },
+    "pregnant_women_pct_fpl": {
+      "AL": 146, "FL": 196, "GA": 220, "MS": 194, "SC": 194, "TN": 195, "TX": 198, "WY": 196
+    },
+    "children_0_18_pct_fpl": {
+      "AL": 312, "FL": 215, "GA": 247, "MS": 209, "SC": 208, "TN": 250, "TX": 201, "WY": 200
+    }
+  },
+  "income_methodology": "MAGI",
+  "notes": [
+    "Medicaid uses MAGI (Modified Adjusted Gross Income), NOT the same calculation as SNAP net income.",
+    "Expansion states cover adults up to 138% FPL under ACA Medicaid expansion.",
+    "Non-expansion states have coverage gaps for adults without dependent children.",
+    "Children and pregnant women have higher income limits in all states.",
+    "AR and OK have alternative/private-option expansion models.",
+    "CY2026 uses the 2026 HHS poverty guidelines published January 2026.",
+    "VERIFICATION REQUIRED: Confirm expansion status and limits against CMS data for 2026."
+  ]
+}

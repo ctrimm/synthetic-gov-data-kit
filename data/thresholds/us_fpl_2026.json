@@ -1,0 +1,77 @@
+{
+  "_metadata": {
+    "type": "hhs_poverty_guidelines",
+    "year": 2026,
+    "effective_date": "2026-01-13",
+    "published": "2026-01-15",
+    "federal_register_citation": "91 FR 1797, FR Doc. 2026-00755",
+    "signed_by": "Robert F. Kennedy, Jr., Secretary, Department of Health and Human Services",
+    "source": "HHS Office of the Assistant Secretary for Planning and Evaluation — 2026 HHS Poverty Guidelines",
+    "source_url": "https://www.federalregister.gov/documents/2026/01/15/2026-00755/annual-update-of-the-hhs-poverty-guidelines",
+    "inflation_adjustment": "2.63% CPI-U increase between calendar years 2024 and 2025",
+    "used_by": [
+      "Medicaid CY2026 (138% FPL for expansion states)",
+      "ACA Marketplace CY2026 premium tax credits",
+      "SNAP FY2027 (Oct 1 2026 – Sep 30 2027) — NOT FY2026",
+      "WIC 2026-2027 IEG (effective July 1, 2026 – June 30, 2027)"
+    ],
+    "not_used_by": [
+      "SNAP FY2026 — uses 2025 HHS FPL (see snap_fy2026.json)",
+      "WIC 2025-2026 — uses 2025 HHS FPL (see wic_fy2026.json)"
+    ],
+    "verification_status": "verified",
+    "verification_note": "Values taken directly from Federal Register 91 FR 1797 (FR Doc. 2026-00755), published January 15, 2026. Signed by Secretary Kennedy."
+  },
+  "regions": {
+    "contiguous_48_dc": {
+      "per_additional_person_annual": 5680,
+      "per_additional_person_monthly": 473,
+      "by_household_size": {
+        "1": { "annual": 15960, "monthly": 1330 },
+        "2": { "annual": 21640, "monthly": 1803 },
+        "3": { "annual": 27320, "monthly": 2277 },
+        "4": { "annual": 33000, "monthly": 2750 },
+        "5": { "annual": 38680, "monthly": 3223 },
+        "6": { "annual": 44360, "monthly": 3697 },
+        "7": { "annual": 50040, "monthly": 4170 },
+        "8": { "annual": 55720, "monthly": 4643 }
+      }
+    },
+    "alaska": {
+      "per_additional_person_annual": 7100,
+      "per_additional_person_monthly": 592,
+      "by_household_size": {
+        "1": { "annual": 19950, "monthly": 1663 },
+        "2": { "annual": 27050, "monthly": 2254 },
+        "3": { "annual": 34150, "monthly": 2846 },
+        "4": { "annual": 41250, "monthly": 3438 },
+        "5": { "annual": 48350, "monthly": 4029 },
+        "6": { "annual": 55450, "monthly": 4621 },
+        "7": { "annual": 62550, "monthly": 5213 },
+        "8": { "annual": 69650, "monthly": 5804 }
+      }
+    },
+    "hawaii": {
+      "per_additional_person_annual": 6530,
+      "per_additional_person_monthly": 544,
+      "by_household_size": {
+        "1": { "annual": 18360, "monthly": 1530 },
+        "2": { "annual": 24890, "monthly": 2074 },
+        "3": { "annual": 31420, "monthly": 2618 },
+        "4": { "annual": 37950, "monthly": 3163 },
+        "5": { "annual": 44480, "monthly": 3707 },
+        "6": { "annual": 51010, "monthly": 4251 },
+        "7": { "annual": 57540, "monthly": 4795 },
+        "8": { "annual": 64070, "monthly": 5339 }
+      }
+    }
+  },
+  "notes": [
+    "VERIFIED: From official Federal Register 91 FR 1797, January 15, 2026.",
+    "These are the 2026 guidelines — used for Medicaid CY2026 and SNAP FY2027.",
+    "Monthly = annual / 12, rounded to nearest dollar (HHS rounds to nearest dollar).",
+    "Per-additional-person: 48 states=$5,680/yr, Alaska=$7,100/yr, Hawaii=$6,530/yr.",
+    "For SNAP FY2026 income limits, see snap_fy2026.json (uses 2025 FPL, not 2026).",
+    "For WIC 2025-2026 income limits, see wic_fy2026.json (also uses 2025 FPL)."
+  ]
+}

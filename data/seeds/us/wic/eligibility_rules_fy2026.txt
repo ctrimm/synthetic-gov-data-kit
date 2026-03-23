@@ -1,0 +1,80 @@
+WIC ELIGIBILITY RULES — POLICY SEED
+Source: 7 CFR Part 246 (WIC Program Regulations), USDA FNS
+For use in rationale trace generation. Not a complete regulatory text.
+
+=== PROGRAM OVERVIEW ===
+
+WIC (Special Supplemental Nutrition Program for Women, Infants, and Children)
+provides nutritious foods, nutrition education, breastfeeding support, and
+healthcare referrals to income-eligible participants.
+
+=== PARTICIPANT CATEGORIES (7 CFR 246.7(a)) ===
+
+Eligible categories:
+  1. Pregnant women
+  2. Breastfeeding women (up to infant's 1st birthday)
+  3. Postpartum women (up to 6 months after delivery, not breastfeeding)
+  4. Infants (up to 1 year of age)
+  5. Children (age 1 through 4 years, 11 months = "under age 5")
+
+Ineligible categories: Any person not in the above categories.
+
+=== INCOME ELIGIBILITY (7 CFR 246.7(d)) ===
+
+INCOME LIMIT: 185% of Federal Poverty Guidelines
+
+FY2026 INCOME LIMITS (effective Oct 1, 2025):
+  Household Size | Monthly Gross Income Limit
+  1              | $2,322/month
+  2              | $3,140/month
+  3              | $3,959/month
+  4              | $4,777/month
+  5              | $5,595/month
+  6              | $6,414/month
+  7              | $7,232/month
+  8              | $8,051/month
+  Each add'l     | +$819/month
+
+NO ASSET TEST: WIC has no resource/asset test.
+Income is measured as gross income before deductions.
+
+CATEGORICAL ELIGIBILITY (7 CFR 246.7(d)(2)):
+  A person is automatically income-eligible if they or any member of their
+  immediate family participates in:
+    - SNAP (Food Stamps)
+    - Medicaid
+    - TANF (Temporary Assistance for Needy Families)
+  Note: Categorical eligibility satisfies the INCOME test only.
+  Nutritional risk determination is STILL required.
+
+=== NUTRITIONAL RISK (7 CFR 246.7(e)) ===
+
+REQUIRED FOR ALL APPLICANTS — income eligibility alone is insufficient.
+A health professional at the WIC clinic must determine nutritional risk.
+
+Nutritional risk conditions include (non-exhaustive):
+  - Abnormal nutritional conditions (anemia, underweight, overweight)
+  - Dietary deficiencies
+  - Medical conditions affecting nutritional needs
+  - Homeless, migrant worker status
+
+=== RESIDENCY (7 CFR 246.7(g)) ===
+
+Applicant must be a resident of the state in which they are applying.
+No minimum residency duration required. Intent to reside is sufficient.
+
+=== BENEFITS ===
+
+WIC provides food packages (not cash). Food packages vary by category:
+  - Pregnant/postpartum: milk, eggs, cereal, juice, beans/peanut butter, vegetables/fruits
+  - Breastfeeding: enhanced package with fish, more dairy
+  - Infants: iron-fortified formula (if not breastfeeding), infant cereal, fruits/vegetables
+  - Children: milk, eggs, cereal, juice, beans/peanut butter, vegetables/fruits
+
+WIC also provides: nutrition education, breastfeeding support, healthcare referrals.
+
+=== KEY CFR CITATIONS ===
+7 CFR 246.2  — Definitions
+7 CFR 246.7  — Participant eligibility
+7 CFR 246.10 — Food packages
+7 CFR 246.11 — Nutrition education

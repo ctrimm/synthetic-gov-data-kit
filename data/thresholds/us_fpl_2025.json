@@ -1,0 +1,76 @@
+{
+  "_metadata": {
+    "type": "hhs_poverty_guidelines",
+    "year": 2025,
+    "effective_date": "2025-01-17",
+    "published": "2025-01-17",
+    "federal_register_citation": "90 FR 5917",
+    "source": "HHS Office of the Assistant Secretary for Planning and Evaluation — 2025 HHS Poverty Guidelines",
+    "source_url": "https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines/prior-hhs-poverty-guidelines-federal-register-references",
+    "cross_verified_via": "WIC Federal Register Notice 2025-03576 (90 FR 11598) Table: 100% FPL column = SNAP FY2026 net limits exactly",
+    "used_by": [
+      "SNAP FY2026 (Oct 1 2025 – Sep 30 2026): gross=130% of these, net=100% of these",
+      "WIC 2025-2026 (Jul 1 2025 – Jun 30 2026): income limits = 185% of these",
+      "CHIP FY2026"
+    ],
+    "not_used_by": [
+      "Medicaid CY2026 — uses 2026 HHS FPL (see us_fpl_2026.json)"
+    ],
+    "verification_status": "verified",
+    "verification_note": "Annual values confirmed via WIC FR Notice 2025-03576 (100% FPL column). Monthly values cross-verified against SNAP FY2026 net income limits (identical). Per-additional-person = $5,500/year, $459/month."
+  },
+  "regions": {
+    "contiguous_48_dc": {
+      "base_annual": 15650,
+      "per_additional_person_annual": 5500,
+      "per_additional_person_monthly": 459,
+      "by_household_size": {
+        "1": { "annual": 15650, "monthly": 1305 },
+        "2": { "annual": 21150, "monthly": 1763 },
+        "3": { "annual": 26650, "monthly": 2221 },
+        "4": { "annual": 32150, "monthly": 2680 },
+        "5": { "annual": 37650, "monthly": 3138 },
+        "6": { "annual": 43150, "monthly": 3596 },
+        "7": { "annual": 48650, "monthly": 4055 },
+        "8": { "annual": 54150, "monthly": 4513 }
+      }
+    },
+    "alaska": {
+      "base_annual": 19550,
+      "per_additional_person_annual": 6880,
+      "per_additional_person_monthly": 574,
+      "by_household_size": {
+        "1": { "annual": 19550, "monthly": 1630 },
+        "2": { "annual": 26430, "monthly": 2203 },
+        "3": { "annual": 33310, "monthly": 2776 },
+        "4": { "annual": 40190, "monthly": 3350 },
+        "5": { "annual": 47070, "monthly": 3923 },
+        "6": { "annual": 53950, "monthly": 4496 },
+        "7": { "annual": 60830, "monthly": 5070 },
+        "8": { "annual": 67710, "monthly": 5643 }
+      }
+    },
+    "hawaii": {
+      "base_annual": 17990,
+      "per_additional_person_annual": 6330,
+      "per_additional_person_monthly": 528,
+      "by_household_size": {
+        "1": { "annual": 17990, "monthly": 1500 },
+        "2": { "annual": 24320, "monthly": 2027 },
+        "3": { "annual": 30650, "monthly": 2555 },
+        "4": { "annual": 36980, "monthly": 3082 },
+        "5": { "annual": 43310, "monthly": 3610 },
+        "6": { "annual": 49640, "monthly": 4137 },
+        "7": { "annual": 55970, "monthly": 4665 },
+        "8": { "annual": 62300, "monthly": 5192 }
+      }
+    }
+  },
+  "notes": [
+    "VERIFIED: Annual values confirmed from WIC Federal Register 2025-03576 (90 FR 11598), 100% FPL column.",
+    "Per-additional-person: 48 states=$5,500/yr ($459/mo), Alaska=$6,880/yr ($574/mo), Hawaii=$6,330/yr ($528/mo).",
+    "Monthly values = SNAP FY2026 net income limits (100% FPL column matches exactly).",
+    "These guidelines are derived from 2024 Census Bureau poverty thresholds adjusted for CPI-U.",
+    "These are GUIDELINES (used for program eligibility), not the Census poverty THRESHOLDS (used for statistics)."
+  ]
+}

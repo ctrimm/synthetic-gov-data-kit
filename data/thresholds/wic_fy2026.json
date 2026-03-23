@@ -1,0 +1,63 @@
+{
+  "_metadata": {
+    "program": "wic",
+    "period": "2025-2026",
+    "period_label": "WIC IEG 2025-2026",
+    "effective_start": "2025-07-01",
+    "effective_end": "2026-06-30",
+    "calendar_note": "WIC income eligibility guidelines run July 1 – June 30, NOT the federal fiscal year (Oct 1–Sep 30). These guidelines are in effect from July 1, 2025 through June 30, 2026.",
+    "fpl_basis_year": 2025,
+    "fpl_basis_note": "WIC 2025-2026 guidelines = 2025 HHS poverty guidelines × 1.85, rounded up to next whole dollar. 2025 HHS FPL published January 17, 2025 (90 FR 5917).",
+    "source": "USDA FNS WIC Income Eligibility Guidelines 2025/2026 — Federal Register Notice 2025-03576 (90 FR 11598), March 10, 2025",
+    "source_url": "https://www.federalregister.gov/documents/2025/03/10/2025-03576/special-supplemental-nutrition-program-for-women-infants-and-children-wic-20252026-income",
+    "cfr_reference": "7 CFR 246.7(d)(1)",
+    "signed_by": "Tameka Owens, Acting Administrator, Food and Nutrition Service, USDA",
+    "verification_status": "verified",
+    "verification_note": "Values taken directly from official Federal Register Notice 2025-03576, Table: '48 Contiguous States, DC, Guam and Territories', 185% (Reduced price meals) column. Effective July 1, 2025 to June 30, 2026."
+  },
+  "income_limit_pct_fpl": 185,
+  "categorical_eligibility_programs": ["snap", "medicaid", "tanf"],
+  "eligible_categories": ["pregnant", "breastfeeding", "postpartum", "infant", "child_under_5"],
+  "households_48_states_dc_guam": {
+    "1": { "annual": 28953, "monthly": 2413, "twice_monthly": 1207, "biweekly": 1114, "weekly": 557 },
+    "2": { "annual": 39128, "monthly": 3261, "twice_monthly": 1631, "biweekly": 1505, "weekly": 753 },
+    "3": { "annual": 49303, "monthly": 4109, "twice_monthly": 2055, "biweekly": 1897, "weekly": 949 },
+    "4": { "annual": 59478, "monthly": 4957, "twice_monthly": 2479, "biweekly": 2288, "weekly": 1144 },
+    "5": { "annual": 69653, "monthly": 5805, "twice_monthly": 2903, "biweekly": 2679, "weekly": 1340 },
+    "6": { "annual": 79828, "monthly": 6653, "twice_monthly": 3327, "biweekly": 3071, "weekly": 1536 },
+    "7": { "annual": 90003, "monthly": 7501, "twice_monthly": 3751, "biweekly": 3462, "weekly": 1731 },
+    "8": { "annual": 100178, "monthly": 8349, "twice_monthly": 4175, "biweekly": 3853, "weekly": 1927 },
+    "each_additional": { "annual": 10175, "monthly": 848, "twice_monthly": 424, "biweekly": 392, "weekly": 196 }
+  },
+  "households_alaska": {
+    "1": { "annual": 36168, "monthly": 3014, "twice_monthly": 1507, "biweekly": 1392, "weekly": 696 },
+    "2": { "annual": 48896, "monthly": 4075, "twice_monthly": 2038, "biweekly": 1881, "weekly": 941 },
+    "3": { "annual": 61624, "monthly": 5136, "twice_monthly": 2568, "biweekly": 2371, "weekly": 1186 },
+    "4": { "annual": 74352, "monthly": 6196, "twice_monthly": 3098, "biweekly": 2860, "weekly": 1430 },
+    "5": { "annual": 87080, "monthly": 7257, "twice_monthly": 3629, "biweekly": 3350, "weekly": 1675 },
+    "6": { "annual": 99808, "monthly": 8318, "twice_monthly": 4159, "biweekly": 3839, "weekly": 1920 },
+    "7": { "annual": 112536, "monthly": 9378, "twice_monthly": 4689, "biweekly": 4329, "weekly": 2165 },
+    "8": { "annual": 125264, "monthly": 10439, "twice_monthly": 5220, "biweekly": 4818, "weekly": 2409 },
+    "each_additional": { "annual": 12728, "monthly": 1061, "twice_monthly": 531, "biweekly": 490, "weekly": 245 }
+  },
+  "households_hawaii": {
+    "1": { "annual": 33282, "monthly": 2774, "twice_monthly": 1387, "biweekly": 1281, "weekly": 641 },
+    "2": { "annual": 44992, "monthly": 3750, "twice_monthly": 1875, "biweekly": 1731, "weekly": 866 },
+    "3": { "annual": 56703, "monthly": 4726, "twice_monthly": 2363, "biweekly": 2181, "weekly": 1091 },
+    "4": { "annual": 68413, "monthly": 5702, "twice_monthly": 2851, "biweekly": 2632, "weekly": 1316 },
+    "5": { "annual": 80124, "monthly": 6677, "twice_monthly": 3339, "biweekly": 3082, "weekly": 1541 },
+    "6": { "annual": 91834, "monthly": 7653, "twice_monthly": 3827, "biweekly": 3533, "weekly": 1767 },
+    "7": { "annual": 103545, "monthly": 8629, "twice_monthly": 4315, "biweekly": 3983, "weekly": 1992 },
+    "8": { "annual": 115255, "monthly": 9605, "twice_monthly": 4803, "biweekly": 4433, "weekly": 2217 },
+    "each_additional": { "annual": 11711, "monthly": 976, "twice_monthly": 488, "biweekly": 451, "weekly": 226 }
+  },
+  "notes": [
+    "CRITICAL: WIC runs July 1 – June 30, NOT the federal fiscal year (Oct 1–Sep 30).",
+    "These guidelines apply July 1, 2025 through June 30, 2026.",
+    "Values = 2025 HHS poverty guidelines × 1.85, rounded UP to next whole dollar (per statute).",
+    "No asset test for WIC.",
+    "Categorical eligibility: SNAP, Medicaid, or TANF enrollment = automatically income-eligible.",
+    "Nutritional risk determination required at WIC clinic regardless of income eligibility.",
+    "Source: Federal Register 2025-03576, 90 FR 11598, March 10, 2025."
+  ]
+}

@@ -1,0 +1,98 @@
+SNAP ELIGIBILITY RULES — POLICY SEED
+Source: 7 CFR Part 273 (2025), USDA FNS SNAP Policy Handbook
+For use in rationale trace generation. Not a complete regulatory text.
+
+=== INCOME ELIGIBILITY (7 CFR 273.9) ===
+
+GROSS INCOME TEST (7 CFR 273.9(a)(1)):
+  A household's monthly gross income must not exceed 130 percent of the
+  Federal poverty guidelines. Households that contain an elderly person
+  (age 60 or older) or a person who receives certain disability payments
+  are EXEMPT from the gross income test.
+
+NET INCOME TEST (7 CFR 273.9(a)(2)):
+  A household's net monthly income must not exceed 100 percent of the
+  Federal poverty guidelines. This applies to ALL households including
+  those with elderly or disabled members.
+
+FY2026 INCOME LIMITS (48 States + DC, effective Oct 1 2025):
+  Household Size | Gross (130% FPL) | Net (100% FPL) | Max Benefit
+  1              | $1,696/month     | $1,305/month   | $298
+  2              | $2,292/month     | $1,763/month   | $546
+  3              | $2,888/month     | $2,221/month   | $785
+  4              | $3,483/month     | $2,680/month   | $994
+  5              | $4,079/month     | $3,138/month   | $1,183
+  6              | $4,675/month     | $3,596/month   | $1,421
+  7              | $5,271/month     | $4,055/month   | $1,571
+  8              | $5,867/month     | $4,513/month   | $1,789
+  Each add'l     | +$596/month      | +$459/month    | +$218
+Source: USDA FNS SNAP COLA FY2026 Memo, August 13, 2025 (VERIFIED)
+
+=== DEDUCTIONS (7 CFR 273.9(c)) ===
+
+(c)(1) EARNED INCOME DEDUCTION: 20 percent of earned income is deducted.
+  Earned income = wages, salaries, self-employment net earnings.
+
+(c)(2) STANDARD DEDUCTION (FY2026, 48 States + DC):
+  Household sizes 1-3: $209/month
+  Household size 4:    $223/month
+  Household size 5:    $261/month
+  Household size 6+:   $299/month
+
+(c)(3) DEPENDENT CARE DEDUCTION: Actual dependent care costs paid for
+  a child or other dependent when necessary for household member to work,
+  seek work, or attend training/education. No cap.
+
+(c)(4) MEDICAL EXPENSE DEDUCTION: For elderly/disabled household members,
+  medical expenses exceeding $35/month may be deducted. No cap.
+  Medical expenses include: doctor visits, prescriptions, Medicare premiums,
+  dentures, hearing aids, prosthetics, transportation to medical care.
+
+(c)(5) EXCESS SHELTER DEDUCTION:
+  Shelter costs exceeding 50% of the household's income after other deductions
+  may be deducted, up to a cap of $744/month (FY2026, 48 States + DC).
+  Cap does NOT apply to households with elderly or disabled members.
+  Shelter costs include: rent, mortgage, taxes, insurance, utilities.
+
+=== ASSETS / RESOURCES (7 CFR 273.8) ===
+
+ASSET LIMITS (FY2026, UNCHANGED from FY2025):
+  General households:         $3,000
+  Elderly/disabled households: $4,500
+  
+  Countable assets include: cash, bank accounts, stocks, bonds.
+  Excluded assets include: home, vehicle (one), retirement accounts,
+  SNAP benefits, most IRA/pension funds.
+
+BROAD-BASED CATEGORICAL ELIGIBILITY (BBCE):
+  Many states have adopted BBCE, which removes or raises the asset test.
+  In BBCE states, households receiving (or deemed to receive) TANF-funded
+  services are categorically eligible. Most BBCE states remove the asset
+  test entirely for most households.
+
+=== CATEGORICAL ELIGIBILITY ===
+
+Households in which ALL members receive SSI, TANF, or certain GA programs
+are categorically eligible for SNAP without separate income/asset testing.
+BBCE extends this to households receiving TANF-funded services.
+
+=== BENEFIT CALCULATION ===
+
+Monthly benefit = Maximum allotment − (Net income × 0.30)
+  (Households are expected to spend 30% of net income on food.)
+
+Minimum benefit for 1-2 person households: $24/month (FY2026).
+
+=== WORK REQUIREMENTS ===
+
+Able-Bodied Adults Without Dependents (ABAWDs):
+  Must work or participate in work activities ≥ 80 hours/month, or be
+  exempt. The One Big Beautiful Bill Act of 2025 modified work requirement
+  rules — consult current FNS guidance for latest provisions.
+
+=== KEY CFR CITATIONS ===
+7 CFR 273.2  — Household certification
+7 CFR 273.8  — Resource eligibility standards
+7 CFR 273.9  — Income and deductions
+7 CFR 273.10 — Determining household eligibility and benefit levels
+7 CFR 273.11 — Action on applications

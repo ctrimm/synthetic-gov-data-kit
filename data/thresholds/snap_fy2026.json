@@ -1,0 +1,81 @@
+{
+  "_metadata": {
+    "program": "snap",
+    "period": "FY2026",
+    "fiscal_year": 2026,
+    "federal_fy_start": "2025-10-01",
+    "federal_fy_end": "2026-09-30",
+    "fpl_basis_year": 2025,
+    "source": "USDA FNS SNAP FY2026 Cost-of-Living Adjustments Memo (August 13, 2025)",
+    "source_url": "https://www.fns.usda.gov/snap/allotment/cola/fy26",
+    "cfr_reference": "7 CFR 273.9",
+    "verification_status": "verified",
+    "verification_note": "Values taken directly from official USDA FNS SNAP COLA FY2026 memo signed by Ronald Ward, Acting Associate Administrator, dated August 13, 2025. Effective October 1, 2025 through September 30, 2026."
+  },
+  "gross_income_pct_fpl": 130,
+  "net_income_pct_fpl": 100,
+  "earned_income_deduction_pct": 20,
+  "asset_limit_general": 3000,
+  "asset_limit_elderly_disabled": 4500,
+  "households_48_states_dc": {
+    "1": { "gross_monthly": 1696, "net_monthly": 1305, "max_benefit": 298 },
+    "2": { "gross_monthly": 2292, "net_monthly": 1763, "max_benefit": 546 },
+    "3": { "gross_monthly": 2888, "net_monthly": 2221, "max_benefit": 785 },
+    "4": { "gross_monthly": 3483, "net_monthly": 2680, "max_benefit": 994 },
+    "5": { "gross_monthly": 4079, "net_monthly": 3138, "max_benefit": 1183 },
+    "6": { "gross_monthly": 4675, "net_monthly": 3596, "max_benefit": 1421 },
+    "7": { "gross_monthly": 5271, "net_monthly": 4055, "max_benefit": 1571 },
+    "8": { "gross_monthly": 5867, "net_monthly": 4513, "max_benefit": 1789 },
+    "each_additional": { "gross_monthly": 596, "net_monthly": 459, "max_benefit": 218 }
+  },
+  "households_alaska": {
+    "1": { "gross_monthly": 2118, "net_monthly": 1630, "max_benefit_urban": 385, "max_benefit_rural1": 491, "max_benefit_rural2": 598 },
+    "2": { "gross_monthly": 2864, "net_monthly": 2203, "max_benefit_urban": 707, "max_benefit_rural1": 901, "max_benefit_rural2": 1097 },
+    "3": { "gross_monthly": 3609, "net_monthly": 2776, "max_benefit_urban": 1015, "max_benefit_rural1": 1295, "max_benefit_rural2": 1576 },
+    "4": { "gross_monthly": 4354, "net_monthly": 3350, "max_benefit_urban": 1285, "max_benefit_rural1": 1639, "max_benefit_rural2": 1995 },
+    "5": { "gross_monthly": 5100, "net_monthly": 3923, "max_benefit_urban": 1529, "max_benefit_rural1": 1950, "max_benefit_rural2": 2374 },
+    "6": { "gross_monthly": 5845, "net_monthly": 4496, "max_benefit_urban": 1838, "max_benefit_rural1": 2344, "max_benefit_rural2": 2853 },
+    "7": { "gross_monthly": 6590, "net_monthly": 5070, "max_benefit_urban": 2031, "max_benefit_rural1": 2590, "max_benefit_rural2": 3152 },
+    "8": { "gross_monthly": 7336, "net_monthly": 5643, "max_benefit_urban": 2314, "max_benefit_rural1": 2950, "max_benefit_rural2": 3591 },
+    "each_additional": { "gross_monthly": 746, "net_monthly": 574, "max_benefit_urban": 282, "max_benefit_rural1": 360, "max_benefit_rural2": 438 }
+  },
+  "households_hawaii": {
+    "1": { "gross_monthly": 1949, "net_monthly": 1500, "max_benefit": 506 },
+    "2": { "gross_monthly": 2635, "net_monthly": 2027, "max_benefit": 929 },
+    "3": { "gross_monthly": 3321, "net_monthly": 2555, "max_benefit": 1334 },
+    "4": { "gross_monthly": 4007, "net_monthly": 3082, "max_benefit": 1689 },
+    "5": { "gross_monthly": 4692, "net_monthly": 3610, "max_benefit": 2010 },
+    "6": { "gross_monthly": 5378, "net_monthly": 4137, "max_benefit": 2415 },
+    "7": { "gross_monthly": 6064, "net_monthly": 4665, "max_benefit": 2668 },
+    "8": { "gross_monthly": 6750, "net_monthly": 5192, "max_benefit": 3040 },
+    "each_additional": { "gross_monthly": 686, "net_monthly": 528, "max_benefit": 371 }
+  },
+  "standard_deductions_48_states_dc": {
+    "1": 209, "2": 209, "3": 209, "4": 223, "5": 261, "6+": 299
+  },
+  "standard_deductions_alaska": {
+    "1": 358, "2": 358, "3": 358, "4": 358, "5": 358, "6+": 374
+  },
+  "standard_deductions_hawaii": {
+    "1": 295, "2": 295, "3": 295, "4": 295, "5": 300, "6+": 344
+  },
+  "excess_shelter_deduction_cap_48_states_dc": 744,
+  "excess_shelter_deduction_cap_alaska": 1189,
+  "excess_shelter_deduction_cap_hawaii": 1003,
+  "homeless_shelter_deduction": 198.99,
+  "minimum_benefit_48_states_dc": 24,
+  "gross_income_165pct_households_48_states_dc": {
+    "1": 2152, "2": 2909, "3": 3665, "4": 4421, "5": 5177, "6": 5934, "7": 6690, "8": 7446,
+    "each_additional": 757
+  },
+  "notes": [
+    "Source: USDA FNS SNAP COLA FY2026 Memo, August 13, 2025. Ronald Ward, Acting Associate Administrator.",
+    "Effective October 1, 2025 through September 30, 2026.",
+    "Asset limits UNCHANGED from FY2025: $3,000 general, $4,500 elderly/disabled.",
+    "Standard deduction for HH sizes 1-3 increased to $209/month (48 states + DC).",
+    "Excess shelter cap increased to $744 (48 states + DC).",
+    "Homeless shelter deduction increased to $198.99.",
+    "The One Big Beautiful Bill Act of 2025 changed certain SNAP work requirements and non-citizen eligibility — check FNS for latest guidance on those provisions.",
+    "165% gross income standard applies to elderly/disabled households that are a separate household unit."
+  ]
+}
