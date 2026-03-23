@@ -117,7 +117,13 @@ class SNAPEligibilityGenerator:
     ) -> USHouseholdProfile:
         """Sample a profile using edge-saturated strategy."""
         hh_size = rng.choices([1, 2, 3, 4, 5, 6], weights=[0.15, 0.25, 0.25, 0.20, 0.10, 0.05])[0]
-        threshold = rng.choice(_SNAP_THRESHOLD_TYPES)
+        # Asset-limit thresholds are irrelevant for BBCE states (asset test waived)
+        available_thresholds = (
+            [t for t in _SNAP_THRESHOLD_TYPES if "asset" not in t]
+            if self.state in BBCE_STATES
+            else _SNAP_THRESHOLD_TYPES
+        )
+        threshold = rng.choice(available_thresholds)
         offset = rng.choice(_OFFSETS)
 
         return USHouseholdProfile.at_threshold(
@@ -247,6 +253,18 @@ class SNAPEligibilityGenerator:
             ))
             step_n += 1
             if not gross_pass:
+                steps.append(ReasoningStep(
+                    step_number=step_n,
+                    title="Eligibility determination",
+                    rule_applied="7 CFR 273.9(a)(1)",
+                    inputs={},
+                    computation=(
+                        f"Gross income test failed — net income and asset tests are not reached. "
+                        f"${profile.monthly_gross_income:,.2f} > ${limits.gross_monthly:,.2f} (130% FPL)."
+                    ),
+                    result="INELIGIBLE",
+                    is_determinative=True,
+                ))
                 return RationaleTrace(
                     steps=steps,
                     conclusion=f"INELIGIBLE. Gross income ${profile.monthly_gross_income:,.2f} exceeds "
@@ -439,7 +457,7 @@ class SNAPEligibilityGenerator:
                 f"Applicable limits for a {profile.household_size}-person household: "
                 f"Gross ${limits.gross_monthly:,.2f}/month (130% FPL), "
                 f"Net ${limits.net_monthly:,.2f}/month (100% FPL), "
-                f"Assets ${t.asset_limit_general:,.2f} (general)."
+                f"Assets {'N/A (BBCE waived)' if t.asset_limit_general is None else f'${t.asset_limit_general:,.2f}'} (general)."
             )
 
     def _classify_difficulty(self, profile: USHouseholdProfile, is_eligible: bool) -> Difficulty:
