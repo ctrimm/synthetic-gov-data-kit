@@ -1,0 +1,35 @@
+"""Top-level Typer app for govsynth CLI."""
+from __future__ import annotations
+
+import typer
+
+app = typer.Typer(
+    name="govsynth",
+    help="Generate synthetic US government benefits test cases.",
+    add_completion=False,
+)
+
+
+def _register_commands() -> None:
+    from govsynth.cli.commands.list_presets import app as list_presets_app
+    from govsynth.cli.commands.verify import verify_thresholds
+    from govsynth.cli.commands.generate import generate
+    from govsynth.cli.commands.batch import batch
+    from govsynth.cli.commands.validate import validate
+    from govsynth.cli.commands.show import show
+    from govsynth.cli.commands.parse_policy import parse_policy
+
+    app.add_typer(list_presets_app, name="list-presets")
+    app.command("verify-thresholds")(verify_thresholds)
+    app.command("generate")(generate)
+    app.command("batch")(batch)
+    app.command("validate")(validate)
+    app.command("show")(show)
+    app.command("parse-policy")(parse_policy)
+
+
+_register_commands()
+
+
+if __name__ == "__main__":
+    app()

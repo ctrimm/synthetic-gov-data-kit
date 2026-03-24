@@ -1,0 +1,102 @@
+"""File deserialization for govsynth CLI validate and show commands.
+
+Format support:
+  yaml  → full TestCase round-trip (canonical format)
+  jsonl → raw dicts only (fine-tuning format is lossy, not TestCase-round-trippable)
+  csv   → raw dicts only (rationale steps serialized as count, lossy)
+"""
+from __future__ import annotations
+
+import csv
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+from govsynth.models.test_case import TestCase
+
+
+def detect_format(path: Path, force: str | None = None) -> str:
+    """Detect file format from extension, or return forced value.
+
+    Raises SystemExit(2) on unknown extension (usage error).
+    """
+    if force:
+        return force.lower().strip()
+    ext = path.suffix.lower()
+    if ext in (".yaml", ".yml"):
+        return "yaml"
+    if ext == ".jsonl":
+        return "jsonl"
+    if ext == ".csv":
+        return "csv"
+    print(
+        f"Error: cannot detect format for '{path.name}'. "
+        "Use --format yaml|jsonl|csv to specify.",
+        file=sys.stderr,
+    )
+    raise SystemExit(2)
+
+
+def _yaml_step_to_dict(step_dict: dict[str, Any]) -> dict[str, Any]:
+    """Remap YAML step field names to ReasoningStep field names."""
+    return {
+        "step_number": step_dict["step"],
+        "title": step_dict.get("title", ""),
+        "rule_applied": step_dict.get("rule", ""),
+        "inputs": step_dict.get("inputs", {}),
+        "computation": step_dict.get("computation", ""),
+        "result": step_dict.get("result", ""),
+        "is_determinative": step_dict.get("determinative", False),
+        "note": step_dict.get("note"),
+    }
+
+
+def _yaml_dict_to_case(d: dict[str, Any]) -> TestCase:
+    """Convert a YAML-format dict (from YAMLFormatter) back to a TestCase."""
+    trace = d["rationale_trace"]
+    d = dict(d)
+    d["rationale_trace"] = {
+        "steps": [_yaml_step_to_dict(s) for s in trace["steps"]],
+        "conclusion": trace["conclusion"],
+        "policy_basis": trace.get("policy_basis", []),
+    }
+    return TestCase.model_validate(d)
+
+
+def read_yaml(path: Path) -> list[TestCase]:
+    """Deserialize a YAML file written by YAMLFormatter into TestCase objects.
+
+    Handles both single-document YAML files (one case) and multi-document
+    YAML streams (--- separated).
+    """
+    content = path.read_text(encoding="utf-8")
+    docs = list(yaml.safe_load_all(content))
+    return [_yaml_dict_to_case(d) for d in docs if d is not None]
+
+
+def read_yaml_dir(directory: Path) -> list[TestCase]:
+    """Read all .yaml files from a directory into TestCase objects."""
+    cases: list[TestCase] = []
+    for f in sorted(directory.glob("*.yaml")):
+        cases.extend(read_yaml(f))
+    return cases
+
+
+def read_jsonl_raw(path: Path) -> list[dict[str, Any]]:
+    """Read a JSONL file as raw dicts (structural validation only)."""
+    rows = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                rows.append(json.loads(line))
+    return rows
+
+
+def read_csv_raw(path: Path) -> list[dict[str, Any]]:
+    """Read a CSV file as raw row dicts (structural validation only)."""
+    with open(path, encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
