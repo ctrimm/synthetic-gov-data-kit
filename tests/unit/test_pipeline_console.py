@@ -27,7 +27,10 @@ def test_batch_pipeline_uses_injected_console():
     assert "Batch complete" in output
 
 
-def test_pipeline_default_console_is_stderr():
-    """When no console is passed, Pipeline creates a stderr console (not stdout)."""
+def test_pipeline_default_console_does_not_write_to_stdout(capsys):
+    """When no console is passed, Pipeline output does not go to stdout."""
     pipeline = Pipeline.from_preset("snap.va")
-    assert pipeline._console.file is __import__("sys").stderr
+    pipeline.generate(n=2, seed=42)
+    captured = capsys.readouterr()
+    # All Rich output should go to stderr, not contaminate stdout
+    assert captured.out == ""
