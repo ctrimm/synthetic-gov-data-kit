@@ -15,8 +15,7 @@ from typing import Any
 
 from faker import Faker
 
-from govsynth.models.enums import CitizenshipStatus, US_STATE_CODES
-
+from govsynth.models.enums import CitizenshipStatus
 
 _faker = Faker("en_US")
 
@@ -47,9 +46,9 @@ class USHouseholdProfile:
     zip_code: str = ""
 
     # Income breakdown
-    earned_income: float | None = None   # Portion of gross that is earned wages
-    unearned_income: float = 0.0         # SSI, child support, etc.
-    shelter_costs: float | None = None   # Monthly rent + utilities
+    earned_income: float | None = None  # Portion of gross that is earned wages
+    unearned_income: float = 0.0  # SSI, child support, etc.
+    shelter_costs: float | None = None  # Monthly rent + utilities
 
     # Program-specific extras
     extra: dict[str, Any] = field(default_factory=dict)
@@ -70,7 +69,7 @@ class USHouseholdProfile:
         state: str = "VA",
         seed: int | None = None,
         strategy: str = "uniform",
-    ) -> "USHouseholdProfile":
+    ) -> USHouseholdProfile:
         """Generate a random profile using the given strategy.
 
         Args:
@@ -119,7 +118,7 @@ class USHouseholdProfile:
         fiscal_year: int = 2026,
         offset_pct: float = 0.0,
         seed: int | None = None,
-    ) -> "USHouseholdProfile":
+    ) -> USHouseholdProfile:
         """Build a profile at a specific policy threshold boundary.
 
         This factory is the core edge-case generation mechanism. It places
@@ -194,15 +193,18 @@ class USHouseholdProfile:
         hh_desc = _household_description(self.household_size, self.has_dependent_children)
         income_desc = f"${self.monthly_gross_income:,.0f}/month gross income"
         asset_desc = (
-            f"${self.liquid_assets:,.0f} in savings" if self.liquid_assets > 0
+            f"${self.liquid_assets:,.0f} in savings"
+            if self.liquid_assets > 0
             else "no significant savings"
         )
         elderly_desc = (
             " One household member is elderly (age 60+) or disabled."
-            if self.has_elderly_or_disabled else ""
+            if self.has_elderly_or_disabled
+            else ""
         )
         citizenship_desc = (
-            "" if self.citizenship_status == CitizenshipStatus.CITIZEN
+            ""
+            if self.citizenship_status == CitizenshipStatus.CITIZEN
             else f" {self.head_of_household_name} is a {self.citizenship_status.value.replace('_', ' ')}."
         )
 
@@ -212,7 +214,7 @@ class USHouseholdProfile:
         )
 
 
-def _build_realistic_profile(state: str, rng: random.Random) -> "USHouseholdProfile":
+def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfile:
     """Build a profile sampled from Census ACS state-level distributions.
 
     Falls back to hardcoded national weights if no census data file exists
@@ -224,9 +226,7 @@ def _build_realistic_profile(state: str, rng: random.Random) -> "USHouseholdProf
 
     if dist is None:
         # No census data available -- silent fallback to national approximations
-        hh_size = rng.choices(
-            [1, 2, 3, 4, 5, 6], weights=[0.28, 0.34, 0.16, 0.13, 0.06, 0.03]
-        )[0]
+        hh_size = rng.choices([1, 2, 3, 4, 5, 6], weights=[0.28, 0.34, 0.16, 0.13, 0.06, 0.03])[0]
         gross = min(max(round(rng.lognormvariate(8.1, 0.7), -1), 0), 15000)
         return USHouseholdProfile(
             household_size=hh_size,
@@ -291,6 +291,7 @@ def _build_realistic_profile(state: str, rng: random.Random) -> "USHouseholdProf
 # Internal threshold profile builders
 # ---------------------------------------------------------------------------
 
+
 def _household_description(size: int, has_children: bool) -> str:
     if size == 1:
         return "individual"
@@ -309,7 +310,7 @@ def _build_snap_threshold_profile(
     fiscal_year: int,
     offset_pct: float,
     rng: random.Random,
-) -> "USHouseholdProfile":
+) -> USHouseholdProfile:
     """Build a SNAP-specific threshold profile."""
     from govsynth.sources.us.snap import SNAPSource, get_standard_deduction
 
@@ -384,7 +385,7 @@ def _build_wic_threshold_profile(
     fiscal_year: int,
     offset_pct: float,
     rng: random.Random,
-) -> "USHouseholdProfile":
+) -> USHouseholdProfile:
     """Build a WIC-specific threshold profile."""
     from govsynth.sources.us.wic import WICSource
 
@@ -395,9 +396,7 @@ def _build_wic_threshold_profile(
     if threshold == "income_limit_185pct_fpl":
         gross_income = round(limits.gross_monthly * (1 + offset_pct), 2)
     else:
-        raise ValueError(
-            f"Unknown WIC threshold '{threshold}'. Valid: income_limit_185pct_fpl"
-        )
+        raise ValueError(f"Unknown WIC threshold '{threshold}'. Valid: income_limit_185pct_fpl")
 
     return USHouseholdProfile(
         household_size=household_size,

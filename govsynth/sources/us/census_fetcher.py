@@ -7,12 +7,12 @@ Typical usage (from refresh_census.py):
     data = build_state_census_json("VA", year=2022, api_key=None)
     write_state_file("VA", data, data_dir=Path("data/census"))
 """
+
 from __future__ import annotations
 
 import json
 import math
 import os
-import time
 from datetime import date
 from pathlib import Path
 
@@ -20,16 +20,56 @@ import httpx
 
 # FIPS codes: state abbreviation -> two-digit Census FIPS code
 FIPS_CODES: dict[str, str] = {
-    "AL": "01", "AK": "02", "AZ": "04", "AR": "05", "CA": "06",
-    "CO": "08", "CT": "09", "DE": "10", "DC": "11", "FL": "12",
-    "GA": "13", "HI": "15", "ID": "16", "IL": "17", "IN": "18",
-    "IA": "19", "KS": "20", "KY": "21", "LA": "22", "ME": "23",
-    "MD": "24", "MA": "25", "MI": "26", "MN": "27", "MS": "28",
-    "MO": "29", "MT": "30", "NE": "31", "NV": "32", "NH": "33",
-    "NJ": "34", "NM": "35", "NY": "36", "NC": "37", "ND": "38",
-    "OH": "39", "OK": "40", "OR": "41", "PA": "42", "RI": "44",
-    "SC": "45", "SD": "46", "TN": "47", "TX": "48", "UT": "49",
-    "VT": "50", "VA": "51", "WA": "53", "WV": "54", "WI": "55",
+    "AL": "01",
+    "AK": "02",
+    "AZ": "04",
+    "AR": "05",
+    "CA": "06",
+    "CO": "08",
+    "CT": "09",
+    "DE": "10",
+    "DC": "11",
+    "FL": "12",
+    "GA": "13",
+    "HI": "15",
+    "ID": "16",
+    "IL": "17",
+    "IN": "18",
+    "IA": "19",
+    "KS": "20",
+    "KY": "21",
+    "LA": "22",
+    "ME": "23",
+    "MD": "24",
+    "MA": "25",
+    "MI": "26",
+    "MN": "27",
+    "MS": "28",
+    "MO": "29",
+    "MT": "30",
+    "NE": "31",
+    "NV": "32",
+    "NH": "33",
+    "NJ": "34",
+    "NM": "35",
+    "NY": "36",
+    "NC": "37",
+    "ND": "38",
+    "OH": "39",
+    "OK": "40",
+    "OR": "41",
+    "PA": "42",
+    "RI": "44",
+    "SC": "45",
+    "SD": "46",
+    "TN": "47",
+    "TX": "48",
+    "UT": "49",
+    "VT": "50",
+    "VA": "51",
+    "WA": "53",
+    "WV": "54",
+    "WI": "55",
     "WY": "56",
 }
 
@@ -37,15 +77,39 @@ _BASE_URL = "https://api.census.gov/data"
 
 # B19001: 16 annual income bracket midpoints (dollars)
 _INCOME_BRACKET_MIDPOINTS = [
-    5000, 12500, 17500, 22500, 27500, 32500, 37500, 42500,
-    47500, 52500, 57500, 62500, 70000, 87500, 112500, 150000,
+    5000,
+    12500,
+    17500,
+    22500,
+    27500,
+    32500,
+    37500,
+    42500,
+    47500,
+    52500,
+    57500,
+    62500,
+    70000,
+    87500,
+    112500,
+    150000,
 ]
 _INCOME_BRACKET_LABELS = [
-    "Less than $10,000", "$10,000 to $14,999", "$15,000 to $19,999",
-    "$20,000 to $24,999", "$25,000 to $29,999", "$30,000 to $34,999",
-    "$35,000 to $39,999", "$40,000 to $44,999", "$45,000 to $49,999",
-    "$50,000 to $54,999", "$55,000 to $59,999", "$60,000 to $64,999",
-    "$65,000 to $74,999", "$75,000 to $99,999", "$100,000 to $124,999",
+    "Less than $10,000",
+    "$10,000 to $14,999",
+    "$15,000 to $19,999",
+    "$20,000 to $24,999",
+    "$25,000 to $29,999",
+    "$30,000 to $34,999",
+    "$35,000 to $39,999",
+    "$40,000 to $44,999",
+    "$45,000 to $49,999",
+    "$50,000 to $54,999",
+    "$55,000 to $59,999",
+    "$60,000 to $64,999",
+    "$65,000 to $74,999",
+    "$75,000 to $99,999",
+    "$100,000 to $124,999",
     "$125,000 or more",
 ]
 
@@ -68,8 +132,8 @@ def fit_lognormal(buckets: list[dict]) -> tuple[float, float]:
     weights = [b["weight"] / total for b in buckets]
     log_monthly = [math.log(b["annual_midpoint"] / 12) for b in buckets]
 
-    mu = sum(w * lm for w, lm in zip(weights, log_monthly))
-    variance = sum(w * (lm - mu) ** 2 for w, lm in zip(weights, log_monthly))
+    mu = sum(w * lm for w, lm in zip(weights, log_monthly, strict=False))
+    variance = sum(w * (lm - mu) ** 2 for w, lm in zip(weights, log_monthly, strict=False))
     sigma = math.sqrt(variance)
 
     return round(mu, 4), round(sigma, 4)
@@ -161,9 +225,7 @@ def fetch_state(state: str, year: int, api_key: str | None) -> dict:
         isrc_rows = _get(client, base_url, {**base_params, "get": isrc_vars})
 
         # Health insurance coverage -- B27001 (medicaid approximation)
-        health_vars = (
-            "B27001_004E,B27001_007E,B27001_010E,B27001_013E,B27001_016E,B27001_001E"
-        )
+        health_vars = "B27001_004E,B27001_007E,B27001_010E,B27001_013E,B27001_016E,B27001_001E"
         health_rows = _get(client, base_url, {**base_params, "get": health_vars})
 
     return {
@@ -212,10 +274,22 @@ def build_state_census_json(state: str, year: int, api_key: str | None) -> dict:
     pov_h, pov_v = raw["poverty"][0], raw["poverty"][1]
     pop_ratio = _safe_int(pov_v[_idx(pov_h, "B17024_001E")]) or 1
     fpl_buckets = [
-        {"fpl_pct": 0.50, "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_002E")]), pop_ratio)},
-        {"fpl_pct": 1.00, "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_003E")]), pop_ratio)},
-        {"fpl_pct": 1.30, "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_004E")]), pop_ratio)},
-        {"fpl_pct": 1.85, "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_005E")]), pop_ratio)},
+        {
+            "fpl_pct": 0.50,
+            "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_002E")]), pop_ratio),
+        },
+        {
+            "fpl_pct": 1.00,
+            "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_003E")]), pop_ratio),
+        },
+        {
+            "fpl_pct": 1.30,
+            "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_004E")]), pop_ratio),
+        },
+        {
+            "fpl_pct": 1.85,
+            "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_005E")]), pop_ratio),
+        },
     ]
 
     # -- Housing --
@@ -309,9 +383,22 @@ def build_state_census_json(state: str, year: int, api_key: str | None) -> dict:
             "acs_survey": "acs5",
             "fetch_date": date.today().isoformat(),
             "tables": [
-                "B19001", "B17024", "B25064", "B25070", "B25003",
-                "B11016", "B11003", "B01001", "B05001", "B18101",
-                "B22003", "B27001", "B23025", "B19055", "B19056", "B19057",
+                "B19001",
+                "B17024",
+                "B25064",
+                "B25070",
+                "B25003",
+                "B11016",
+                "B11003",
+                "B01001",
+                "B05001",
+                "B18101",
+                "B22003",
+                "B27001",
+                "B23025",
+                "B19055",
+                "B19056",
+                "B19057",
             ],
         },
         "income": {

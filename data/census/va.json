@@ -1,0 +1,167 @@
+{
+  "_metadata": {
+    "state": "VA",
+    "acs_vintage": 2022,
+    "acs_survey": "acs5",
+    "fetch_date": "2026-03-24",
+    "tables": [
+      "B19001",
+      "B17024",
+      "B25064",
+      "B25070",
+      "B25003",
+      "B11016",
+      "B11003",
+      "B01001",
+      "B05001",
+      "B18101",
+      "B22003",
+      "B27001",
+      "B23025",
+      "B19055",
+      "B19056",
+      "B19057"
+    ]
+  },
+  "income": {
+    "monthly_lognormal": {
+      "mu": 8.4717,
+      "sigma": 0.7952
+    },
+    "fpl_buckets": [
+      {
+        "fpl_pct": 0.5,
+        "weight": 0.0696
+      },
+      {
+        "fpl_pct": 1.0,
+        "weight": 0.0048
+      },
+      {
+        "fpl_pct": 1.3,
+        "weight": 0.0023
+      },
+      {
+        "fpl_pct": 1.85,
+        "weight": 0.0026
+      }
+    ],
+    "buckets_raw": [
+      {
+        "label": "Less than $10,000",
+        "annual_midpoint": 5000,
+        "weight": 0.042
+      },
+      {
+        "label": "$10,000 to $14,999",
+        "annual_midpoint": 12500,
+        "weight": 0.0297
+      },
+      {
+        "label": "$15,000 to $19,999",
+        "annual_midpoint": 17500,
+        "weight": 0.0282
+      },
+      {
+        "label": "$20,000 to $24,999",
+        "annual_midpoint": 22500,
+        "weight": 0.0302
+      },
+      {
+        "label": "$25,000 to $29,999",
+        "annual_midpoint": 27500,
+        "weight": 0.0318
+      },
+      {
+        "label": "$30,000 to $34,999",
+        "annual_midpoint": 32500,
+        "weight": 0.0312
+      },
+      {
+        "label": "$35,000 to $39,999",
+        "annual_midpoint": 37500,
+        "weight": 0.0305
+      },
+      {
+        "label": "$40,000 to $44,999",
+        "annual_midpoint": 42500,
+        "weight": 0.0313
+      },
+      {
+        "label": "$45,000 to $49,999",
+        "annual_midpoint": 47500,
+        "weight": 0.0318
+      },
+      {
+        "label": "$50,000 to $54,999",
+        "annual_midpoint": 52500,
+        "weight": 0.0638
+      },
+      {
+        "label": "$55,000 to $59,999",
+        "annual_midpoint": 57500,
+        "weight": 0.0861
+      },
+      {
+        "label": "$60,000 to $64,999",
+        "annual_midpoint": 62500,
+        "weight": 0.1228
+      },
+      {
+        "label": "$65,000 to $74,999",
+        "annual_midpoint": 70000,
+        "weight": 0.1024
+      },
+      {
+        "label": "$75,000 to $99,999",
+        "annual_midpoint": 87500,
+        "weight": 0.0782
+      },
+      {
+        "label": "$100,000 to $124,999",
+        "annual_midpoint": 112500,
+        "weight": 0.1045
+      },
+      {
+        "label": "$125,000 or more",
+        "annual_midpoint": 150000,
+        "weight": 0.1555
+      }
+    ]
+  },
+  "housing": {
+    "median_gross_rent_monthly": 1440,
+    "pct_renter": 0.3315,
+    "rent_burden_pct": 0.4459
+  },
+  "household_size": {
+    "weights": [
+      0.2832,
+      0.3453,
+      0.1612,
+      0.132,
+      0.0571,
+      0.0212
+    ]
+  },
+  "demographics": {
+    "pct_with_children": 0.756,
+    "pct_elderly_or_disabled": 0.0937,
+    "pct_citizen": 0.8533,
+    "pct_noncitizen_eligible": 0.0556,
+    "age": {
+      "mu": 40.0,
+      "sigma": 15.0
+    }
+  },
+  "income_sources": {
+    "labor_force_participation_rate": 0.6565,
+    "pct_social_security": 0.2979,
+    "pct_ssi": 0.0417,
+    "pct_public_assistance": 0.0221
+  },
+  "program_participation": {
+    "snap_receipt_rate": 0.0834,
+    "medicaid_coverage_rate": 0.259
+  }
+}
