@@ -56,3 +56,6 @@ FUTURE.md
 # Distribution / packaging output
 *.tar.gz
 *.whl
+
+# Superpowers Claude Code plugin
+*/superpowers/
