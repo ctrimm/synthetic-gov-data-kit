@@ -160,3 +160,56 @@ class TestFitLognormal:
         mu, _ = fit_lognormal(buckets)
         # monthly midpoint = 60000/12 = 5000; log(5000) ≈ 8.517
         assert mu == pytest.approx(math.log(5000), abs=0.01)
+
+
+class TestRealisticProfile:
+    """Tests for USHouseholdProfile.random(strategy='realistic')."""
+
+    def test_returns_profile_with_census_data(
+        self, monkeypatch: pytest.MonkeyPatch, census_dir: Path
+    ) -> None:
+        """With census data present, returns a USHouseholdProfile."""
+        monkeypatch.setattr(
+            "govsynth.sources.us.census._CENSUS_DIR", census_dir
+        )
+        from govsynth.profiles.us_household import USHouseholdProfile
+
+        profile = USHouseholdProfile.random(state="VA", seed=42, strategy="realistic")
+        assert profile is not None
+        assert 1 <= profile.household_size <= 6
+        assert profile.monthly_gross_income > 0
+        assert profile.state == "VA"
+
+    def test_realistic_is_deterministic(
+        self, monkeypatch: pytest.MonkeyPatch, census_dir: Path
+    ) -> None:
+        """Same seed -> same profile."""
+        monkeypatch.setattr("govsynth.sources.us.census._CENSUS_DIR", census_dir)
+        from govsynth.profiles.us_household import USHouseholdProfile
+
+        p1 = USHouseholdProfile.random(state="VA", seed=99, strategy="realistic")
+        p2 = USHouseholdProfile.random(state="VA", seed=99, strategy="realistic")
+        assert p1.household_size == p2.household_size
+        assert p1.monthly_gross_income == p2.monthly_gross_income
+
+    def test_realistic_fallback_when_no_census_data(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """With no data files, falls back gracefully (no exception)."""
+        monkeypatch.setattr("govsynth.sources.us.census._CENSUS_DIR", tmp_path)
+        from govsynth.profiles.us_household import USHouseholdProfile
+        import warnings
+
+        with warnings.catch_warnings(record=True):
+            warnings.simplefilter("always")
+            profile = USHouseholdProfile.random(state="VA", seed=42, strategy="realistic")
+        assert profile is not None
+        assert profile.monthly_gross_income > 0
+
+    def test_uniform_strategy_unchanged(self) -> None:
+        """The existing uniform path still works (regression guard)."""
+        from govsynth.profiles.us_household import USHouseholdProfile
+
+        profile = USHouseholdProfile.random(state="VA", seed=42, strategy="uniform")
+        assert profile is not None
+        assert 1 <= profile.household_size <= 6

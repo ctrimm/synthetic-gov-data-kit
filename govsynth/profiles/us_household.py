@@ -82,6 +82,10 @@ class USHouseholdProfile:
         if seed is not None:
             Faker.seed(seed)
 
+        if strategy == "realistic":
+            return _build_realistic_profile(state=state, rng=rng)
+
+        # uniform (default): national-level approximations
         hh_size = rng.choices(
             [1, 2, 3, 4, 5, 6],
             weights=[0.28, 0.34, 0.16, 0.13, 0.06, 0.03],
@@ -206,6 +210,81 @@ class USHouseholdProfile:
             f"{self.head_of_household_name} is a {age_desc} {hh_desc} in {self.city}, {self.state}. "
             f"Their household has {income_desc} and {asset_desc}.{elderly_desc}{citizenship_desc}"
         )
+
+
+def _build_realistic_profile(state: str, rng: random.Random) -> "USHouseholdProfile":
+    """Build a profile sampled from Census ACS state-level distributions.
+
+    Falls back to hardcoded national weights if no census data file exists
+    (warning already emitted by CensusDataSource.load()).
+    """
+    from govsynth.sources.us.census import CensusDataSource
+
+    dist = CensusDataSource(state).load()
+
+    if dist is None:
+        # No census data available -- silent fallback to national approximations
+        hh_size = rng.choices(
+            [1, 2, 3, 4, 5, 6], weights=[0.28, 0.34, 0.16, 0.13, 0.06, 0.03]
+        )[0]
+        gross = min(max(round(rng.lognormvariate(8.1, 0.7), -1), 0), 15000)
+        return USHouseholdProfile(
+            household_size=hh_size,
+            monthly_gross_income=float(gross),
+            state=state.upper(),
+            liquid_assets=round(rng.uniform(0, 5000), -2),
+            has_elderly_or_disabled=rng.random() < 0.15,
+            has_dependent_children=rng.random() < 0.35 if hh_size > 1 else False,
+            age_of_head=rng.randint(22, 72),
+            shelter_costs=round(rng.uniform(600, 2500), -1),
+        )
+
+    # Step 3: household size from ACS weights
+    hh_size = rng.choices(list(range(1, 7)), weights=dist.household_size_weights)[0]
+
+    # Step 4: monthly gross income -- lognormal fitted to ACS income brackets
+    gross = min(max(round(rng.lognormvariate(dist.income_mu, dist.income_sigma), -1), 0), 15000)
+
+    # Step 5-6: household demographics
+    has_children = rng.random() < dist.pct_with_children if hh_size > 1 else False
+    has_elderly = rng.random() < dist.pct_elderly_or_disabled
+
+    # Step 7: citizenship status
+    roll = rng.random()
+    if roll < dist.pct_citizen:
+        citizenship = CitizenshipStatus.CITIZEN
+    elif roll < dist.pct_citizen + dist.pct_noncitizen_eligible:
+        citizenship = CitizenshipStatus.QUALIFIED_ALIEN
+    else:
+        citizenship = CitizenshipStatus.NON_QUALIFIED_ALIEN
+
+    # Step 8: earned vs. unearned income split
+    earned = float(gross) if rng.random() < dist.labor_force_participation_rate else 0.0
+    unearned = float(gross) - earned
+
+    # Step 9: shelter costs -- renters vs. owners
+    if rng.random() < dist.pct_renter:
+        sigma = dist.median_gross_rent_monthly * 0.3
+        shelter = max(0.0, round(rng.normalvariate(dist.median_gross_rent_monthly, sigma), -1))
+    else:
+        shelter = round(rng.uniform(400, 1200), -1)
+
+    # Step 10: age -- Normal(mu, sigma) clamped to [18, 80]
+    age = max(18, min(80, round(rng.normalvariate(dist.age_mu, dist.age_sigma))))
+
+    return USHouseholdProfile(
+        household_size=hh_size,
+        monthly_gross_income=float(gross),
+        state=state.upper(),
+        liquid_assets=round(rng.uniform(0, 3000), -2),
+        has_elderly_or_disabled=has_elderly,
+        has_dependent_children=has_children,
+        citizenship_status=citizenship,
+        earned_income=earned,
+        unearned_income=unearned,
+        shelter_costs=shelter,
+        age_of_head=age,
+    )
 
 
 # ---------------------------------------------------------------------------
