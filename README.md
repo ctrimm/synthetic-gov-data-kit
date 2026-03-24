@@ -203,6 +203,13 @@ All threshold values and policy rules are sourced from official US government pu
 
 All generated profiles are entirely synthetic. No real applicant data is used or represented.
 
+## Bring Your Own Policy
+
+Want to generate test cases from a policy document that isn't built in yet?
+See **[docs/bring-your-own-policy.md](docs/bring-your-own-policy.md)** for a
+step-by-step walkthrough: threshold JSON format, writing a DataSource connector,
+writing a Generator, and registering a preset.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Policy accuracy is paramount — please cite sources
@@ -211,7 +218,3 @@ for any threshold values you add or modify.
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
----
-
-*Part of the CivBench open source ecosystem for government AI evaluation.*
