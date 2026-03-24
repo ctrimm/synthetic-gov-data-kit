@@ -107,3 +107,56 @@ class TestCensusDataSourceLoad:
             warnings.simplefilter("always")
             result = CensusDataSource("TX", data_dir=tmp_path).load()
         assert result is None
+
+
+class TestFitLognormal:
+    def test_single_bracket_zero_sigma(self) -> None:
+        """All weight on one bracket -> sigma = 0."""
+        from govsynth.sources.us.census_fetcher import fit_lognormal
+        import math
+
+        buckets = [{"annual_midpoint": 60000, "weight": 1.0}]
+        mu, sigma = fit_lognormal(buckets)
+        assert mu == pytest.approx(math.log(60000 / 12), abs=0.01)
+        assert sigma == pytest.approx(0.0, abs=0.001)
+
+    def test_two_brackets_symmetric(self) -> None:
+        """Equal weight on two brackets -> mu is the mean of their log-monthly values."""
+        from govsynth.sources.us.census_fetcher import fit_lognormal
+        import math
+
+        buckets = [
+            {"annual_midpoint": 12000, "weight": 0.5},
+            {"annual_midpoint": 60000, "weight": 0.5},
+        ]
+        mu, sigma = fit_lognormal(buckets)
+        expected_mu = (math.log(12000 / 12) + math.log(60000 / 12)) / 2
+        assert mu == pytest.approx(expected_mu, abs=0.01)
+        assert sigma > 0
+
+    def test_normalizes_unscaled_weights(self) -> None:
+        """Weights that don't sum to 1.0 are normalized before fitting."""
+        from govsynth.sources.us.census_fetcher import fit_lognormal
+
+        buckets_normalized = [
+            {"annual_midpoint": 12000, "weight": 0.5},
+            {"annual_midpoint": 60000, "weight": 0.5},
+        ]
+        buckets_raw = [
+            {"annual_midpoint": 12000, "weight": 100},
+            {"annual_midpoint": 60000, "weight": 100},
+        ]
+        mu1, sigma1 = fit_lognormal(buckets_normalized)
+        mu2, sigma2 = fit_lognormal(buckets_raw)
+        assert mu1 == pytest.approx(mu2, abs=0.001)
+        assert sigma1 == pytest.approx(sigma2, abs=0.001)
+
+    def test_returns_monthly_scale(self) -> None:
+        """mu is monthly (annual / 12), not annual."""
+        from govsynth.sources.us.census_fetcher import fit_lognormal
+        import math
+
+        buckets = [{"annual_midpoint": 60000, "weight": 1.0}]
+        mu, _ = fit_lognormal(buckets)
+        # monthly midpoint = 60000/12 = 5000; log(5000) ≈ 8.517
+        assert mu == pytest.approx(math.log(5000), abs=0.01)
