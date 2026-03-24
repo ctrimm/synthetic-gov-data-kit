@@ -1,0 +1,49 @@
+{
+  "_metadata": {
+    "state": "VA",
+    "acs_vintage": 2022,
+    "acs_survey": "acs5",
+    "fetch_date": "2026-03-24",
+    "tables": ["B19001", "B17024", "B25064", "B25070", "B25003",
+               "B11016", "B11003", "B01001", "B05001", "B18101",
+               "B22003", "B27001", "B23025", "B19055", "B19056", "B19057"]
+  },
+  "income": {
+    "monthly_lognormal": {"mu": 8.1, "sigma": 0.65},
+    "fpl_buckets": [
+      {"fpl_pct": 0.50, "weight": 0.06},
+      {"fpl_pct": 1.00, "weight": 0.08},
+      {"fpl_pct": 1.30, "weight": 0.04},
+      {"fpl_pct": 1.85, "weight": 0.06}
+    ],
+    "buckets_raw": [
+      {"label": "Less than $10,000", "annual_midpoint": 5000, "weight": 0.05},
+      {"label": "$10,000 to $14,999", "annual_midpoint": 12500, "weight": 0.03}
+    ]
+  },
+  "housing": {
+    "median_gross_rent_monthly": 1450,
+    "pct_renter": 0.36,
+    "rent_burden_pct": 0.28
+  },
+  "household_size": {
+    "weights": [0.27, 0.33, 0.16, 0.14, 0.07, 0.03]
+  },
+  "demographics": {
+    "pct_with_children": 0.32,
+    "pct_elderly_or_disabled": 0.18,
+    "pct_citizen": 0.87,
+    "pct_noncitizen_eligible": 0.05,
+    "age": {"mu": 42, "sigma": 15}
+  },
+  "income_sources": {
+    "labor_force_participation_rate": 0.67,
+    "pct_social_security": 0.19,
+    "pct_ssi": 0.03,
+    "pct_public_assistance": 0.02
+  },
+  "program_participation": {
+    "snap_receipt_rate": 0.08,
+    "medicaid_coverage_rate": 0.18
+  }
+}

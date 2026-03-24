@@ -33,6 +33,7 @@ dependencies = [
     "faker>=24.0",
     "python-dateutil>=2.9",
     "typing-extensions>=4.9",
+    "typer>=0.12",
 ]
 
 [project.optional-dependencies]
@@ -49,10 +50,14 @@ dev = [
     "pre-commit>=3.7",
     "ipykernel>=6.29",
     "jupyter>=1.0",
+    "respx>=0.21",
 ]
 all = [
     "synthetic-gov-data-kit[hf,dev]",
 ]
+
+[project.scripts]
+govsynth = "govsynth.cli.main:app"
 
 [project.urls]
 Homepage = "https://github.com/your-org/synthetic-gov-data-kit"
