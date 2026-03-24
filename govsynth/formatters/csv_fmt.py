@@ -14,7 +14,7 @@ class CSVFormatter:
 
     # Columns in the output CSV
     COLUMNS = [
-        "civbench_id",
+        "case_id",
         "program",
         "jurisdiction",
         "task_type",
@@ -35,7 +35,7 @@ class CSVFormatter:
 
     def format_row(self, case: TestCase) -> dict:
         return {
-            "civbench_id": case.civbench_id,
+            "case_id": case.case_id,
             "program": case.program,
             "jurisdiction": case.jurisdiction,
             "task_type": case.task_type.value,

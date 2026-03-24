@@ -1,6 +1,6 @@
-"""CivBench YAML output formatter.
+"""YAML output formatter.
 
-Serializes TestCase objects to the CivBench test case YAML schema (v1).
+Serializes TestCase objects to the test case YAML schema (v1).
 """
 
 from __future__ import annotations
@@ -14,9 +14,9 @@ from govsynth.models.test_case import TestCase
 
 
 def _case_to_dict(case: TestCase) -> dict[str, Any]:
-    """Convert a TestCase to a CivBench YAML-compatible dict."""
+    """Convert a TestCase to a YAML-compatible dict."""
     return {
-        "civbench_id": case.civbench_id,
+        "case_id": case.case_id,
         "program": case.program,
         "jurisdiction": case.jurisdiction,
         "task_type": case.task_type.value,
@@ -75,8 +75,8 @@ def _case_to_dict(case: TestCase) -> dict[str, Any]:
     }
 
 
-class CivBenchYAMLFormatter:
-    """Serializes TestCase objects to CivBench YAML format."""
+class YAMLFormatter:
+    """Serializes TestCase objects to YAML format."""
 
     def format_one(self, case: TestCase) -> str:
         """Serialize a single TestCase to a YAML string."""
@@ -108,7 +108,7 @@ class CivBenchYAMLFormatter:
 
         if one_file_per_case:
             for case in cases:
-                filename = f"{case.civbench_id}.yaml"
+                filename = f"{case.case_id}.yaml"
                 self.write_one(case, out / filename)
         else:
             all_cases = [_case_to_dict(c) for c in cases]

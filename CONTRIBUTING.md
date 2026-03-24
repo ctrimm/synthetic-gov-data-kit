@@ -19,7 +19,7 @@ the published source. Use `"estimated"` with a clear note otherwise.
 ## Development Setup
 
 ```bash
-git clone https://github.com/civbench/synthetic-gov-data-kit
+git clone https://github.com/your-org/synthetic-gov-data-kit
 cd synthetic-gov-data-kit
 pip install -e ".[dev]"
 pre-commit install
@@ -78,7 +78,7 @@ Line length: 100. Google-style docstrings. All public functions must have docstr
 ## Policy Accuracy Review
 
 PRs that add or change threshold values require a policy accuracy review.
-Tag `@civbench/policy-reviewers` and include:
+Tag `@policy-reviewers` and include:
 - Link to official source document
 - Specific page/section where values were found
 - Fiscal year / effective date confirmed

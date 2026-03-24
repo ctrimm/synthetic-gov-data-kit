@@ -2,11 +2,11 @@
 
 > Generate structured synthetic US government benefits data for LLM reasoning evaluation.
 
-Part of the [CivBench](https://github.com/civbench) ecosystem — the open benchmark for government AI agents.
+
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![CivBench Compatible](https://img.shields.io/badge/CivBench-compatible-orange.svg)](https://github.com/civbench/civbench)
+
 
 ---
 
@@ -214,4 +214,4 @@ MIT. See [LICENSE](LICENSE).
 
 ---
 
-*Part of the [CivBench](https://github.com/civbench) open source ecosystem for government AI evaluation.*
+*Part of the CivBench open source ecosystem for government AI evaluation.*

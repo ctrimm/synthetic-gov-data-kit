@@ -32,7 +32,7 @@ from govsynth.models.test_case import TestCase
 class RationaleScore:
     """Scores for a single model output evaluated against a ground-truth trace."""
 
-    civbench_id: str
+    case_id: str
 
     # Component scores (0.0 – 1.0)
     step_coverage: float = 0.0
@@ -56,7 +56,7 @@ class RationaleScore:
     def __str__(self) -> str:
         status = "PASS" if self.passed() else "FAIL"
         return (
-            f"RationaleScore({self.civbench_id}) [{status}]\n"
+            f"RationaleScore({self.case_id}) [{status}]\n"
             f"  overall={self.overall:.2f}  "
             f"step_coverage={self.step_coverage:.2f}  "
             f"rule_accuracy={self.rule_accuracy:.2f}  "
@@ -111,7 +111,7 @@ class RationaleEvaluator:
         )
 
         return RationaleScore(
-            civbench_id=case.civbench_id,
+            case_id=case.case_id,
             step_coverage=round(step_cov, 3),
             rule_accuracy=round(rule_acc, 3),
             conclusion_correct=round(conclusion, 3),

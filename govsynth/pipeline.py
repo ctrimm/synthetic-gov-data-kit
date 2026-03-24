@@ -8,7 +8,7 @@ Usage:
 
     pipeline = Pipeline.from_preset("snap.va")
     cases = pipeline.generate(n=100, seed=42)
-    pipeline.save(cases, "./output/", formats=["civbench_yaml", "jsonl", "csv"])
+    pipeline.save(cases, "./output/", formats=["yaml", "jsonl", "csv"])
 """
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ class Pipeline:
     Example:
         pipeline = Pipeline.from_preset("snap.va")
         cases = pipeline.generate(n=100, seed=42)
-        pipeline.save(cases, "./output/snap_va/", formats=["civbench_yaml", "jsonl"])
+        pipeline.save(cases, "./output/snap_va/", formats=["yaml", "jsonl"])
     """
 
     def __init__(self, generator: Any, profile_strategy: str = "edge_saturated") -> None:
@@ -136,7 +136,7 @@ class Pipeline:
         self,
         cases: list[TestCase],
         output: str | Path,
-        formats: list[str] | str = "civbench_yaml",
+        formats: list[str] | str = "yaml",
         one_file_per_case: bool = True,
     ) -> None:
         """Save cases to disk in one or more formats.
@@ -144,8 +144,8 @@ class Pipeline:
         Args:
             cases: List of TestCase objects to save.
             output: Output file path (for single-file formats) or directory.
-            formats: One or more of: 'civbench_yaml', 'jsonl', 'csv', 'hf_dataset'
-            one_file_per_case: For civbench_yaml, write one .yaml per case (default True).
+            formats: One or more of: 'yaml', 'jsonl', 'csv', 'hf_dataset'
+            one_file_per_case: For yaml, write one .yaml per case (default True).
         """
         if isinstance(formats, str):
             formats = [formats]
@@ -155,12 +155,12 @@ class Pipeline:
         for fmt in formats:
             fmt = fmt.lower().strip()
 
-            if fmt == OutputFormat.CIVBENCH_YAML.value:
-                from govsynth.formatters.civbench_yaml import CivBenchYAMLFormatter
-                formatter = CivBenchYAMLFormatter()
-                out_dir = output if output.suffix == "" else output.parent / "civbench_yaml"
+            if fmt == OutputFormat.YAML.value:
+                from govsynth.formatters.yaml_fmt import YAMLFormatter
+                formatter = YAMLFormatter()
+                out_dir = output if output.suffix == "" else output.parent / "yaml"
                 formatter.write_many(cases, out_dir, one_file_per_case=one_file_per_case)
-                console.print(f"[green]✓[/green] Saved CivBench YAML → {out_dir}/")
+                console.print(f"[green]✓[/green] Saved YAML → {out_dir}/")
 
             elif fmt == OutputFormat.JSONL.value:
                 from govsynth.formatters.jsonl import JSONLFormatter
@@ -198,7 +198,7 @@ class BatchPipeline:
     Example:
         batch = BatchPipeline.from_presets(["snap.va", "snap.ca", "snap.tx"])
         cases = batch.generate(n_per_pipeline=100, seed=42)
-        batch.save(cases, "./civbench-suite/", format="civbench_yaml")
+        batch.save(cases, "./output-suite/", format="yaml")
     """
 
     def __init__(self, pipelines: list[Pipeline]) -> None:
@@ -236,7 +236,7 @@ class BatchPipeline:
         self,
         cases: list[TestCase],
         output_dir: str | Path,
-        format: str = "civbench_yaml",
+        format: str = "yaml",
     ) -> None:
         """Save batch results. Delegates to a temporary single Pipeline."""
         p = Pipeline(generator=None)  # type: ignore[arg-type]

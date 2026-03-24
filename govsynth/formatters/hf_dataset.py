@@ -15,7 +15,7 @@ from govsynth.models.test_case import TestCase
 def _case_to_hf_row(case: TestCase) -> dict[str, Any]:
     """Convert a TestCase to a flat HF dataset row."""
     return {
-        "civbench_id":        case.civbench_id,
+        "case_id":        case.case_id,
         "program":            case.program,
         "jurisdiction":       case.jurisdiction,
         "task_type":          case.task_type.value,
@@ -58,7 +58,7 @@ class HFDatasetFormatter:
     Usage:
         formatter = HFDatasetFormatter(split_ratios={"train": 0.8, "test": 0.2})
         ds = formatter.to_dataset(cases)
-        ds.push_to_hub("your-org/civbench-snap-fy2026")
+        ds.push_to_hub("your-org/govsynth-snap-fy2026")
     """
 
     def __init__(

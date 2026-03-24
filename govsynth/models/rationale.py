@@ -1,7 +1,7 @@
 """Rationale trace data structures.
 
 A RationaleTrace captures the step-by-step reasoning chain that a correct model
-should follow when answering a CivBench test case. This enables evaluation of
+should follow when answering a test case. This enables evaluation of
 *how* a model reasons, not just *what* it answers.
 """
 

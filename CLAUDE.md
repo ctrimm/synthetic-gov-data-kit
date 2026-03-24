@@ -7,9 +7,9 @@ This file provides context for Claude Code and AI coding assistants working in t
 ## Project Overview
 
 `synthetic-gov-data-kit` is a Python library for generating structured synthetic US government
-benefits data used to evaluate LLM reasoning and rationale quality. It is the data generation
-layer for [CivBench](https://github.com/civbench/civbench) — the open benchmark for government
-AI agents.
+benefits data used to evaluate LLM reasoning and rationale quality. It is designed to be
+layer for CivBench — the open benchmark for government
+benefits data to evaluate LLM reasoning quality.
 
 The core value proposition is **reasoning-grounded test cases**: every generated case includes
 not just a question and expected answer, but a step-by-step `RationaleTrace` mapping the correct
@@ -25,7 +25,7 @@ govsynth/               Main Python package
   profiles/             Synthetic citizen/household profile generators
   generators/           Test case generators (eligibility, policy_qa, form, agentic)
   reasoning/            RationaleTrace builders and policy rules engine
-  formatters/           Output serializers (CivBench YAML, JSONL, CSV, HuggingFace)
+  formatters/           Output serializers (YAML, JSONL, CSV, HuggingFace)
   evaluation/           Rationale scoring utilities
 
 data/seeds/us/          Bundled policy seed data (income limits, CFR excerpts)
@@ -109,7 +109,7 @@ policy rules, thresholds, and regulatory citations.
 
 ## Test Case IDs
 
-CivBench case IDs follow this schema:
+Case IDs follow this schema:
 ```
 {program}.{jurisdiction}.{task_type}.{variation_descriptor}[.{disambiguator}]
 ```
@@ -184,7 +184,7 @@ mypy govsynth/
 1. **No real PII ever** — all profiles are synthetic. The `Faker` library is used for names/addresses.
 2. **Policy accuracy matters** — threshold values must match the actual CFR/FNS tables for the given fiscal year. Always cite the source regulation.
 3. **Deterministic with seeds** — all random generation must accept a `seed: int | None` parameter and use it. Tests should use `seed=42`.
-4. **CivBench compatibility** — generated YAML must validate against the CivBench test case schema.
+4. **Output validity** — generated YAML must be well-formed and all required fields must be present.
 5. **No LLM calls in generation** — the core library generates cases from policy rules, not by calling an LLM. LLM calls are only in optional enrichment utilities (clearly marked).
 
 ---
@@ -213,5 +213,5 @@ profile = USHouseholdProfile.at_threshold(
 from govsynth import Pipeline
 pipeline = Pipeline.from_preset("snap.va")
 cases = pipeline.generate(n=100, seed=42)
-pipeline.save(cases, "./output/", formats=["civbench_yaml", "jsonl"])
+pipeline.save(cases, "./output/", formats=["yaml", "jsonl"])
 ```

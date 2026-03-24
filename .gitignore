@@ -47,6 +47,9 @@ notebooks/suite_output/
 *.swp
 *.swo
 
+# Internal planning docs (not for public repo)
+FUTURE.md
+
 # macOS
 .DS_Store
 

@@ -36,7 +36,7 @@ class ProfileStrategy(str, Enum):
 class OutputFormat(str, Enum):
     """Supported output formats."""
 
-    CIVBENCH_YAML = "civbench_yaml"
+    YAML = "yaml"
     JSONL = "jsonl"
     CSV = "csv"
     HF_DATASET = "hf_dataset"

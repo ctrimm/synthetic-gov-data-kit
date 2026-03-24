@@ -39,7 +39,7 @@ class JSONLFormatter:
             assistant_content = f"{trace_text}\n\n{case.expected_answer}"
 
         return {
-            "civbench_id": case.civbench_id,
+            "case_id": case.case_id,
             "messages": [
                 {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": case.scenario.summary + "\n\n" + case.task.instruction},

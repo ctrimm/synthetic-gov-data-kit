@@ -1,6 +1,6 @@
 """WIC eligibility test case generator.
 
-Generates CivBench-compatible TestCase objects for WIC eligibility determination.
+Generates compatible TestCase objects for WIC eligibility determination.
 WIC is simpler than SNAP: one income test (185% FPL), no asset test,
 categorical eligibility, and a participant category requirement.
 """
@@ -109,13 +109,13 @@ class WICEligibilityGenerator:
 
         trace = self._build_trace(profile, limits, category, is_cat_eligible, is_eligible)
         difficulty = self._classify_difficulty(profile, is_cat_eligible)
-        civbench_id = self._make_id(profile, category, is_eligible, index)
+        case_id = self._make_id(profile, category, is_eligible, index)
         scenario = self._build_scenario(profile, category, is_cat_eligible)
         answer = self._build_answer(profile, limits, category, is_cat_eligible, is_eligible)
         tags = self._build_tags(profile, category, is_cat_eligible)
 
         return TestCase(
-            civbench_id=civbench_id,
+            case_id=case_id,
             program=Program.WIC.value,
             jurisdiction=f"us.{(self.state if self.state != 'national' else 'national').lower()}",
             task_type=TaskType.ELIGIBILITY,

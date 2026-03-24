@@ -1,6 +1,6 @@
 """Core TestCase data structure — the primary output of synthetic-gov-data-kit.
 
-A TestCase is the unit of evaluation for CivBench. It contains:
+A TestCase is the unit of evaluation. It contains:
   - The citizen scenario (who is asking)
   - The task (what they need to know)
   - The expected answer and outcome
@@ -63,10 +63,10 @@ class TaskBlock(BaseModel):
 class TestCase(BaseModel):
     """The primary output unit of synthetic-gov-data-kit.
 
-    Compatible with CivBench test case schema v1.
+    Compatible with test case schema v1.
     """
 
-    civbench_id: str = Field(description="Unique CivBench case identifier")
+    case_id: str = Field(description="Unique structured case identifier")
     program: str = Field(description="Benefits program, e.g. 'snap'")
     jurisdiction: str = Field(description="Jurisdiction string, e.g. 'us.va'")
     task_type: TaskType = Field(description="The type of task being evaluated")
@@ -104,14 +104,14 @@ class TestCase(BaseModel):
         description="Arbitrary generation metadata",
     )
 
-    @field_validator("civbench_id")
+    @field_validator("case_id")
     @classmethod
-    def validate_civbench_id(cls, v: str) -> str:
-        """Enforce the CivBench ID format: lowercase, dot-separated segments."""
+    def validate_case_id(cls, v: str) -> str:
+        """Enforce the case ID format: lowercase, dot-separated segments."""
         pattern = r"^[a-z0-9_]+(\.[a-z0-9_]+){2,}$"
         if not re.match(pattern, v):
             raise ValueError(
-                f"Invalid civbench_id '{v}'. "
+                f"Invalid case_id '{v}'. "
                 "Must be lowercase dot-separated, e.g. 'snap.va.eligibility.gross_income_at_limit'"
             )
         return v
@@ -128,7 +128,7 @@ class TestCase(BaseModel):
     @model_validator(mode="after")
     def validate_rationale_has_steps(self) -> TestCase:
         if len(self.rationale_trace.steps) < 2:
-            raise ValueError("RationaleTrace must have at least 2 steps to be CivBench-compatible")
+            raise ValueError("RationaleTrace must have at least 2 steps to be compatible")
         return self
 
     @model_validator(mode="after")
@@ -137,12 +137,12 @@ class TestCase(BaseModel):
             raise ValueError("TestCase must have at least one source citation")
         return self
 
-    def validate_for_civbench(self) -> list[str]:
-        """Run CivBench compatibility checks. Returns list of error strings (empty = valid)."""
+    def validate(self) -> list[str]:
+        """Run compatibility checks. Returns list of error strings (empty = valid)."""
         errors: list[str] = []
 
-        if not self.civbench_id:
-            errors.append("civbench_id is empty")
+        if not self.case_id:
+            errors.append("case_id is empty")
         if not self.scenario.summary:
             errors.append("scenario.summary is empty")
         if not self.task.instruction:
@@ -160,11 +160,11 @@ class TestCase(BaseModel):
 
     def is_valid(self) -> bool:
         """Quick boolean validity check."""
-        return len(self.validate_for_civbench()) == 0
+        return len(self.validate()) == 0
 
     def short_repr(self) -> str:
         """One-line summary for logging."""
         return (
-            f"TestCase({self.civbench_id}, {self.difficulty.value}, "
+            f"TestCase({self.case_id}, {self.difficulty.value}, "
             f"outcome={self.expected_outcome}, steps={self.rationale_trace.step_count()})"
         )

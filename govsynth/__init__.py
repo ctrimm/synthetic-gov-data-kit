@@ -1,14 +1,14 @@
 """synthetic-gov-data-kit — govsynth package.
 
 Generate structured synthetic US government benefits data for LLM reasoning evaluation.
-Part of the CivBench open source ecosystem.
+Python library for generating structured synthetic US government benefits data.
 
 Quick start:
     from govsynth import Pipeline
 
     pipeline = Pipeline.from_preset("snap.va")
     cases = pipeline.generate(n=100, seed=42)
-    pipeline.save(cases, "./output/", formats=["civbench_yaml", "jsonl", "csv"])
+    pipeline.save(cases, "./output/", formats=["yaml", "jsonl", "csv"])
 """
 
 from govsynth.pipeline import BatchPipeline, Pipeline

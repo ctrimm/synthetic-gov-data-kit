@@ -55,10 +55,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/civbench/synthetic-gov-data-kit"
-Documentation = "https://civbench.github.io/synthetic-gov-data-kit"
-Repository = "https://github.com/civbench/synthetic-gov-data-kit"
-Issues = "https://github.com/civbench/synthetic-gov-data-kit/issues"
+Homepage = "https://github.com/your-org/synthetic-gov-data-kit"
+Documentation = "https://your-org.github.io/synthetic-gov-data-kit"
+Repository = "https://github.com/your-org/synthetic-gov-data-kit"
+Issues = "https://github.com/your-org/synthetic-gov-data-kit/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["govsynth"]

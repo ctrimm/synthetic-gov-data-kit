@@ -7,7 +7,7 @@ Guidelines for AI agents (Claude Code, Cursor, Copilot Workspace, etc.) working 
 ## What This Repo Does
 
 Generates structured synthetic US government benefits test cases for LLM evaluation.
-The output feeds directly into [CivBench](https://github.com/civbench/civbench).
+The output feeds directly into CivBench.
 
 **Primary concern when making changes**: policy accuracy. An incorrect income threshold
 or miscited CFR section produces test cases that will silently evaluate models against

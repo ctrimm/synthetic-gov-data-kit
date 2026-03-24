@@ -1,6 +1,6 @@
 """SNAP eligibility test case generator.
 
-Generates CivBench-compatible TestCase objects for SNAP eligibility determination,
+Generates compatible TestCase objects for SNAP eligibility determination,
 including full rationale traces grounded in 7 CFR Part 273.
 """
 
@@ -50,7 +50,7 @@ class SNAPEligibilityGenerator:
     Args:
         fiscal_year: Federal fiscal year for thresholds. Default: FY2026.
         state: State code. Controls BBCE asset test rules.
-        include_reasoning_trace: Always True for CivBench compatibility.
+        include_reasoning_trace: Always True for compatibility.
         difficulty_distribution: Fraction of cases at each difficulty level.
     """
 
@@ -172,7 +172,7 @@ class SNAPEligibilityGenerator:
         difficulty = self._classify_difficulty(profile, is_eligible)
 
         # Generate unique ID
-        civbench_id = self._make_civbench_id(profile, is_eligible, index)
+        case_id = self._make_case_id(profile, is_eligible, index)
 
         # Build scenario summary
         scenario_summary = profile.natural_language_summary("snap")
@@ -183,7 +183,7 @@ class SNAPEligibilityGenerator:
         )
 
         return TestCase(
-            civbench_id=civbench_id,
+            case_id=case_id,
             program=Program.SNAP.value,
             jurisdiction=f"us.{self.state.lower()}",
             task_type=TaskType.ELIGIBILITY,
@@ -473,7 +473,7 @@ class SNAPEligibilityGenerator:
         else:
             return Difficulty.MEDIUM
 
-    def _make_civbench_id(
+    def _make_case_id(
         self, profile: USHouseholdProfile, is_eligible: bool, index: int
     ) -> str:
         threshold = profile.extra.get("threshold_type", "general")
