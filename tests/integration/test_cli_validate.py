@@ -27,7 +27,9 @@ def test_validate_shows_valid_count(tmp_path):
     out_dir = _generate_yaml(tmp_path)
     yaml_file = next(out_dir.glob("*.yaml"))
     result = runner.invoke(app, ["validate", str(yaml_file)])
-    assert "1/1 valid" in result.stderr
+    # Rich progress bar may wrap "1/1 valid" across lines in test environments
+    stderr = result.stderr.replace("\n", " ")
+    assert "1/1" in stderr and "valid" in stderr
 
 
 def test_validate_unknown_extension_exits_two(tmp_path):

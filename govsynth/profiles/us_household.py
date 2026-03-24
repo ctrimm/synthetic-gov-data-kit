@@ -205,11 +205,15 @@ class USHouseholdProfile:
         citizenship_desc = (
             ""
             if self.citizenship_status == CitizenshipStatus.CITIZEN
-            else f" {self.head_of_household_name} is a {self.citizenship_status.value.replace('_', ' ')}."
+            else (
+                f" {self.head_of_household_name} is a"
+                f" {self.citizenship_status.value.replace('_', ' ')}."
+            )
         )
 
         return (
-            f"{self.head_of_household_name} is a {age_desc} {hh_desc} in {self.city}, {self.state}. "
+            f"{self.head_of_household_name} is a {age_desc} {hh_desc}"
+            f" in {self.city}, {self.state}. "
             f"Their household has {income_desc} and {asset_desc}.{elderly_desc}{citizenship_desc}"
         )
 
@@ -246,6 +250,9 @@ def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfi
     gross = min(max(round(rng.lognormvariate(dist.income_mu, dist.income_sigma), -1), 0), 15000)
 
     # Step 5-6: household demographics
+    # Note: pct_with_children is derived from B11003 (family households only), so it
+    # overstates child presence when applied to all multi-person households. It is used
+    # here as an approximation; non-family multi-person HH rarely have dependent children.
     has_children = rng.random() < dist.pct_with_children if hh_size > 1 else False
     has_elderly = rng.random() < dist.pct_elderly_or_disabled
 
@@ -272,6 +279,9 @@ def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfi
     # Step 10: age -- Normal(mu, sigma) clamped to [18, 80]
     age = max(18, min(80, round(rng.normalvariate(dist.age_mu, dist.age_sigma))))
 
+    # dist.pct_social_security, dist.pct_ssi, dist.pct_public_assistance are available
+    # for future income-source enrichment (e.g. flagging SSI/SSDI receipt on the profile).
+
     return USHouseholdProfile(
         household_size=hh_size,
         monthly_gross_income=float(gross),
@@ -295,12 +305,11 @@ def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfi
 def _household_description(size: int, has_children: bool) -> str:
     if size == 1:
         return "individual"
-    elif size == 2:
+    if size == 2:
         return "couple" if not has_children else "single parent with one child"
-    elif size == 3:
+    if size == 3:
         return "family of three" if not has_children else "single parent with two children"
-    else:
-        return f"family of {size}"
+    return f"family of {size}"
 
 
 def _build_snap_threshold_profile(
@@ -349,7 +358,8 @@ def _build_snap_threshold_profile(
     else:
         raise ValueError(
             f"Unknown SNAP threshold '{threshold}'. "
-            "Valid: gross_income_limit, net_income_limit, asset_limit_general, asset_limit_elderly_disabled"
+            "Valid: gross_income_limit, net_income_limit, "
+            "asset_limit_general, asset_limit_elderly_disabled"
         )
 
     # Compute net income using source's authoritative formula
