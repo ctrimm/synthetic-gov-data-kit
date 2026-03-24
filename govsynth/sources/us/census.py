@@ -7,6 +7,7 @@ Not a DataSource subclass: census distributions are profile-sampling
 statistics, not program eligibility rules. Lives in sources/us/ for
 colocation with other US data modules.
 """
+
 from __future__ import annotations
 
 import json
@@ -67,8 +68,7 @@ class CensusDataSource:
         path = self._data_dir / f"{self.state}.json"
         if not path.exists():
             warnings.warn(
-                f"No census data for '{self.state.upper()}', "
-                "falling back to national distribution",
+                f"No census data for '{self.state.upper()}', falling back to national distribution",
                 UserWarning,
                 stacklevel=2,
             )

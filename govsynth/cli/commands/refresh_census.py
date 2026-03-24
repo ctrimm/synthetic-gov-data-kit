@@ -1,4 +1,5 @@
 """govsynth refresh-census-data command."""
+
 from __future__ import annotations
 
 import json
@@ -16,11 +17,57 @@ from govsynth.cli.output import make_console
 _DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "census"
 
 _ALL_STATES = [
-    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL",
-    "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME",
-    "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH",
-    "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI",
-    "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+    "AL",
+    "AK",
+    "AZ",
+    "AR",
+    "CA",
+    "CO",
+    "CT",
+    "DE",
+    "DC",
+    "FL",
+    "GA",
+    "HI",
+    "ID",
+    "IL",
+    "IN",
+    "IA",
+    "KS",
+    "KY",
+    "LA",
+    "ME",
+    "MD",
+    "MA",
+    "MI",
+    "MN",
+    "MS",
+    "MO",
+    "MT",
+    "NE",
+    "NV",
+    "NH",
+    "NJ",
+    "NM",
+    "NY",
+    "NC",
+    "ND",
+    "OH",
+    "OK",
+    "OR",
+    "PA",
+    "RI",
+    "SC",
+    "SD",
+    "TN",
+    "TX",
+    "UT",
+    "VT",
+    "VA",
+    "WA",
+    "WV",
+    "WI",
+    "WY",
 ]
 
 
@@ -39,8 +86,7 @@ def refresh_census_data(
 
     if state is not None and state.upper() not in _ALL_STATES:
         console.print(
-            f"[red]Error:[/red] Unknown state '{state}'. "
-            "Use a two-letter US state/DC code."
+            f"[red]Error:[/red] Unknown state '{state}'. Use a two-letter US state/DC code."
         )
         raise typer.Exit(2)
 
@@ -107,12 +153,14 @@ def refresh_census_data(
                     ok.append(s)
                     if as_json:
                         print(
-                            json.dumps({
-                                "command": "refresh-census-data",
-                                "state": s,
-                                "status": "ok",
-                                "output_file": str(path),
-                            }),
+                            json.dumps(
+                                {
+                                    "command": "refresh-census-data",
+                                    "state": s,
+                                    "status": "ok",
+                                    "output_file": str(path),
+                                }
+                            ),
                             file=sys.stderr,
                         )
                     else:
@@ -157,8 +205,7 @@ def refresh_census_data(
     else:
         if failed:
             console.print(
-                f"[yellow]Warning:[/yellow] {len(failed)} state(s) failed: "
-                f"{', '.join(failed)}"
+                f"[yellow]Warning:[/yellow] {len(failed)} state(s) failed: {', '.join(failed)}"
             )
         console.print(f"[green]Done:[/green] {len(ok)}/{len(states)} states refreshed.")
 
