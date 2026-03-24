@@ -57,5 +57,8 @@ FUTURE.md
 *.tar.gz
 *.whl
 
+# Git worktrees
+.worktrees/
+
 # Superpowers Claude Code plugin
 */superpowers/
