@@ -38,6 +38,8 @@ the right computations?
 pip install synthetic-gov-data-kit
 ```
 
+**Python API:**
+
 ```python
 from govsynth import Pipeline
 
@@ -46,9 +48,9 @@ pipeline = Pipeline.from_preset("snap.va")
 cases = pipeline.generate(n=100, seed=42)
 
 # Save to multiple formats
-pipeline.save(cases, "./output/", formats=["civbench_yaml", "jsonl"])
+pipeline.save(cases, "./output/", formats=["yaml", "jsonl"])
 
-print(cases[0].civbench_id)
+print(cases[0].case_id)
 # snap.va.eligibility.gross_income_at_limit.hh3
 
 print(cases[0].expected_outcome)
@@ -56,6 +58,31 @@ print(cases[0].expected_outcome)
 
 print(cases[0].rationale_trace.steps[0].rule_applied)
 # 7 CFR 273.9(a)(1)
+```
+
+**CLI:**
+
+```bash
+# List available presets
+govsynth list-presets
+
+# Generate 50 SNAP/Virginia cases to a directory
+govsynth generate snap.va --n 50 --seed 42 --output ./output/
+
+# Stream JSONL directly to stdout (pipe-friendly)
+govsynth generate snap.va --n 100 --seed 42 --format jsonl | jq '.case_id'
+
+# Generate across multiple presets at once
+govsynth batch --preset snap.va --preset wic.national --n 100 --output ./output/
+
+# Validate generated files
+govsynth validate ./output/snap.va.eligibility.gross_income_at_limit.hh3.yaml
+
+# Inspect a single case
+govsynth show ./output/snap.va.eligibility.gross_income_at_limit.hh3.yaml
+
+# Check that bundled policy thresholds are up to date
+govsynth verify-thresholds --program snap
 ```
 
 ## Core Concepts
@@ -91,35 +118,46 @@ pipeline = Pipeline.from_preset("snap.va", profile_strategy="adversarial")
 
 ### Batch Generation
 
+**CLI (recommended):**
+
+```bash
+govsynth batch \
+  --preset snap.va --preset snap.ca --preset snap.tx \
+  --preset wic.national \
+  --n 150 --seed 42 \
+  --output ./suite-v1/
+```
+
+**Python API:**
+
 ```python
-from govsynth import BatchPipeline
+from govsynth import Pipeline
 
-batch = BatchPipeline.from_presets([
-    "snap.va", "snap.ca", "snap.tx",
-    "wic.national",
-    "medicaid.va", "medicaid.tx",
-])
+pipelines = ["snap.va", "snap.ca", "snap.tx", "wic.national"]
+all_cases = []
+for i, preset in enumerate(pipelines):
+    pipeline = Pipeline.from_preset(preset)
+    all_cases.extend(pipeline.generate(n=150, seed=42 + i))
 
-cases = batch.generate(n_per_pipeline=150, seed=42)
-batch.save(cases, "./civbench-suite-v1/", format="civbench_yaml")
+Pipeline.from_preset(pipelines[0]).save(all_cases, "./suite-v1/", formats=["yaml", "jsonl"])
 ```
 
 ### Output Formats
 
 ```python
-pipeline.save(cases, "output.yaml",    format="civbench_yaml")   # CivBench native
-pipeline.save(cases, "output.jsonl",   format="jsonl")            # Fine-tuning
-pipeline.save(cases, "output.csv",     format="csv")              # Review/inspection
-pipeline.save(cases, "./hf_dataset/",  format="hf_dataset")       # HuggingFace (requires [hf] extra)
+pipeline.save(cases, "./output/", formats=["yaml"])    # One .yaml file per case
+pipeline.save(cases, "./output/", formats=["jsonl"])   # Fine-tuning (messages format)
+pipeline.save(cases, "./output/", formats=["csv"])     # Review/inspection
+pipeline.save(cases, "./output/", formats=["yaml", "jsonl", "csv"])  # All three
 ```
 
 ## Example Output
 
 ```yaml
-civbench_id: snap.va.eligibility.gross_income_at_limit.hh3
+case_id: snap.va.eligibility.gross_income_at_limit.hh3
 program: snap
 jurisdiction: us.va
-task_type: eligibility_determination
+task_type: eligibility
 difficulty: hard
 
 scenario:
@@ -180,16 +218,28 @@ variation_tags: [income_threshold, gross_income_at_limit, single_parent]
 difficulty: hard
 ```
 
-## CivBench Integration
+## CLI Reference
 
-Cases output directly from `synthetic-gov-data-kit` are compatible with the CivBench
-eval runner without transformation:
+| Command | Description |
+|---|---|
+| `govsynth list-presets [--json]` | List all registered presets |
+| `govsynth generate <preset>` | Generate cases for one preset |
+| `govsynth batch --preset ... --output` | Generate across multiple presets |
+| `govsynth validate <file>` | Validate a generated output file |
+| `govsynth show <file> [case_id]` | Pretty-print a single case |
+| `govsynth verify-thresholds [--program]` | Check bundled threshold data is up to date |
+| `govsynth parse-policy <file>` | *(coming soon)* Extract thresholds from a policy PDF |
+
+All commands support `--json` for machine-readable output and are safe to use in CI pipelines and agentic workflows. Rich progress and status output always goes to **stderr**; data always goes to **stdout**.
 
 ```bash
-civbench run \
-  --agent my_snap_agent.py \
-  --suite-dir ./civbench-suite-v1/snap/va/ \
-  --output results/
+# Machine-readable output — safe for scripting
+govsynth list-presets --json
+govsynth verify-thresholds --json
+govsynth generate snap.va --n 10 --seed 42 --format jsonl --quiet
+
+# CI usage: exit code 1 if any threshold files are unverified
+govsynth verify-thresholds && echo "All thresholds verified"
 ```
 
 ## Policy Data Sources
@@ -205,7 +255,7 @@ All generated profiles are entirely synthetic. No real applicant data is used or
 
 ## Roadmap
 
-- **Policy document parser** — ingest a PDF or DOCX and auto-generate the threshold JSON (`govsynth parse-policy`)
+- **Policy document parser** — `govsynth parse-policy` stub is available; full PDF/DOCX ingestion coming soon
 - **Additional programs** — LIHEAP, CHIP, Section 8/HCV, TANF, SSI/SSDI
 - **More task types** — policy Q&A, form completion, agentic multi-step, comparative cross-program
 - **More state presets** — currently VA, CA, TX, MD for SNAP; WIC national only
