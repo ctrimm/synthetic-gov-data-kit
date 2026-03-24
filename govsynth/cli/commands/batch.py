@@ -37,16 +37,17 @@ def batch(
         raise typer.Exit(2)
 
     all_cases = []
+    last_pipeline: Pipeline | None = None
     for i, preset_name in enumerate(presets):
-        pipeline = Pipeline.from_preset(preset_name, console=console)
+        last_pipeline = Pipeline.from_preset(preset_name, console=console)
         preset_seed = (seed + i) if seed is not None else None
-        cases = pipeline.generate(n=n, seed=preset_seed)
+        cases = last_pipeline.generate(n=n, seed=preset_seed)
         all_cases.extend(cases)
 
-    # Save using Pipeline.save() directly (BatchPipeline.save() is deprecated).
-    # Pipeline(generator=None) is intentional — save() does not use self.generator.
-    saver = Pipeline(generator=None, console=console)  # type: ignore[arg-type]
-    saver.save(all_cases, output, formats=formats)
+    # Re-use the last pipeline for save — save() does not use self.generator,
+    # so any pipeline instance works. This avoids constructing a bare Pipeline(generator=None).
+    assert last_pipeline is not None  # guaranteed: unknown presets are rejected above
+    last_pipeline.save(all_cases, output, formats=formats)
 
     emit_status(
         {

@@ -37,7 +37,15 @@ def generate(
     cases = pipeline.generate(n=n, seed=seed)
 
     if output is None:
-        # Stream to stdout
+        # Validate formats before streaming — only yaml and jsonl support stdout
+        _STDOUT_FORMATS = {"yaml", "jsonl"}
+        unsupported = [f for f in formats if f.lower().strip() not in _STDOUT_FORMATS]
+        if unsupported:
+            console.print(
+                f"[red]Error:[/red] Stdout streaming not supported for format(s): "
+                f"{', '.join(unsupported)}. Use --output to write to a directory."
+            )
+            raise typer.Exit(2)
         _stream_to_stdout(cases, formats)
     else:
         pipeline.save(cases, output, formats=formats)
@@ -68,5 +76,3 @@ def _stream_to_stdout(cases: list, formats: list[str]) -> None:
         elif fmt == "jsonl":
             for case in cases:
                 sys.stdout.write(json.dumps(jsonl_fmt.format_one(case)) + "\n")
-        else:
-            print(f"Warning: stdout streaming not supported for format '{fmt}'", file=sys.stderr)
