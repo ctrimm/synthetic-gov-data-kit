@@ -203,6 +203,17 @@ All threshold values and policy rules are sourced from official US government pu
 
 All generated profiles are entirely synthetic. No real applicant data is used or represented.
 
+## Roadmap
+
+- **Policy document parser** — ingest a PDF or DOCX and auto-generate the threshold JSON (`govsynth parse-policy`)
+- **Additional programs** — LIHEAP, CHIP, Section 8/HCV, TANF, SSI/SSDI
+- **More task types** — policy Q&A, form completion, agentic multi-step, comparative cross-program
+- **More state presets** — currently VA, CA, TX, MD for SNAP; WIC national only
+- **Schema validation** — formal JSON schema (`test_case_v1.schema.yaml`) + `validate_against_schema()` utility
+- **Evaluation rubrics** — structured per-difficulty scoring rubrics for `RationaleEvaluator`
+
+---
+
 ## Bring Your Own Policy
 
 Want to generate test cases from a policy document that isn't built in yet?
