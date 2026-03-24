@@ -50,6 +50,7 @@ dev = [
     "pre-commit>=3.7",
     "ipykernel>=6.29",
     "jupyter>=1.0",
+    "respx>=0.21",
 ]
 all = [
     "synthetic-gov-data-kit[hf,dev]",
