@@ -26,16 +26,20 @@ the right computations?
 
 ## Supported Programs (v0.1)
 
-| Program | Agency | Coverage |
-|---|---|---|
-| SNAP (Food Stamps) | USDA/FNS | All 50 states + DC |
-| WIC | USDA/FNS | National |
-| Medicaid | CMS/HHS | All states (expansion + non-expansion) |
+| Program | Agency | Presets | Status |
+|---|---|---|---|
+| SNAP (Food Stamps) | USDA/FNS | `snap.va`, `snap.ca`, `snap.tx`, `snap.md` | Stable |
+| WIC | USDA/FNS | `wic.national` | Stable |
+| Medicaid | CMS/HHS | — | In progress |
 
 ## Quickstart
 
+**Install from source** (PyPI release coming soon):
+
 ```bash
-pip install synthetic-gov-data-kit
+git clone https://github.com/ctrimm/synthetic-gov-data-kit
+cd synthetic-gov-data-kit
+pip install -e ".[dev]"
 ```
 
 **Python API:**
@@ -95,14 +99,14 @@ govsynth verify-thresholds --program snap
 Presets bundle a data source, generator config, and profile strategy into one name:
 
 ```python
-Pipeline.from_preset("snap.va")          # Virginia SNAP, edge-saturated
-Pipeline.from_preset("snap.ca")          # California SNAP (broad-based categorical eligibility)
-Pipeline.from_preset("snap.tx")          # Texas SNAP (strict asset test)
-Pipeline.from_preset("snap.national")    # All states, jurisdiction as variation axis
-Pipeline.from_preset("wic.national")     # WIC national
-Pipeline.from_preset("medicaid.va")      # Virginia Medicaid (expansion)
-Pipeline.from_preset("medicaid.tx")      # Texas Medicaid (non-expansion)
+Pipeline.from_preset("snap.va")     # Virginia SNAP FY2026 — strict asset test
+Pipeline.from_preset("snap.ca")     # California SNAP FY2026 — BBCE (no asset test)
+Pipeline.from_preset("snap.tx")     # Texas SNAP FY2026 — strict asset test
+Pipeline.from_preset("snap.md")     # Maryland SNAP FY2026 — BBCE
+Pipeline.from_preset("wic.national")  # WIC FY2026 national (185% FPL)
 ```
+
+Run `govsynth list-presets` to see all currently registered presets.
 
 ### Profile Strategies
 
@@ -110,13 +114,20 @@ Control how synthetic citizen profiles are sampled:
 
 ```python
 pipeline = Pipeline.from_preset("snap.va", profile_strategy="edge_saturated")
-# 60%+ of cases land at income/asset threshold boundaries — where models fail
+# 60%+ of cases land at income/asset threshold boundaries — where models fail most
 
 pipeline = Pipeline.from_preset("snap.va", profile_strategy="realistic")
-# Sampled from Census ACS income distributions — representative of real applicants
+# Sampled from Census ACS state distributions — representative of real applicants
+# Requires census data: run `govsynth refresh-census-data --state VA` first
 
-pipeline = Pipeline.from_preset("snap.va", profile_strategy="adversarial")
-# Conflicting documents, missing information, ambiguous circumstances
+pipeline = Pipeline.from_preset("snap.va", profile_strategy="uniform")
+# National-level approximations, no census data required
+```
+
+Census data for Virginia is pre-bundled. For other states:
+```bash
+govsynth refresh-census-data --state TX   # fetch one state (~6 API calls)
+govsynth refresh-census-data --all        # fetch all 50 states + DC (~306 API calls)
 ```
 
 ### Batch Generation
@@ -134,15 +145,11 @@ govsynth batch \
 **Python API:**
 
 ```python
-from govsynth import Pipeline
+from govsynth import BatchPipeline
 
-pipelines = ["snap.va", "snap.ca", "snap.tx", "wic.national"]
-all_cases = []
-for i, preset in enumerate(pipelines):
-    pipeline = Pipeline.from_preset(preset)
-    all_cases.extend(pipeline.generate(n=150, seed=42 + i))
-
-Pipeline.from_preset(pipelines[0]).save(all_cases, "./suite-v1/", formats=["yaml", "jsonl"])
+batch = BatchPipeline.from_presets(["snap.va", "snap.ca", "snap.tx", "wic.national"])
+cases = batch.generate(n_per_pipeline=150, seed=42)
+batch.save(cases, "./suite-v1/", formats=["yaml", "jsonl"])
 ```
 
 ### Output Formats
@@ -231,6 +238,7 @@ difficulty: hard
 | `govsynth validate <file>` | Validate a generated output file |
 | `govsynth show <file> [case_id]` | Pretty-print a single case |
 | `govsynth verify-thresholds [--program]` | Check bundled threshold data is up to date |
+| `govsynth refresh-census-data [--state] [--all]` | Fetch ACS Census distributions from Census Bureau API |
 | `govsynth parse-policy <file>` | *(coming soon)* Extract thresholds from a policy PDF |
 
 All commands support `--json` for machine-readable output and are safe to use in CI pipelines and agentic workflows. Rich progress and status output always goes to **stderr**; data always goes to **stdout**.
@@ -244,6 +252,19 @@ govsynth generate snap.va --n 10 --seed 42 --format jsonl --quiet
 # CI usage: exit code 1 if any threshold files are unverified
 govsynth verify-thresholds && echo "All thresholds verified"
 ```
+
+## Notebooks
+
+| Notebook | What it covers |
+|---|---|
+| [`01_quickstart.ipynb`](notebooks/01_quickstart.ipynb) | End-to-end intro: generate, inspect, export, score |
+| [`02_snap_edge_cases.ipynb`](notebooks/02_snap_edge_cases.ipynb) | Deep dive into SNAP threshold boundaries |
+| [`03_realistic_profiles.ipynb`](notebooks/03_realistic_profiles.ipynb) | Census ACS distributions vs. uniform sampling |
+| [`04_wic_edge_cases.ipynb`](notebooks/04_wic_edge_cases.ipynb) | WIC 185% FPL boundary and categorical eligibility |
+| [`05_rationale_evaluation.ipynb`](notebooks/05_rationale_evaluation.ipynb) | Scoring LLM reasoning with `RationaleEvaluator` |
+| [`06_multi_state_batch.ipynb`](notebooks/06_multi_state_batch.ipynb) | Batch generation across states and programs |
+| [`07_cli_workflow.ipynb`](notebooks/07_cli_workflow.ipynb) | Full CLI workflow: generate → validate → show |
+| [`08_custom_generator.ipynb`](notebooks/08_custom_generator.ipynb) | Adding a new program (LIHEAP example) |
 
 ## Policy Data Sources
 
