@@ -69,6 +69,9 @@ govsynth list-presets
 # Generate 50 SNAP/Virginia cases to a directory
 govsynth generate snap.va --n 50 --seed 42 --output ./output/
 
+# Use a specific profile strategy
+govsynth generate snap.va --n 100 --seed 42 --profile-strategy realistic --output ./output/
+
 # Stream JSONL directly to stdout (pipe-friendly)
 govsynth generate snap.va --n 100 --seed 42 --format jsonl | jq '.case_id'
 
@@ -223,7 +226,7 @@ difficulty: hard
 | Command | Description |
 |---|---|
 | `govsynth list-presets [--json]` | List all registered presets |
-| `govsynth generate <preset>` | Generate cases for one preset |
+| `govsynth generate <preset> [--profile-strategy <s>]` | Generate cases for one preset |
 | `govsynth batch --preset ... --output` | Generate across multiple presets |
 | `govsynth validate <file>` | Validate a generated output file |
 | `govsynth show <file> [case_id]` | Pretty-print a single case |

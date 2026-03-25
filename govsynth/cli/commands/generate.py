@@ -22,6 +22,14 @@ def generate(
     formats: Annotated[
         list[str], typer.Option("--format", "-f", help="yaml|jsonl|csv (repeatable)")
     ] = ["yaml"],
+    profile_strategy: Annotated[
+        str | None,
+        typer.Option(
+            "--profile-strategy",
+            "-s",
+            help="Profile sampling strategy: edge_saturated|realistic|uniform|adversarial",
+        ),
+    ] = None,
     quiet: Annotated[bool, typer.Option("--quiet", "-q")] = False,
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
@@ -29,7 +37,7 @@ def generate(
     console = make_console(quiet=quiet)
 
     try:
-        pipeline = Pipeline.from_preset(preset, console=console)
+        pipeline = Pipeline.from_preset(preset, profile_strategy=profile_strategy, console=console)
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(2) from e
