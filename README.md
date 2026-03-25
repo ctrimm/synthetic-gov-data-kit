@@ -272,12 +272,14 @@ govsynth verify-thresholds && echo "All thresholds verified"
 |---|---|
 | [`01_quickstart.ipynb`](notebooks/01_quickstart.ipynb) | End-to-end intro: generate, inspect, export, score |
 | [`02_snap_edge_cases.ipynb`](notebooks/02_snap_edge_cases.ipynb) | Deep dive into SNAP threshold boundaries |
-| [`03_realistic_profiles.ipynb`](notebooks/03_realistic_profiles.ipynb) | Census ACS distributions vs. uniform sampling |
-| [`04_wic_edge_cases.ipynb`](notebooks/04_wic_edge_cases.ipynb) | WIC 185% FPL boundary and categorical eligibility |
-| [`05_rationale_evaluation.ipynb`](notebooks/05_rationale_evaluation.ipynb) | Scoring LLM reasoning with `RationaleEvaluator` |
-| [`06_multi_state_batch.ipynb`](notebooks/06_multi_state_batch.ipynb) | Batch generation across states and programs |
-| [`07_cli_workflow.ipynb`](notebooks/07_cli_workflow.ipynb) | Full CLI workflow: generate → validate → show |
-| [`08_custom_generator.ipynb`](notebooks/08_custom_generator.ipynb) | Adding a new program (LIHEAP example) |
+| [`03_wic_eligibility.ipynb`](notebooks/03_wic_eligibility.ipynb) | WIC basics: 185% FPL, no asset test, categorical eligibility |
+| [`04_wic_edge_cases.ipynb`](notebooks/04_wic_edge_cases.ipynb) | WIC boundary sweep: income offsets, household size sensitivity |
+| [`05_realistic_profiles.ipynb`](notebooks/05_realistic_profiles.ipynb) | Census ACS distributions vs. uniform sampling |
+| [`06_rationale_evaluation.ipynb`](notebooks/06_rationale_evaluation.ipynb) | Scoring LLM reasoning with `RationaleEvaluator` |
+| [`07_batch_pipeline.ipynb`](notebooks/07_batch_pipeline.ipynb) | Building a full CivBench multi-program test suite |
+| [`08_multi_state_batch.ipynb`](notebooks/08_multi_state_batch.ipynb) | Batch generation across states with HuggingFace export |
+| [`09_cli_workflow.ipynb`](notebooks/09_cli_workflow.ipynb) | Full CLI workflow: generate → validate → show |
+| [`10_custom_generator.ipynb`](notebooks/10_custom_generator.ipynb) | Adding a new program (LIHEAP example) |
 
 ## Policy Data Sources
 
