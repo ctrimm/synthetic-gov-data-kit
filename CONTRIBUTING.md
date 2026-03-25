@@ -19,7 +19,7 @@ the published source. Use `"estimated"` with a clear note otherwise.
 ## Development Setup
 
 ```bash
-git clone https://github.com/your-org/synthetic-gov-data-kit
+git clone https://github.com/ctrimm/synthetic-gov-data-kit
 cd synthetic-gov-data-kit
 pip install -e ".[dev]"
 pre-commit install
