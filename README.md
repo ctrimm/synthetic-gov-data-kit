@@ -24,6 +24,19 @@ This last piece is the key differentiator. You can evaluate not just *what* a mo
 but *whether it reasons correctly* — did it apply the right rules, in the right order, with
 the right computations?
 
+## Use Cases
+
+| Who | What they use it for |
+|-----|----------------------|
+| **AI researchers** | Benchmark LLMs on structured policy reasoning; measure rationale quality, not just answer accuracy |
+| **Civic tech teams** | Generate acceptance test suites before shipping a benefits chatbot or eligibility screener |
+| **Government agencies** | Stress-test AI tools against edge cases (income at threshold, elderly households, asset tests) before procurement or deployment |
+| **ML engineers** | Create fine-tuning or RLHF datasets grounded in real policy rules, without touching real applicant data |
+| **Policy analysts** | Verify that an AI system applies the correct CFR rules in the correct order — not just gets the right answer by coincidence |
+
+See [docs/claude-code-integration.md](docs/claude-code-integration.md) for worked examples
+with Claude Code.
+
 ## Supported Programs (v0.1)
 
 | Program | Agency | Coverage |
