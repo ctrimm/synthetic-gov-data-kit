@@ -268,6 +268,8 @@ govsynth verify-thresholds && echo "All thresholds verified"
 
 ## Notebooks
 
+![Jupyter notebooks screenshot showing SNAP edge case analysis](docs/jupyter_notebooks_screenshot.png)
+
 | Notebook | What it covers |
 |---|---|
 | [`01_quickstart.ipynb`](notebooks/01_quickstart.ipynb) | End-to-end intro: generate, inspect, export, score |
