@@ -164,8 +164,12 @@ class SNAPSource(DataSource):
         dependent_care: float | None = None,
         medical_expenses: float = 0.0,
         has_elderly_or_disabled: bool = False,
+        is_homeless: bool = False,
     ) -> float:
         """Apply 7 CFR 273.9(c) deductions to arrive at SNAP net income."""
+        if is_homeless and shelter_costs and shelter_costs > 0:
+            raise ValueError("is_homeless and shelter_costs > 0 are mutually exclusive")
+
         t = self.thresholds()
         earned = earned_income if earned_income is not None else gross_income
 
@@ -184,13 +188,17 @@ class SNAPSource(DataSource):
         medical_ded = max(0.0, medical_expenses - 35) if has_elderly_or_disabled else 0.0
         after_medical = after_dep_care - medical_ded
 
-        # (c)(5) Excess shelter deduction
-        shelter_ded = 0.0
-        if shelter_costs:
-            shelter_cap = t.extra["excess_shelter_cap"] if t.extra else 744.0
-            half_income = max(0.0, after_medical) * 0.5
-            raw_excess = max(0.0, shelter_costs - half_income)
-            shelter_ded = raw_excess if has_elderly_or_disabled else min(raw_excess, shelter_cap)
+        # (c)(5) Shelter deduction — homeless flat deduction or excess shelter calculation
+        # Per 7 CFR 273.9(c)(6), these two paths are mutually exclusive.
+        if is_homeless:
+            shelter_ded = t.extra["homeless_shelter_deduction"]
+        else:
+            shelter_ded = 0.0
+            if shelter_costs:
+                shelter_cap = t.extra["excess_shelter_cap"] if t.extra else 744.0
+                half_income = max(0.0, after_medical) * 0.5
+                raw_excess = max(0.0, shelter_costs - half_income)
+                shelter_ded = raw_excess if has_elderly_or_disabled else min(raw_excess, shelter_cap)
 
         return max(0.0, after_medical - shelter_ded)
 

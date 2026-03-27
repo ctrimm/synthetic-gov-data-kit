@@ -53,6 +53,14 @@ class USHouseholdProfile:
     # Program-specific extras
     extra: dict[str, Any] = field(default_factory=dict)
 
+    # Special population flags (all default to False/None — backward compatible)
+    is_homeless: bool = False
+    student_status: str | None = None  # None | "enrolled_half_time" | "enrolled_full_time"
+    is_boarder: bool = False
+    is_migrant_worker: bool = False
+    has_ineligible_members: bool = False  # mixed-status HH
+    ineligible_member_count: int = 0
+
     def __post_init__(self) -> None:
         if not self.head_of_household_name:
             self.head_of_household_name = _faker.name()
