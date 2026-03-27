@@ -41,7 +41,7 @@ with Claude Code.
 
 | Program | Agency | Presets | Status |
 |---|---|---|---|
-| SNAP (Food Stamps) | USDA/FNS | `snap.va`, `snap.ca`, `snap.tx`, `snap.md` | Stable |
+| [SNAP (Food Stamps)](docs/programs/snap.md) | USDA/FNS | `snap.va`, `snap.ca`, `snap.tx`, `snap.md` | Stable |
 | WIC | USDA/FNS | `wic.national` | Stable |
 | Medicaid | CMS/HHS | — | In progress |
 
