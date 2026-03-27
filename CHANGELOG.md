@@ -24,6 +24,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `USHouseholdProfile.random(strategy="realistic")` — Census-backed profile generation
 - `--profile-strategy` / `-s` flag on `govsynth generate`
 - Bundled Virginia ACS 2022 census distribution (`data/census/va.json`)
+- Six SNAP special-population edge case types: homeless shelter deduction (7 CFR 273.9(c)(6)), student exclusion (7 CFR 273.5(a)+(b)), boarder income proration (7 CFR 273.1(b)(7)), migrant/seasonal income averaging (7 CFR 273.10(c)(3)), mixed immigration status HH size reduction (7 CFR 273.4(c)(3)), categorical eligibility via TANF/SSI (7 CFR 273.2(j)(2), 273.11(c))
+- `EDGE_CASES.md` — documents all implemented and planned SNAP edge case types with CFR citations
+- Special population fields on `USHouseholdProfile`: `is_homeless`, `student_status`, `is_boarder`, `is_migrant_worker`, `has_ineligible_members`, `ineligible_member_count`
+- `is_homeless` parameter on `SNAPSource.calculate_net_income()` for homeless shelter deduction
 
 ### Fixed
 - `LICENSE` — added full MIT license text with copyright year and holder
