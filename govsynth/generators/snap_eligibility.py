@@ -15,7 +15,7 @@ from govsynth.models.enums import Difficulty, Program, TaskType
 from govsynth.models.rationale import PolicyCitation, RationaleTrace, ReasoningStep
 from govsynth.models.test_case import ScenarioBlock, TaskBlock, TestCase
 from govsynth.profiles.us_household import USHouseholdProfile
-from govsynth.sources.us.snap import SNAPSource, BBCE_STATES, get_standard_deduction
+from govsynth.sources.us.snap import BBCE_STATES, SNAPSource, get_standard_deduction
 
 
 # Threshold types used in edge-saturated generation
@@ -78,6 +78,10 @@ class SNAPEligibilityGenerator:
     ) -> list[TestCase]:
         """Generate n SNAP eligibility test cases.
 
+        When profile_strategy is 'edge_saturated', 20% of cases (minimum 1 per special
+        type if n >= 6) are special-population edge cases. The remainder use threshold-boundary
+        profiles.
+
         Args:
             n: Number of cases to generate.
             profile_strategy: 'edge_saturated' | 'uniform' | 'realistic'
@@ -87,30 +91,735 @@ class SNAPEligibilityGenerator:
             List of TestCase objects.
         """
         rng = random.Random(seed)
-        cases: list[TestCase] = []
 
-        for i in range(n):
+        if profile_strategy != "edge_saturated":
+            # Non-edge-saturated strategies: use existing random profile path
+            cases: list[TestCase] = []
+            for i in range(n):
+                case_seed = rng.randint(0, 2**31) if seed is not None else None
+                profile = USHouseholdProfile.random(state=self.state, seed=case_seed, strategy=profile_strategy)
+                try:
+                    case = self._build_case(profile, case_seed, i)
+                    cases.append(case)
+                except Exception as exc:
+                    print(f"  Warning: skipped case {i} due to error: {exc}")
+            return cases
+
+        # edge_saturated: two-phase split
+        n_special = max(0, min(int(n * 0.20), n))
+        n_special = max(n_special, min(6, n))  # guarantee >= 1 per type if n >= 6
+        n_edge = n - n_special
+
+        special_cases = self._build_special_population_cases(n_special, rng)
+
+        edge_cases: list[TestCase] = []
+        for i in range(n_edge):
             case_seed = rng.randint(0, 2**31) if seed is not None else None
-
-            if profile_strategy == "edge_saturated":
-                profile = self._sample_edge_profile(rng, case_seed)
-            else:
-                profile = USHouseholdProfile.random(
-                    state=self.state, seed=case_seed, strategy=profile_strategy
-                )
-
+            profile = self._sample_edge_profile(rng, case_seed)
             try:
                 case = self._build_case(profile, case_seed, i)
-                cases.append(case)
+                edge_cases.append(case)
             except Exception as exc:
-                # Log and continue — don't let one bad profile abort the batch
-                print(f"  Warning: skipped case {i} due to error: {exc}")
+                print(f"  Warning: skipped edge case {i} due to error: {exc}")
 
-        return cases
+        return special_cases + edge_cases
 
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
+
+    def _build_special_population_cases(self, n: int, rng: random.Random) -> list[TestCase]:
+        """Build n special-population edge cases, cycling through 6 types.
+
+        When n < 6, cycles through first n types. When n >= 6, guarantees at least
+        one case per type.
+        """
+        builders = [
+            self._build_homeless_case,
+            self._build_student_case,
+            self._build_boarder_case,
+            self._build_migrant_case,
+            self._build_mixed_immigration_case,
+            self._build_categorical_eligibility_case,
+        ]
+        cases: list[TestCase] = []
+        for i in range(n):
+            builder = builders[i % len(builders)]
+            try:
+                case = builder(rng)
+                cases.append(case)
+            except Exception as exc:
+                print(f"  Warning: skipped special case {i} due to error: {exc}")
+        return cases
+
+    def _build_homeless_case(self, rng: random.Random) -> TestCase:
+        """Build a homeless shelter deduction edge case (7 CFR 273.9(c)(6))."""
+        t = self.source.thresholds()
+        fy_config = self.source.fy_config
+        hh_size = rng.randint(1, 3)
+        limits = t.by_household_size(hh_size)
+
+        # Income: randomly placed near the threshold so outcome varies
+        gross = round(rng.uniform(limits.gross_monthly * 0.60, limits.gross_monthly * 1.10), 2)
+
+        net_income = self.source.calculate_net_income(
+            gross_income=gross,
+            household_size=hh_size,
+            earned_income=gross,
+            shelter_costs=None,  # homeless: no actual shelter costs
+            is_homeless=True,
+        )
+
+        is_eligible, reason = self.source.is_eligible(
+            household_size=hh_size,
+            gross_income=gross,
+            net_income=net_income,
+            liquid_assets=0.0,
+        )
+
+        homeless_ded = t.extra["homeless_shelter_deduction"]
+        uid = str(uuid.uuid4())[:6]
+        outcome = "eligible" if is_eligible else "ineligible"
+        case_id = f"snap.{self.state.lower()}.eligibility.homeless_shelter_deduction.{outcome}.hh{hh_size}.{uid}"
+
+        std_ded = get_standard_deduction(hh_size)
+        earned_ded = gross * 0.20
+        after_earned = gross - earned_ded
+        after_standard = after_earned - std_ded
+
+        steps = [
+            ReasoningStep(
+                step_number=1,
+                title="Check gross income limit",
+                rule_applied="7 CFR 273.9(a)(1)",
+                inputs={"gross_income": gross, "gross_limit": limits.gross_monthly, "household_size": hh_size},
+                computation=f"${gross:,.2f} {'<=' if gross <= limits.gross_monthly else '>'} ${limits.gross_monthly:,.2f} (130% FPL, {hh_size}-person HH)",
+                result="PASS" if gross <= limits.gross_monthly else "FAIL",
+                is_determinative=gross > limits.gross_monthly,
+            ),
+            ReasoningStep(
+                step_number=2,
+                title="Apply standard deductions (earned income + standard)",
+                rule_applied="7 CFR 273.9(c)(1),(c)(2)",
+                inputs={"earned_deduction": earned_ded, "standard_deduction": std_ded},
+                computation=f"${gross:,.2f} − ${earned_ded:,.2f} (20% earned) − ${std_ded:,.0f} (standard) = ${after_standard:,.2f}",
+                result=f"After earned + standard deductions: ${after_standard:,.2f}",
+                is_determinative=False,
+            ),
+            ReasoningStep(
+                step_number=3,
+                title="Apply homeless shelter deduction (flat $198.99)",
+                rule_applied="7 CFR 273.9(c)(6)",
+                inputs={"homeless_shelter_deduction": homeless_ded},
+                computation=(
+                    f"Household is homeless — apply flat homeless shelter deduction of ${homeless_ded:,.2f} "
+                    f"INSTEAD OF excess shelter deduction (7 CFR 273.9(c)(6)). These two deductions are "
+                    f"mutually exclusive. Net income: ${after_standard:,.2f} − ${homeless_ded:,.2f} = ${net_income:,.2f}"
+                ),
+                result=f"Net income after homeless deduction: ${net_income:,.2f}",
+                is_determinative=False,
+            ),
+            ReasoningStep(
+                step_number=4,
+                title="Check net income limit",
+                rule_applied="7 CFR 273.9(a)(2)",
+                inputs={"net_income": round(net_income, 2), "net_limit": limits.net_monthly},
+                computation=f"${net_income:,.2f} {'<=' if net_income <= limits.net_monthly else '>'} ${limits.net_monthly:,.2f} (100% FPL, {hh_size}-person HH)",
+                result="PASS" if net_income <= limits.net_monthly else "FAIL",
+                is_determinative=net_income > limits.net_monthly,
+            ),
+        ]
+
+        return TestCase(
+            case_id=case_id,
+            program=Program.SNAP.value,
+            jurisdiction=f"us.{self.state.lower()}",
+            task_type=TaskType.ELIGIBILITY,
+            difficulty=Difficulty.HARD,
+            scenario=ScenarioBlock(
+                summary=f"A {hh_size}-person homeless household in {self.state} with ${gross:,.0f}/month gross income. The household has no fixed address.",
+                household_size=hh_size,
+                monthly_gross_income=gross,
+                monthly_net_income=round(net_income, 2),
+                liquid_assets=0.0,
+                state=self.state,
+                additional_context={"is_homeless": True, "threshold_type": "homeless_shelter_deduction"},
+            ),
+            task=TaskBlock(instruction=_TASK_INSTRUCTION),
+            expected_outcome=outcome,
+            expected_answer=(
+                f"This household is {'ELIGIBLE' if is_eligible else 'INELIGIBLE'} for SNAP. "
+                f"As a homeless household, the flat $198.99 homeless shelter deduction (7 CFR 273.9(c)(6)) "
+                f"is applied INSTEAD OF the excess shelter deduction — these are mutually exclusive. "
+                f"Net income after deductions: ${net_income:,.2f}."
+            ),
+            rationale_trace=RationaleTrace(
+                steps=steps,
+                conclusion=f"{'ELIGIBLE' if is_eligible else 'INELIGIBLE'}. {reason}",
+                policy_basis=[PolicyCitation(
+                    document="7 CFR Part 273",
+                    section="7 CFR 273.9(c)(6)",
+                    year=self.fiscal_year,
+                    url="https://www.ecfr.gov/current/title-7/part-273",
+                )],
+            ),
+            variation_tags=["homeless_shelter_deduction"],
+            source_citations=["7 CFR Part 273 (2025)", f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}"],
+            seed=None,
+            metadata={"generator": "SNAPEligibilityGenerator", "profile_strategy": "homeless_shelter_deduction", "state": self.state, "fiscal_year": self.fiscal_year},
+        )
+
+    def _build_student_case(self, rng: random.Random) -> TestCase:
+        """Build a student exclusion edge case (7 CFR 273.5(a),(b)).
+
+        Income is deliberately set BELOW the gross limit to demonstrate that
+        the student exclusion fires regardless of income level.
+        """
+        t = self.source.thresholds()
+        fy_config = self.source.fy_config
+        hh_size = 1
+        limits = t.by_household_size(hh_size)
+
+        # Income well below the gross limit — student is still ineligible
+        gross = round(limits.gross_monthly * rng.uniform(0.40, 0.75), 2)
+
+        uid = str(uuid.uuid4())[:6]
+        case_id = f"snap.{self.state.lower()}.eligibility.student_exclusion.ineligible.hh{hh_size}.{uid}"
+
+        steps = [
+            ReasoningStep(
+                step_number=1,
+                title="Check student status (7 CFR 273.5(a))",
+                rule_applied="7 CFR 273.5(a)",
+                inputs={"student_status": "enrolled_half_time", "household_size": hh_size},
+                computation=(
+                    "Applicant is enrolled at least half-time at an institution of higher education. "
+                    "Under 7 CFR 273.5(a), such students are ineligible for SNAP unless they meet "
+                    "one of the exceptions listed in 7 CFR 273.5(b)."
+                ),
+                result="Student flag: TRIGGERED — must check exceptions",
+                is_determinative=False,
+            ),
+            ReasoningStep(
+                step_number=2,
+                title="Check 7 CFR 273.5(b) exceptions",
+                rule_applied="7 CFR 273.5(b)",
+                inputs={"exceptions_checked": ["20hr_work", "single_parent_under6", "tanf", "work_study"]},
+                computation=(
+                    "Exceptions checked: (1) Working 20+ hours/week — NO. "
+                    "(2) Single parent with dependent child under age 6 — NO. "
+                    "(3) Receiving TANF — NO. "
+                    "(4) Participating in state/federal work-study — NO. "
+                    "No exception applies."
+                ),
+                result="INELIGIBLE — student exclusion applies, no exception met",
+                is_determinative=True,
+                note=(
+                    f"Income test not reached. Note: gross income ${gross:,.2f} is below "
+                    f"the ${limits.gross_monthly:,.2f} limit, but income level is irrelevant — "
+                    "the student exclusion fires before the income test."
+                ),
+            ),
+        ]
+
+        return TestCase(
+            case_id=case_id,
+            program=Program.SNAP.value,
+            jurisdiction=f"us.{self.state.lower()}",
+            task_type=TaskType.ELIGIBILITY,
+            difficulty=Difficulty.HARD,
+            scenario=ScenarioBlock(
+                summary=(
+                    f"A college student enrolled half-time in {self.state} with ${gross:,.0f}/month "
+                    f"gross income (below the {hh_size}-person gross limit of ${limits.gross_monthly:,.0f}). "
+                    f"The student works part-time but fewer than 20 hours/week, has no dependent children, "
+                    f"does not receive TANF, and is not enrolled in work-study."
+                ),
+                household_size=hh_size,
+                monthly_gross_income=gross,
+                liquid_assets=round(rng.uniform(0, 500), -2),
+                state=self.state,
+                additional_context={
+                    "student_status": "enrolled_half_time",
+                    "threshold_type": "student_exclusion",
+                    "tanf_recipient": False,
+                    "work_study": False,
+                    "hours_worked_per_week": rng.randint(5, 15),
+                },
+            ),
+            task=TaskBlock(instruction=_TASK_INSTRUCTION),
+            expected_outcome="ineligible",
+            expected_answer=(
+                f"This household is INELIGIBLE for SNAP. "
+                f"Although the applicant's gross income of ${gross:,.2f} is below the "
+                f"${limits.gross_monthly:,.2f} gross income limit, the student exclusion under "
+                f"7 CFR 273.5(a) applies. The applicant is enrolled at least half-time and does not "
+                f"meet any of the exceptions under 7 CFR 273.5(b). The income test is not reached."
+            ),
+            rationale_trace=RationaleTrace(
+                steps=steps,
+                conclusion="INELIGIBLE. Student exclusion (7 CFR 273.5(a)) applies — no 273.5(b) exception met. Income test not reached.",
+                policy_basis=[PolicyCitation(
+                    document="7 CFR Part 273",
+                    section="7 CFR 273.5(a),(b)",
+                    year=self.fiscal_year,
+                    url="https://www.ecfr.gov/current/title-7/part-273",
+                )],
+            ),
+            variation_tags=["student_exclusion"],
+            source_citations=["7 CFR Part 273 (2025)", f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}"],
+            seed=None,
+            metadata={"generator": "SNAPEligibilityGenerator", "profile_strategy": "student_exclusion", "state": self.state, "fiscal_year": self.fiscal_year},
+        )
+
+    def _build_boarder_case(self, rng: random.Random) -> TestCase:
+        """Build a boarder/lodger income proration case (7 CFR 273.1(b)(7))."""
+        t = self.source.thresholds()
+        fy_config = self.source.fy_config
+        hh_size = rng.randint(1, 3)
+        limits = t.by_household_size(hh_size)
+
+        # Board payment received; only profit portion counts
+        board_total = round(rng.uniform(600, 1200), -1)
+        board_cost = round(board_total * rng.uniform(0.55, 0.80), -1)
+        board_profit = round(board_total - board_cost, 2)
+
+        # Other income (earned wages)
+        other_income = round(rng.uniform(200, limits.gross_monthly * 0.60), 2)
+        countable_income = other_income + board_profit  # Only profit counts
+
+        net_income = self.source.calculate_net_income(
+            gross_income=countable_income,
+            household_size=hh_size,
+            earned_income=other_income,  # Board profit is unearned
+        )
+
+        is_eligible, reason = self.source.is_eligible(
+            household_size=hh_size,
+            gross_income=countable_income,
+            net_income=net_income,
+            liquid_assets=round(rng.uniform(0, 1000), -2),
+        )
+
+        uid = str(uuid.uuid4())[:6]
+        outcome = "eligible" if is_eligible else "ineligible"
+        case_id = f"snap.{self.state.lower()}.eligibility.boarder_income_proration.{outcome}.hh{hh_size}.{uid}"
+
+        steps = [
+            ReasoningStep(
+                step_number=1,
+                title="Determine countable income from board payments (7 CFR 273.1(b)(7))",
+                rule_applied="7 CFR 273.1(b)(7)",
+                inputs={"board_payment_received": board_total, "actual_cost_of_board": board_cost},
+                computation=(
+                    f"Board payment received: ${board_total:,.2f}. Actual cost of providing food/shelter: "
+                    f"${board_cost:,.2f}. Profit (countable income): ${board_total:,.2f} − ${board_cost:,.2f} = ${board_profit:,.2f}. "
+                    f"Only the profit portion counts as income under 7 CFR 273.1(b)(7)."
+                ),
+                result=f"Countable boarder income: ${board_profit:,.2f} (profit only)",
+                is_determinative=False,
+            ),
+            ReasoningStep(
+                step_number=2,
+                title="Calculate total countable gross income",
+                rule_applied="7 CFR 273.9(a)(1)",
+                inputs={"other_income": other_income, "board_profit": board_profit},
+                computation=f"${other_income:,.2f} (wages) + ${board_profit:,.2f} (board profit) = ${countable_income:,.2f} total countable income",
+                result=f"Total gross income: ${countable_income:,.2f} vs limit ${limits.gross_monthly:,.2f}",
+                is_determinative=countable_income > limits.gross_monthly,
+            ),
+            ReasoningStep(
+                step_number=3,
+                title="Net income after deductions",
+                rule_applied="7 CFR 273.9(c)(1),(c)(2)",
+                inputs={"gross_income": countable_income, "net_income": round(net_income, 2)},
+                computation=f"Net income: ${net_income:,.2f} vs limit ${limits.net_monthly:,.2f}",
+                result="PASS" if net_income <= limits.net_monthly else "FAIL",
+                is_determinative=net_income > limits.net_monthly,
+            ),
+        ]
+
+        return TestCase(
+            case_id=case_id,
+            program=Program.SNAP.value,
+            jurisdiction=f"us.{self.state.lower()}",
+            task_type=TaskType.ELIGIBILITY,
+            difficulty=Difficulty.HARD,
+            scenario=ScenarioBlock(
+                summary=(
+                    f"A {hh_size}-person household in {self.state} earns ${other_income:,.0f}/month in wages "
+                    f"and takes in a boarder who pays ${board_total:,.0f}/month. The actual cost of providing "
+                    f"food and lodging is ${board_cost:,.0f}/month, leaving a profit of ${board_profit:,.0f}/month."
+                ),
+                household_size=hh_size,
+                monthly_gross_income=countable_income,
+                monthly_net_income=round(net_income, 2),
+                liquid_assets=round(rng.uniform(0, 1000), -2),
+                state=self.state,
+                additional_context={
+                    "is_boarder": True,
+                    "board_payment_total": board_total,
+                    "board_cost": board_cost,
+                    "boarder_income": board_profit,
+                    "threshold_type": "boarder_income_proration",
+                },
+            ),
+            task=TaskBlock(instruction=_TASK_INSTRUCTION),
+            expected_outcome=outcome,
+            expected_answer=(
+                f"This household is {'ELIGIBLE' if is_eligible else 'INELIGIBLE'}. "
+                f"Under 7 CFR 273.1(b)(7), only the profit portion of board payments counts as income. "
+                f"Of the ${board_total:,.2f} received, ${board_cost:,.2f} covers actual costs, leaving "
+                f"${board_profit:,.2f} as countable income. Total countable gross: ${countable_income:,.2f}."
+            ),
+            rationale_trace=RationaleTrace(
+                steps=steps,
+                conclusion=f"{'ELIGIBLE' if is_eligible else 'INELIGIBLE'}. {reason}",
+                policy_basis=[PolicyCitation(
+                    document="7 CFR Part 273",
+                    section="7 CFR 273.1(b)(7)",
+                    year=self.fiscal_year,
+                    url="https://www.ecfr.gov/current/title-7/part-273",
+                )],
+            ),
+            variation_tags=["boarder_income_proration"],
+            source_citations=["7 CFR Part 273 (2025)", f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}"],
+            seed=None,
+            metadata={"generator": "SNAPEligibilityGenerator", "profile_strategy": "boarder_income_proration", "state": self.state, "fiscal_year": self.fiscal_year},
+        )
+
+    def _build_migrant_case(self, rng: random.Random) -> TestCase:
+        """Build a migrant/seasonal worker income averaging case (7 CFR 273.10(c)(3))."""
+        t = self.source.thresholds()
+        fy_config = self.source.fy_config
+        hh_size = rng.randint(2, 4)
+        limits = t.by_household_size(hh_size)
+
+        work_months = rng.randint(4, 8)
+        seasonal_total = round(rng.uniform(limits.gross_monthly * work_months * 0.70, limits.gross_monthly * work_months * 1.20), 2)
+        averaged_monthly = round(seasonal_total / work_months, 2)
+
+        net_income = self.source.calculate_net_income(
+            gross_income=averaged_monthly,
+            household_size=hh_size,
+            earned_income=averaged_monthly,
+        )
+
+        is_eligible, reason = self.source.is_eligible(
+            household_size=hh_size,
+            gross_income=averaged_monthly,
+            net_income=net_income,
+            liquid_assets=round(rng.uniform(0, 800), -2),
+        )
+
+        uid = str(uuid.uuid4())[:6]
+        outcome = "eligible" if is_eligible else "ineligible"
+        case_id = f"snap.{self.state.lower()}.eligibility.migrant_income_averaging.{outcome}.hh{hh_size}.{uid}"
+
+        steps = [
+            ReasoningStep(
+                step_number=1,
+                title="Determine income averaging period (7 CFR 273.10(c)(3))",
+                rule_applied="7 CFR 273.10(c)(3)",
+                inputs={"seasonal_total": seasonal_total, "work_months": work_months},
+                computation=(
+                    f"Applicant is a migrant/seasonal worker. Total seasonal earnings: ${seasonal_total:,.2f} "
+                    f"over {work_months} months. Per 7 CFR 273.10(c)(3), income is averaged over the "
+                    f"work period: ${seasonal_total:,.2f} ÷ {work_months} months = ${averaged_monthly:,.2f}/month."
+                ),
+                result=f"Averaged monthly income: ${averaged_monthly:,.2f}",
+                is_determinative=False,
+            ),
+            ReasoningStep(
+                step_number=2,
+                title="Apply averaged income to gross income test",
+                rule_applied="7 CFR 273.9(a)(1)",
+                inputs={"averaged_monthly": averaged_monthly, "gross_limit": limits.gross_monthly},
+                computation=f"${averaged_monthly:,.2f} {'<=' if averaged_monthly <= limits.gross_monthly else '>'} ${limits.gross_monthly:,.2f} (130% FPL, {hh_size}-person HH)",
+                result="PASS" if averaged_monthly <= limits.gross_monthly else "FAIL",
+                is_determinative=averaged_monthly > limits.gross_monthly,
+            ),
+            ReasoningStep(
+                step_number=3,
+                title="Net income test",
+                rule_applied="7 CFR 273.9(a)(2)",
+                inputs={"net_income": round(net_income, 2), "net_limit": limits.net_monthly},
+                computation=f"${net_income:,.2f} {'<=' if net_income <= limits.net_monthly else '>'} ${limits.net_monthly:,.2f}",
+                result="PASS" if net_income <= limits.net_monthly else "FAIL",
+                is_determinative=net_income > limits.net_monthly,
+            ),
+        ]
+
+        return TestCase(
+            case_id=case_id,
+            program=Program.SNAP.value,
+            jurisdiction=f"us.{self.state.lower()}",
+            task_type=TaskType.ELIGIBILITY,
+            difficulty=Difficulty.HARD,
+            scenario=ScenarioBlock(
+                summary=(
+                    f"A {hh_size}-person household in {self.state} with a migrant agricultural worker. "
+                    f"The worker earns ${seasonal_total:,.0f} over a {work_months}-month seasonal work period, "
+                    f"averaging ${averaged_monthly:,.0f}/month."
+                ),
+                household_size=hh_size,
+                monthly_gross_income=averaged_monthly,
+                monthly_net_income=round(net_income, 2),
+                liquid_assets=round(rng.uniform(0, 800), -2),
+                state=self.state,
+                additional_context={
+                    "is_migrant_worker": True,
+                    "seasonal_total": seasonal_total,
+                    "work_months": work_months,
+                    "threshold_type": "migrant_income_averaging",
+                },
+            ),
+            task=TaskBlock(instruction=_TASK_INSTRUCTION),
+            expected_outcome=outcome,
+            expected_answer=(
+                f"This household is {'ELIGIBLE' if is_eligible else 'INELIGIBLE'}. "
+                f"Under 7 CFR 273.10(c)(3), seasonal/migrant income is averaged over the work period. "
+                f"${seasonal_total:,.2f} ÷ {work_months} months = ${averaged_monthly:,.2f}/month averaged income."
+            ),
+            rationale_trace=RationaleTrace(
+                steps=steps,
+                conclusion=f"{'ELIGIBLE' if is_eligible else 'INELIGIBLE'}. {reason}",
+                policy_basis=[PolicyCitation(
+                    document="7 CFR Part 273",
+                    section="7 CFR 273.10(c)(3)",
+                    year=self.fiscal_year,
+                    url="https://www.ecfr.gov/current/title-7/part-273",
+                )],
+            ),
+            variation_tags=["migrant_income_averaging"],
+            source_citations=["7 CFR Part 273 (2025)", f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}"],
+            seed=None,
+            metadata={"generator": "SNAPEligibilityGenerator", "profile_strategy": "migrant_income_averaging", "state": self.state, "fiscal_year": self.fiscal_year},
+        )
+
+    def _build_mixed_immigration_case(self, rng: random.Random) -> TestCase:
+        """Build a mixed immigration status case (7 CFR 273.4(c)(3)).
+
+        Ineligible members are excluded from household SIZE for limit lookup,
+        but their income still counts in full.
+        """
+        t = self.source.thresholds()
+        fy_config = self.source.fy_config
+        total_members = rng.randint(3, 5)
+        ineligible_count = 1
+        eligible_count = total_members - ineligible_count  # HH size for limit lookup
+
+        limits_reduced = t.by_household_size(eligible_count)
+
+        # Income near the reduced-size limit to make the case interesting
+        gross = round(rng.uniform(limits_reduced.gross_monthly * 0.80, limits_reduced.gross_monthly * 1.15), 2)
+
+        net_income = self.source.calculate_net_income(
+            gross_income=gross,
+            household_size=eligible_count,  # Use reduced HH size for deductions
+            earned_income=gross,
+        )
+
+        is_eligible, reason = self.source.is_eligible(
+            household_size=eligible_count,  # Reduced size for limit lookup
+            gross_income=gross,             # Full income
+            net_income=net_income,
+            liquid_assets=round(rng.uniform(0, 1500), -2),
+        )
+
+        uid = str(uuid.uuid4())[:6]
+        outcome = "eligible" if is_eligible else "ineligible"
+        case_id = f"snap.{self.state.lower()}.eligibility.mixed_immigration_status_hh_size_reduction.{outcome}.hh{total_members}.{uid}"
+
+        steps = [
+            ReasoningStep(
+                step_number=1,
+                title="Identify household composition — mixed immigration status (7 CFR 273.4(c)(3))",
+                rule_applied="7 CFR 273.4(c)(3)",
+                inputs={"total_members": total_members, "ineligible_members": ineligible_count, "eligible_members": eligible_count},
+                computation=(
+                    f"Total household members: {total_members}. Ineligible (non-qualified alien) members: {ineligible_count}. "
+                    f"Under 7 CFR 273.4(c)(3), ineligible members are excluded from household size for limit lookup. "
+                    f"HH size for limit lookup: {total_members} − {ineligible_count} = {eligible_count}. "
+                    f"NOTE: Their income still counts in full — this is NOT income proration "
+                    f"(income proration applies only to sponsored noncitizens under 7 CFR 273.11(c)(3))."
+                ),
+                result=f"HH size for limit lookup: {eligible_count} (reduced from {total_members}). Income counted: full ${gross:,.2f}.",
+                is_determinative=False,
+            ),
+            ReasoningStep(
+                step_number=2,
+                title="Apply gross income test using reduced household size",
+                rule_applied="7 CFR 273.9(a)(1)",
+                inputs={"gross_income": gross, "gross_limit": limits_reduced.gross_monthly, "hh_size_for_test": eligible_count},
+                computation=(
+                    f"Using {eligible_count}-person household limits (after excluding ineligible member): "
+                    f"${gross:,.2f} {'<=' if gross <= limits_reduced.gross_monthly else '>'} ${limits_reduced.gross_monthly:,.2f} (130% FPL)"
+                ),
+                result="PASS" if gross <= limits_reduced.gross_monthly else "FAIL",
+                is_determinative=gross > limits_reduced.gross_monthly,
+            ),
+            ReasoningStep(
+                step_number=3,
+                title="Net income test",
+                rule_applied="7 CFR 273.9(a)(2)",
+                inputs={"net_income": round(net_income, 2), "net_limit": limits_reduced.net_monthly},
+                computation=f"${net_income:,.2f} {'<=' if net_income <= limits_reduced.net_monthly else '>'} ${limits_reduced.net_monthly:,.2f} (100% FPL, {eligible_count}-person HH)",
+                result="PASS" if net_income <= limits_reduced.net_monthly else "FAIL",
+                is_determinative=net_income > limits_reduced.net_monthly,
+            ),
+        ]
+
+        return TestCase(
+            case_id=case_id,
+            program=Program.SNAP.value,
+            jurisdiction=f"us.{self.state.lower()}",
+            task_type=TaskType.ELIGIBILITY,
+            difficulty=Difficulty.HARD,
+            scenario=ScenarioBlock(
+                summary=(
+                    f"A {total_members}-person household in {self.state} with mixed immigration status. "
+                    f"{ineligible_count} household member is a non-qualified alien (ineligible for SNAP). "
+                    f"Total household gross income is ${gross:,.0f}/month (all members combined)."
+                ),
+                household_size=total_members,
+                monthly_gross_income=gross,
+                monthly_net_income=round(net_income, 2),
+                liquid_assets=round(rng.uniform(0, 1500), -2),
+                state=self.state,
+                additional_context={
+                    "has_ineligible_members": True,
+                    "ineligible_member_count": ineligible_count,
+                    "eligible_member_count": eligible_count,
+                    "threshold_type": "mixed_immigration_status_hh_size_reduction",
+                },
+            ),
+            task=TaskBlock(instruction=_TASK_INSTRUCTION),
+            expected_outcome=outcome,
+            expected_answer=(
+                f"This household is {'ELIGIBLE' if is_eligible else 'INELIGIBLE'}. "
+                f"Under 7 CFR 273.4(c)(3), the {ineligible_count} ineligible member is excluded from "
+                f"household size for limit lookup ({total_members}→{eligible_count} persons), but their income "
+                f"counts in full. The household's full income of ${gross:,.2f} is tested against "
+                f"{eligible_count}-person limits."
+            ),
+            rationale_trace=RationaleTrace(
+                steps=steps,
+                conclusion=f"{'ELIGIBLE' if is_eligible else 'INELIGIBLE'}. {reason} (using {eligible_count}-person limits per 7 CFR 273.4(c)(3))",
+                policy_basis=[PolicyCitation(
+                    document="7 CFR Part 273",
+                    section="7 CFR 273.4(c)(3)",
+                    year=self.fiscal_year,
+                    url="https://www.ecfr.gov/current/title-7/part-273",
+                )],
+            ),
+            variation_tags=["mixed_immigration_status_hh_size_reduction"],
+            source_citations=["7 CFR Part 273 (2025)", f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}"],
+            seed=None,
+            metadata={"generator": "SNAPEligibilityGenerator", "profile_strategy": "mixed_immigration_status_hh_size_reduction", "state": self.state, "fiscal_year": self.fiscal_year},
+        )
+
+    def _build_categorical_eligibility_case(self, rng: random.Random) -> TestCase:
+        """Build a categorical eligibility (TANF/SSI) case (7 CFR 273.2(j)(2), 273.11(c)).
+
+        Income is set ABOVE the normal gross limit to demonstrate that the income test is skipped.
+        """
+        t = self.source.thresholds()
+        fy_config = self.source.fy_config
+        hh_size = rng.randint(1, 4)
+        limits = t.by_household_size(hh_size)
+
+        # Income ABOVE the gross limit — would be ineligible without categorical eligibility
+        gross = round(limits.gross_monthly * rng.uniform(1.10, 1.40), 2)
+        unearned = round(rng.uniform(200, 600), -1)  # SSI/TANF benefit
+
+        uid = str(uuid.uuid4())[:6]
+        case_id = f"snap.{self.state.lower()}.eligibility.categorical_eligibility_tanf_ssi.eligible.hh{hh_size}.{uid}"
+
+        steps = [
+            ReasoningStep(
+                step_number=1,
+                title="Check categorical eligibility (7 CFR 273.2(j)(2))",
+                rule_applied="7 CFR 273.2(j)(2)",
+                inputs={"tanf_or_ssi_recipient": True, "unearned_income": unearned},
+                computation=(
+                    f"Household receives TANF/SSI benefits (${unearned:,.0f}/month). "
+                    f"Under 7 CFR 273.2(j)(2), households receiving TANF cash assistance are categorically "
+                    f"eligible for SNAP. SSI recipients are categorically eligible under 7 CFR 273.11(c). "
+                    f"Categorical eligibility means the income test is SKIPPED ENTIRELY."
+                ),
+                result="CATEGORICALLY ELIGIBLE — income test skipped",
+                is_determinative=True,
+            ),
+            ReasoningStep(
+                step_number=2,
+                title="Income test — skipped due to categorical eligibility",
+                rule_applied="7 CFR 273.2(j)(2)",
+                inputs={"gross_income": gross, "gross_limit": limits.gross_monthly, "skipped": True},
+                computation=(
+                    f"NOTE: Gross income ${gross:,.2f} exceeds the ${limits.gross_monthly:,.2f} limit "
+                    f"(130% FPL for {hh_size}-person HH). However, the income test is not applied because "
+                    f"the household is categorically eligible. This is a common model error — running the "
+                    f"income test after categorical eligibility is established incorrectly returns INELIGIBLE."
+                ),
+                result="SKIPPED — categorical eligibility overrides income test",
+                is_determinative=False,
+            ),
+        ]
+
+        return TestCase(
+            case_id=case_id,
+            program=Program.SNAP.value,
+            jurisdiction=f"us.{self.state.lower()}",
+            task_type=TaskType.ELIGIBILITY,
+            difficulty=Difficulty.HARD,
+            scenario=ScenarioBlock(
+                summary=(
+                    f"A {hh_size}-person household in {self.state} with ${gross:,.0f}/month gross income "
+                    f"(above the normal limit) and ${unearned:,.0f}/month in TANF/SSI benefits."
+                ),
+                household_size=hh_size,
+                monthly_gross_income=gross,
+                liquid_assets=round(rng.uniform(0, 2000), -2),
+                state=self.state,
+                has_elderly_or_disabled=True,
+                additional_context={
+                    "tanf_or_ssi_recipient": True,
+                    "unearned_income": unearned,
+                    "threshold_type": "categorical_eligibility_tanf_ssi",
+                },
+            ),
+            task=TaskBlock(instruction=_TASK_INSTRUCTION),
+            expected_outcome="eligible",
+            expected_answer=(
+                f"This household is ELIGIBLE for SNAP under categorical eligibility. "
+                f"Although gross income of ${gross:,.2f} exceeds the ${limits.gross_monthly:,.2f} limit, "
+                f"the household receives TANF/SSI benefits. Under 7 CFR 273.2(j)(2) and 7 CFR 273.11(c), "
+                f"these recipients are categorically eligible — the income test is skipped entirely."
+            ),
+            rationale_trace=RationaleTrace(
+                steps=steps,
+                conclusion=f"ELIGIBLE. Household is categorically eligible via TANF/SSI (7 CFR 273.2(j)(2), 273.11(c)) — income test skipped.",
+                policy_basis=[
+                    PolicyCitation(
+                        document="7 CFR Part 273",
+                        section="7 CFR 273.2(j)(2)",
+                        year=self.fiscal_year,
+                        url="https://www.ecfr.gov/current/title-7/part-273",
+                    ),
+                    PolicyCitation(
+                        document="7 CFR Part 273",
+                        section="7 CFR 273.11(c)",
+                        year=self.fiscal_year,
+                        url="https://www.ecfr.gov/current/title-7/part-273",
+                    ),
+                ],
+            ),
+            variation_tags=["categorical_eligibility_tanf_ssi"],
+            source_citations=["7 CFR Part 273 (2025)", f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}"],
+            seed=None,
+            metadata={"generator": "SNAPEligibilityGenerator", "profile_strategy": "categorical_eligibility_tanf_ssi", "state": self.state, "fiscal_year": self.fiscal_year},
+        )
 
     def _sample_edge_profile(
         self, rng: random.Random, seed: int | None
