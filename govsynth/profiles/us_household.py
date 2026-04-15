@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any
 
 from faker import Faker
@@ -310,6 +311,7 @@ def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfi
 # ---------------------------------------------------------------------------
 
 
+@lru_cache(maxsize=128)
 def _household_description(size: int, has_children: bool) -> str:
     if size == 1:
         return "individual"

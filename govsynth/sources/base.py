@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,15 @@ from typing import Any
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
 THRESHOLD_DIR = DATA_DIR / "thresholds"
 SEED_DIR = DATA_DIR / "seeds"
+
+
+@lru_cache(maxsize=128)
+def _load_json_file(path_str: str) -> dict[str, Any]:
+    """Cached JSON file loader to avoid redundant I/O and parsing."""
+    import json
+
+    with open(path_str) as f:
+        return json.load(f)
 
 
 @dataclass
@@ -105,16 +115,14 @@ class DataSource(ABC):
 
     def _load_threshold_json(self, filename: str) -> dict[str, Any]:
         """Load a threshold JSON file from data/thresholds/."""
-        import json
-
         path = THRESHOLD_DIR / filename
         if not path.exists():
             raise FileNotFoundError(
                 f"Threshold file not found: {path}. "
                 "Run `govsynth update-thresholds` to download latest data."
             )
-        with open(path) as f:
-            return json.load(f)
+        # Use cached loader to avoid redundant disk I/O and parsing
+        return _load_json_file(str(path))
 
     def _load_seed_text(self, *path_parts: str) -> str:
         """Load a policy seed text file from data/seeds/."""
