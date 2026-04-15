@@ -11,6 +11,8 @@ FISCAL YEAR:
 """
 from __future__ import annotations
 
+from functools import lru_cache
+
 from govsynth.fiscal_year import DEFAULT_SNAP_FY, FiscalYearConfig
 from govsynth.sources.base import DataSource, HouseholdThreshold, ProgramThresholds
 
@@ -33,6 +35,7 @@ ALASKA_RURAL1 = {"Bethel", "Dillingham", "Nome", "Kodiak Island", "Lake and Peni
                  "Bristol Bay", "Aleutians West", "Aleutians East"}
 
 
+@lru_cache(maxsize=128)
 def get_standard_deduction(household_size: int, region: str = "48_states_dc") -> float:
     """Return the FY2026 standard deduction for a given household size and region.
 
