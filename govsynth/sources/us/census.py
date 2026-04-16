@@ -13,9 +13,17 @@ from __future__ import annotations
 import json
 import warnings
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 _CENSUS_DIR = Path(__file__).parent.parent.parent.parent / "data" / "census"
+
+
+@lru_cache(maxsize=64)
+def _load_census_json(path_str: str) -> dict:
+    """Cached JSON loader for census data."""
+    with open(path_str, encoding="utf-8") as f:
+        return json.load(f)
 
 
 @dataclass
@@ -76,8 +84,7 @@ class CensusDataSource:
             if not path.exists():
                 return None
 
-        with open(path, encoding="utf-8") as f:
-            data = json.load(f)
+        data = _load_census_json(str(path))
 
         return _parse(data)
 
