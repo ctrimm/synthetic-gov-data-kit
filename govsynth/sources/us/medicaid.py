@@ -19,12 +19,20 @@ MAGI vs SNAP NET INCOME:
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from pathlib import Path
 
 from govsynth.fiscal_year import DEFAULT_MEDICAID_CY, FiscalYearConfig
 from govsynth.sources.base import DataSource, HouseholdThreshold, ProgramThresholds
 
 _DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "thresholds"
+
+
+@lru_cache(maxsize=16)
+def _load_fpl_json(path_str: str) -> dict:
+    """Cached loader for FPL guidelines JSON."""
+    with open(path_str) as f:
+        return json.load(f)
 
 
 class MedicaidSource(DataSource):
@@ -68,8 +76,7 @@ class MedicaidSource(DataSource):
         # Build a synthetic threshold table from FPL percentages
         # Using the 2026 FPL from us_fpl_2026.json
         fpl_file = _DATA_DIR / f"us_fpl_{self.fy_config.fpl_year}.json"
-        with open(fpl_file) as f:
-            fpl_data = json.load(f)
+        fpl_data = _load_fpl_json(str(fpl_file))
 
         fpl_by_size = fpl_data["regions"]["contiguous_48_dc"]["by_household_size"]
 
@@ -137,8 +144,7 @@ class MedicaidSource(DataSource):
         """
         raw = self._load_raw()
         fpl_file = _DATA_DIR / f"us_fpl_{self.fy_config.fpl_year}.json"
-        with open(fpl_file) as f:
-            fpl_data = json.load(f)
+        fpl_data = _load_fpl_json(str(fpl_file))
         monthly_fpl_1 = float(fpl_data["regions"]["contiguous_48_dc"]["by_household_size"]["1"]["monthly"])
 
         expansion = self.is_expansion_state()
@@ -179,8 +185,7 @@ class MedicaidSource(DataSource):
             applicant_type: 'adult', 'pregnant', 'child', 'parent_caretaker'
         """
         fpl_file = _DATA_DIR / f"us_fpl_{self.fy_config.fpl_year}.json"
-        with open(fpl_file) as f:
-            fpl_data = json.load(f)
+        fpl_data = _load_fpl_json(str(fpl_file))
         sizes = fpl_data["regions"]["contiguous_48_dc"]["by_household_size"]
         key = str(min(household_size, 8))
         monthly_fpl = float(sizes[key]["monthly"])
