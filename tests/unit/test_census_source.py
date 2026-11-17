@@ -220,7 +220,9 @@ class TestRealisticMarginalsMatchBundledCensus:
 
     Guards the household-level semantics: pct_with_children is a share of ALL
     households (sampled only for size > 1, so rescaled), and the 60+ head rule
-    must not push the elderly/disabled share past the ACS target.
+    must not push the elderly/disabled share past the ACS target. Runs the
+    summary-marginals path (PUMS household types disabled); the joint-type path
+    is covered in test_household_types.py.
     """
 
     N = 4000
@@ -231,7 +233,10 @@ class TestRealisticMarginalsMatchBundledCensus:
         from govsynth.profiles.us_household import USHouseholdProfile
 
         data = json.loads((vintage_dir(DEFAULT_CENSUS_VINTAGE) / "va.json").read_text())
-        profiles = [USHouseholdProfile.random(state="VA", seed=i, strategy="realistic") for i in range(self.N)]
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr("govsynth.sources.us.household_types.load_household_types", lambda *a, **k: None)
+            profiles = [USHouseholdProfile.random(state="VA", seed=i, strategy="realistic") for i in range(self.N)]
+        assert {p.household_model for p in profiles} == {"acs_marginals"}
         return profiles, data
 
     def _share(self, profiles: list, pred: object) -> float:

@@ -20,7 +20,8 @@ from faker import Faker
 from govsynth.models.enums import CitizenshipStatus
 
 if TYPE_CHECKING:
-    from govsynth.sources.us.census import CensusVintage
+    from govsynth.sources.us.census import CensusDistribution, CensusVintage
+    from govsynth.sources.us.household_types import HouseholdTypes
 
 _faker = Faker("en_US")
 
@@ -92,6 +93,10 @@ class USHouseholdProfile:
     # The calendar year whose dollars `monthly_gross_income` is stated in, for
     # 'realistic' profiles (the census vintage's year unless restated); else None.
     income_dollar_year: int | None = None
+    # Which census model drew a 'realistic' profile: "pums_household_types" (joint
+    # household types from ACS PUMS, #8) or "acs_marginals" (independent per-trait
+    # summary-table rates); None for other strategies / built-in fallback numbers.
+    household_model: str | None = None
 
     def __post_init__(self) -> None:
         if not self.head_of_household_name:
@@ -513,6 +518,12 @@ def _build_realistic_profile(
             shelter_costs=round(rng.uniform(600, 2500), -1),
         )
 
+    from govsynth.sources.us.household_types import load_household_types
+
+    types = load_household_types(state, dist.vintage)
+    if types is not None:
+        return _build_from_household_types(state, rng, dist, types, income_dollar_year)
+
     # Step 3: household size from ACS weights
     hh_size = rng.choices(list(range(1, 7)), weights=dist.household_size_weights)[0]
 
@@ -601,6 +612,71 @@ def _build_realistic_profile(
         age_of_head=age,
         census_vintage=dist.vintage,
         income_dollar_year=dollar_year,
+        household_model="acs_marginals",
+    )
+
+
+def _build_from_household_types(
+    state: str,
+    rng: random.Random,
+    dist: CensusDistribution,
+    types: HouseholdTypes,
+    income_dollar_year: int | None,
+) -> USHouseholdProfile:
+    """Build a realistic profile from a joint PUMS household type (#8).
+
+    Size, income band, elderly/disabled, children, earnings, head citizenship and
+    head age band come from one weighted type, so their correlations are kept.
+    Values within the type (exact income, age, earned share) are drawn
+    synthetically; shelter costs and assets still come from the summary file.
+    """
+    t = types.sample(rng)
+    annual = types.draw_annual_income(t, rng)
+    dollar_year = int(types.raw["_metadata"]["dollar_year"])
+    if income_dollar_year is not None:
+        from govsynth.sources.us.cpi import inflation_factor
+
+        annual *= inflation_factor(dollar_year, income_dollar_year)
+        dollar_year = income_dollar_year
+    gross = max(round(annual / 12, -1), 0.0)
+    age = types.draw_head_age(t, rng)
+
+    if t.head_citizen:
+        citizenship = CitizenshipStatus.CITIZEN
+    elif rng.random() < dist.pct_noncitizen_eligible / max(1.0 - dist.pct_citizen, 1e-9):
+        # Same qualified share of non-citizens as the summary file applies.
+        citizenship = CitizenshipStatus.QUALIFIED_ALIEN
+    else:
+        citizenship = CitizenshipStatus.NON_QUALIFIED_ALIEN
+
+    # A type with earnings but zero/negative income gets earned = gross (= 0); the
+    # earned flag below then reflects only positive earned dollars.
+    earned = round(gross * t.earned_share, -1) if t.earns else 0.0
+    if t.earns and gross > 0 and earned <= 0:
+        earned = min(10.0, gross)
+    unearned = float(gross) - earned
+
+    if rng.random() < dist.pct_renter:
+        sigma = dist.median_gross_rent_monthly * 0.3
+        shelter = max(0.0, round(rng.normalvariate(dist.median_gross_rent_monthly, sigma), -1))
+    else:
+        shelter = round(rng.uniform(400, 1200), -1)
+
+    return USHouseholdProfile(
+        household_size=t.size,
+        monthly_gross_income=float(gross),
+        state=state.upper(),
+        liquid_assets=round(rng.uniform(0, 3000), -2),
+        has_elderly_or_disabled=t.eld_dis,
+        has_dependent_children=t.kids,
+        citizenship_status=citizenship,
+        earned_income=float(earned),
+        unearned_income=unearned,
+        shelter_costs=shelter,
+        age_of_head=age,
+        census_vintage=dist.vintage,
+        income_dollar_year=dollar_year,
+        household_model="pums_household_types",
     )
 
 

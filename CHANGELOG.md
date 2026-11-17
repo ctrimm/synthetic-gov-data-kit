@@ -10,6 +10,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- Joint household types from ACS PUMS (#8): `realistic` profiles for acs5-2024 draw a whole
+  weighted household type (size, income band, elderly/disabled, children, earnings, head
+  citizenship, head age band, earned share) per state, built by
+  `scripts/build_pums_households.py` into `data/census/acs5/2024/pums/` (51 files; aggregates of
+  3+ households only, small cells folded into their nearest type). Profiles and SNAP, Medicaid
+  and Catala case metadata record `household_model`; `validate-distribution` checks against the
+  types, and the tests cross-check the types with the summary tables.
 - `govsynth validate-distribution` and `govsynth.evaluation.representativeness` (#12): compare
   `realistic` profiles with their census targets (4-SE tolerances) and check the targets against
   plausible ranges; run for all 51 jurisdictions in the test suite.
