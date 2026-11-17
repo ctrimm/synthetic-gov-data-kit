@@ -98,6 +98,26 @@ PRESETS: dict[str, PresetConfig] = {
         profile_strategy="edge_saturated",
         description="Texas Medicaid CY2026 — non-expansion state (adult coverage gap)",
     ),
+    # ── Medicare low-income help ─────────────────────────────────────────
+    "medicare.national": PresetConfig(
+        program="medicare",
+        source_class="govsynth.sources.us.medicare.MedicareSource",
+        source_kwargs={"calendar_year": 2026},
+        generator_class="govsynth.generators.medicare_savings.MedicareSavingsGenerator",
+        generator_kwargs={"calendar_year": 2026},
+        profile_strategy="edge_saturated",
+        description="Medicare Savings Programs (QMB/SLMB/QI) and Extra Help CY2026 — federal limits",
+    ),
+    # ── SSI ───────────────────────────────────────────────────────────────
+    "ssi.national": PresetConfig(
+        program="ssi",
+        source_class="govsynth.sources.us.ssi.SSISource",
+        source_kwargs={"calendar_year": 2026},
+        generator_class="govsynth.generators.ssi_eligibility.SSIEligibilityGenerator",
+        generator_kwargs={"calendar_year": 2026},
+        profile_strategy="edge_saturated",
+        description="Federal SSI CY2026 — $994/$1,491 FBR, income exclusions, resources, SGA",
+    ),
 }
 
 

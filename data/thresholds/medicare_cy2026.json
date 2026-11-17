@@ -1,0 +1,65 @@
+{
+  "_metadata": {
+    "program": "medicare",
+    "period": "CY2026",
+    "calendar_year": 2026,
+    "fpl_basis_year": 2026,
+    "source": "Medicare.gov 'Medicare Savings Programs' (2026 monthly income and resource limits); SSA POMS HI 03001.020 'Eligibility for Extra Help' (TN 32, 02-26) for 2026 Extra Help resource limits",
+    "source_url": "https://www.medicare.gov/basics/costs/help/medicare-savings-programs",
+    "source_url_extra_help": "https://secure.ssa.gov/poms.nsf/lnx/0603001020",
+    "cfr_reference": "42 U.S.C. 1396d(p), 1396a(a)(10)(E); 42 CFR 423.773 (Extra Help)",
+    "verification_status": "verified",
+    "verification_note": "MSP income limits are computed as ceil(annual FPL x pct / 12 + $20) from us_fpl_2026.json; every computed 48-state limit equals the figure Medicare.gov publishes for 2026 (pinned in tests). Resource limits are as published. Extra Help resource limits ($18,090 / $36,100, including $1,500 per person for burial expenses) are quoted in POMS HI 03001.020.",
+    "scope_note": "Federal floor only. States run MSPs and may disregard more income or waive the resource test (e.g. several states have no MSP asset test); those state expansions are not modeled."
+  },
+  "msp": {
+    "general_income_disregard_monthly": 20,
+    "tiers": [
+      {
+        "tier": "qmb",
+        "name": "Qualified Medicare Beneficiary",
+        "max_pct_fpl": 100,
+        "pays": "Part A and B premiums, deductibles, coinsurance and copayments"
+      },
+      {
+        "tier": "slmb",
+        "name": "Specified Low-Income Medicare Beneficiary",
+        "max_pct_fpl": 120,
+        "pays": "Part B premium"
+      },
+      {
+        "tier": "qi",
+        "name": "Qualifying Individual",
+        "max_pct_fpl": 135,
+        "pays": "Part B premium (first-come, first-served; reapply yearly)"
+      }
+    ],
+    "resource_limit_individual": 9950,
+    "resource_limit_couple": 14910,
+    "published_monthly_income_limits_48_states": {
+      "qmb": {
+        "individual": 1350,
+        "couple": 1824
+      },
+      "slmb": {
+        "individual": 1616,
+        "couple": 2184
+      },
+      "qi": {
+        "individual": 1816,
+        "couple": 2455
+      }
+    }
+  },
+  "extra_help": {
+    "max_pct_fpl": 150,
+    "resource_limit_individual": 18090,
+    "resource_limit_couple": 36100,
+    "burial_allowance_included_per_person": 1500,
+    "income_counting_note": "Annual income, counted under SSI rules with the $20 general and $65 + 1/2 earned income exclusions (20 CFR 418.3301 et seq.); household size includes the applicant, spouse and dependent relatives living with them."
+  },
+  "notes": [
+    "MSP limits update when the poverty guidelines are published; states typically apply them from April 1.",
+    "QDWI (Qualified Disabled and Working Individuals) is not modeled."
+  ]
+}

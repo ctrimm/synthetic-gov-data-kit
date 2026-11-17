@@ -1,0 +1,24 @@
+MEDICARE SAVINGS PROGRAMS AND EXTRA HELP — POLICY SEED
+Source: 42 U.S.C. 1396d(p), 1396a(a)(10)(E); 42 CFR 423.773; Medicare.gov (2026 limits); SSA POMS HI 03001.020
+For use in rationale trace generation. Not a complete regulatory text.
+
+=== WHO CAN QUALIFY ===
+A person entitled to Medicare Part A (age 65+, or under 65 after 24 months of Social
+Security disability benefits, or with ESRD/ALS). MSPs are administered by state Medicaid
+agencies; the limits below are the federal floor. States may disregard more income or
+drop the resource test.
+
+=== MEDICARE SAVINGS PROGRAMS (federal limits, 2026) ===
+Countable income = gross income - $20 general income disregard (SSI methodology).
+  QMB  (Qualified Medicare Beneficiary)          income <= 100% FPL  pays Part A/B premiums and cost sharing
+  SLMB (Specified Low-Income Medicare Beneficiary) income <= 120% FPL  pays Part B premium
+  QI   (Qualifying Individual)                   income <= 135% FPL  pays Part B premium; first-come, first-served
+Published 2026 monthly gross limits (48 states + DC, including the $20 disregard):
+  QMB  $1,350 individual / $1,824 couple
+  SLMB $1,616 individual / $2,184 couple
+  QI   $1,816 individual / $2,455 couple
+Resource limit (all three): $9,950 individual / $14,910 couple.
+
+=== EXTRA HELP (Part D low-income subsidy), 2026 ===
+Income <= 150% FPL (annual; household includes spouse and dependent relatives living with the applicant).
+Resources <= $18,090 individual / $36,100 couple (includes $1,500 per person for burial expenses).
