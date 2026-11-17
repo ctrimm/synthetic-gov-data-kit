@@ -10,6 +10,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- Census year selection for `realistic` profiles: `census_years=` on `Pipeline`,
+  `SNAPEligibilityGenerator.generate` and `CatalaEligibilityGenerator.generate`, plus
+  `govsynth generate --census-year` (years, ranges, `acs1-YYYY`). Census data now lives in
+  `data/census/<survey>/<year>/`; VA + national bundled for ACS 5-year 2021–2024 and 1-year
+  2021–2025. Each case records `metadata["census_vintage"]`, exported in YAML/JSONL/CSV.
+- `refresh-census-data --year/--survey/--source`; keyless fetching from ACS table-based
+  summary files (2021+); `national` as a geography
 - `.github/workflows/ci.yml` — ruff check, ruff format --check, mypy, and pytest on every
   push/PR across Python 3.10–3.12
 - `govsynth/generators/medicaid_eligibility.py` — Medicaid eligibility generator (MAGI
@@ -47,6 +54,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `is_homeless` parameter on `SNAPSource.calculate_net_income()` for homeless shelter deduction
 
 ### Fixed
+- Census fetcher read the wrong ACS variables for most fields: mislabeled income brackets
+  above $50k, poverty buckets from the under-6 rows of B17024, "% with children" from
+  married-couple rows, naturalized citizens sampled as non-qualified aliens, Medicaid rate
+  from any-insurance rows, person-level 65+ elderly share. All now come from the correct
+  household-level tables (#8–#12 track the remaining realism work)
 - CI on `main` was red (first failing step: `ruff check`): split over-long strings in
   `us_household.py`, fixed two test lint errors, reformatted two files, and made
   `test_constructor_docstring_documents_exactly_its_parameters` independent of Python

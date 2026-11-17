@@ -11,6 +11,7 @@ when available) into a TestCase.
 from __future__ import annotations
 
 import random
+from collections.abc import Sequence
 from typing import Any
 
 from govsynth.generators.base import Generator
@@ -20,6 +21,7 @@ from govsynth.models.test_case import ScenarioBlock, TaskBlock, TestCase
 from govsynth.profiles.us_household import USHouseholdProfile
 from govsynth.sources.catala.ruleset import CatalaRuleset
 from govsynth.sources.catala.runtime import CatalaResult
+from govsynth.sources.us.census import CensusVintage, census_years_for_strategy
 
 _TASK_INSTRUCTION = (
     "Based on the household's situation described above, determine whether this "
@@ -93,16 +95,34 @@ class CatalaEligibilityGenerator(Generator):
         n: int,
         profile_strategy: str | None = None,
         seed: int | None = None,
+        census_years: Sequence[CensusVintage | int | str] | CensusVintage | int | str | None = None,
     ) -> list[TestCase]:
-        """Generate n test cases by running sampled profiles through the ruleset."""
+        """Generate n test cases by running sampled profiles through the ruleset.
+
+        Args:
+            n: Number of cases to generate.
+            profile_strategy: Overrides `profile_strategy_default` when given.
+            seed: RNG seed for reproducibility.
+            census_years: ACS release(s) to sample 'realistic' profiles from
+                (see SNAPEligibilityGenerator.generate). Several vintages are
+                spread round-robin across cases. Only valid with 'realistic'.
+        """
         strategy = profile_strategy or self.profile_strategy_default
+        years = census_years_for_strategy(census_years, strategy)
         rng = random.Random(seed)
         cases: list[TestCase] = []
 
         for i in range(n):
             case_seed = rng.randint(0, 2**31) if seed is not None else None
+            # Sampled outside the try below: a missing census vintage is a
+            # configuration error for the whole run, not one skippable case.
+            profile = USHouseholdProfile.random(
+                state=self.state,
+                seed=case_seed,
+                strategy=strategy,
+                census_vintage=years[i % len(years)] if years else None,
+            )
             try:
-                profile = USHouseholdProfile.random(state=self.state, seed=case_seed, strategy=strategy)
                 case = self._build_case(profile, rng, case_seed)
                 cases.append(case)
             except Exception as exc:
@@ -149,6 +169,7 @@ class CatalaEligibilityGenerator(Generator):
                 "catala_scope": self.ruleset.scope,
                 "catala_outputs": result.outputs,
                 "state": self.state,
+                **({"census_vintage": profile.census_vintage} if profile.census_vintage else {}),
             },
         )
 

@@ -12,11 +12,15 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Any
+from statistics import NormalDist
+from typing import TYPE_CHECKING, Any
 
 from faker import Faker
 
 from govsynth.models.enums import CitizenshipStatus
+
+if TYPE_CHECKING:
+    from govsynth.sources.us.census import CensusVintage
 
 _faker = Faker("en_US")
 
@@ -80,6 +84,12 @@ class USHouseholdProfile:
     has_ineligible_members: bool = False  # mixed-status HH
     ineligible_member_count: int = 0
 
+    # Provenance: the ACS vintage a 'realistic' profile was sampled from (e.g.
+    # 'acs5-2024'), or None for other strategies / built-in fallback numbers.
+    # Deliberately not in `extra`, which `to_scenario_fields` copies into the
+    # scenario the model sees.
+    census_vintage: str | None = None
+
     def __post_init__(self) -> None:
         if not self.head_of_household_name:
             self.head_of_household_name = _faker.name()
@@ -121,6 +131,7 @@ class USHouseholdProfile:
         state: str = "VA",
         seed: int | None = None,
         strategy: str = "uniform",
+        census_vintage: CensusVintage | int | str | None = None,
     ) -> USHouseholdProfile:
         """Generate a random profile using the given strategy.
 
@@ -128,13 +139,26 @@ class USHouseholdProfile:
             state: Two-letter state code.
             seed: RNG seed for reproducibility.
             strategy: 'uniform' samples freely; 'realistic' uses ACS-based weights.
+            census_vintage: ACS release to sample a 'realistic' profile from --
+                a year (5-year estimates ending that year), 'acs1-2025', or a
+                CensusVintage. None uses DEFAULT_CENSUS_VINTAGE.
+
+        Raises:
+            ValueError: If `census_vintage` is given with a strategy other than
+                'realistic' (only that strategy reads census data), or names a
+                vintage with no data for this state.
         """
+        if census_vintage is not None and strategy != "realistic":
+            raise ValueError(
+                f"census_vintage only applies to strategy='realistic' (got strategy='{strategy}'); "
+                "other strategies don't sample from census data."
+            )
         rng = random.Random(seed)
         if seed is not None:
             Faker.seed(seed)
 
         if strategy == "realistic":
-            return _build_realistic_profile(state=state, rng=rng)
+            return _build_realistic_profile(state=state, rng=rng, census_vintage=census_vintage)
 
         # uniform (default): national-level approximations
         hh_size = rng.choices(
@@ -443,15 +467,20 @@ def _age_consistent_with(has_elderly: bool, rng: random.Random, *, young: tuple[
     return rng.randint(60, 85) if has_elderly else rng.randint(young[0], min(young[1], 59))
 
 
-def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfile:
+def _build_realistic_profile(
+    state: str,
+    rng: random.Random,
+    census_vintage: CensusVintage | int | str | None = None,
+) -> USHouseholdProfile:
     """Build a profile sampled from Census ACS state-level distributions.
 
-    Falls back to hardcoded national weights if no census data file exists
-    (warning already emitted by CensusDataSource.load()).
+    Falls back to hardcoded national weights if the default vintage has no
+    census data file (warning already emitted by CensusDataSource.load()). An
+    explicitly requested vintage with no data raises instead.
     """
     from govsynth.sources.us.census import CensusDataSource
 
-    dist = CensusDataSource(state).load()
+    dist = CensusDataSource(state, vintage=census_vintage).load()
 
     if dist is None:
         # No census data available -- silent fallback to national approximations
@@ -475,12 +504,28 @@ def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfi
     # Step 4: monthly gross income -- lognormal fitted to ACS income brackets
     gross = min(max(round(rng.lognormvariate(dist.income_mu, dist.income_sigma), -1), 0), 15000)
 
-    # Step 5-6: household demographics
-    # Note: pct_with_children is derived from B11003 (family households only), so it
-    # overstates child presence when applied to all multi-person households. It is used
-    # here as an approximation; non-family multi-person HH rarely have dependent children.
-    has_children = rng.random() < dist.pct_with_children if hh_size > 1 else False
-    has_elderly = rng.random() < dist.pct_elderly_or_disabled
+    # Step 5: age of householder -- Normal(mu, sigma) fitted to ACS B25007, clamped to [18, 80].
+    # Drawn before the elderly/disabled flag so the flag can be conditioned on it.
+    age = max(18, min(80, round(rng.normalvariate(dist.age_mu, dist.age_sigma))))
+
+    # Step 6: household demographics.
+    # pct_with_children is the share of ALL households with someone under 18
+    # (ACS B11005). One-person households can't have children, so the rate
+    # among multi-person households is pct / P(size > 1).
+    p_multi = 1.0 - dist.household_size_weights[0] / (sum(dist.household_size_weights) or 1.0)
+    p_children_given_multi = min(1.0, dist.pct_with_children / p_multi) if p_multi > 0 else 0.0
+    has_children = rng.random() < p_children_given_multi if hh_size > 1 else False
+
+    # A householder aged 60+ makes the household elderly by definition
+    # (7 CFR 271.2). pct_elderly_or_disabled is the household-level target
+    # share; to hit it overall rather than overshoot, the independent draw only
+    # covers the remainder (a disabled member, or an elderly non-head) among
+    # households whose head is under 60.
+    p_head_60_plus = 1.0 - NormalDist(dist.age_mu, max(dist.age_sigma, 1e-6)).cdf(59.5)
+    p_extra = 0.0
+    if p_head_60_plus < 1.0:
+        p_extra = max(0.0, (dist.pct_elderly_or_disabled - p_head_60_plus) / (1.0 - p_head_60_plus))
+    has_elderly = age >= 60 or rng.random() < p_extra
 
     # Step 7: citizenship status
     roll = rng.random()
@@ -491,8 +536,15 @@ def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfi
     else:
         citizenship = CitizenshipStatus.NON_QUALIFIED_ALIEN
 
-    # Step 8: earned vs. unearned income split
-    earned = float(gross) if rng.random() < dist.labor_force_participation_rate else 0.0
+    # Step 8: earned vs. unearned income split. Prefer the household-level share
+    # with any earnings (ACS B19051); fall back to the person-level labor force
+    # participation rate for census files written before that field existed.
+    p_earnings = (
+        dist.pct_households_with_earnings
+        if dist.pct_households_with_earnings is not None
+        else dist.labor_force_participation_rate
+    )
+    earned = float(gross) if rng.random() < p_earnings else 0.0
     unearned = float(gross) - earned
 
     # Step 9: shelter costs -- renters vs. owners
@@ -501,18 +553,6 @@ def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfi
         shelter = max(0.0, round(rng.normalvariate(dist.median_gross_rent_monthly, sigma), -1))
     else:
         shelter = round(rng.uniform(400, 1200), -1)
-
-    # Step 10: age -- Normal(mu, sigma) clamped to [18, 80]
-    age = max(18, min(80, round(rng.normalvariate(dist.age_mu, dist.age_sigma))))
-
-    # `has_elderly` was drawn at Step 5-6 from dist.pct_elderly_or_disabled,
-    # independently of this ACS-fitted age. Where the sampled age is 60+, the
-    # household contains an elderly member by definition (7 CFR 271.2) and the
-    # independent draw cannot overrule it. Widening the flag here (rather than
-    # resampling the age) keeps the ACS age distribution intact; the flag stays
-    # a superset, since a household with a head under 60 can still qualify
-    # through a disabled member.
-    has_elderly = has_elderly or age >= 60
 
     # dist.pct_social_security, dist.pct_ssi, dist.pct_public_assistance are available
     # for future income-source enrichment (e.g. flagging SSI/SSDI receipt on the profile).
@@ -529,6 +569,7 @@ def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfi
         unearned_income=unearned,
         shelter_costs=shelter,
         age_of_head=age,
+        census_vintage=dist.vintage,
     )
 
 

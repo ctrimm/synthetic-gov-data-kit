@@ -61,9 +61,64 @@ def test_confirmation_prompt_n_exits_zero() -> None:
 
 
 def test_confirmation_prompt_shows_api_count() -> None:
-    """Prompt must mention the number of API calls (~306)."""
+    """API prompt must mention the number of calls: 51 states/DC + national, 6 each."""
+    result = runner.invoke(app, ["refresh-census-data", "--source", "api"], input="n\n")
+    assert "312" in result.output
+
+
+def test_confirmation_prompt_summary_file_needs_no_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("CENSUS_API_KEY", raising=False)
     result = runner.invoke(app, ["refresh-census-data"], input="n\n")
-    assert "306" in result.output
+    assert result.exit_code == 0
+    assert "summary files" in result.output
+    assert "no API key needed" in result.output
+
+
+def test_dry_run_writes_to_vintage_directory() -> None:
+    result = runner.invoke(
+        app, ["refresh-census-data", "--state", "VA", "--year", "2023", "--survey", "acs1", "--dry-run"]
+    )
+    assert result.exit_code == 0
+    normalized = result.output.replace("\\", "/").replace("\n", "")
+    assert "acs1/2023/va.json" in normalized
+
+
+def test_national_is_accepted_as_state() -> None:
+    result = runner.invoke(app, ["refresh-census-data", "--state", "national", "--dry-run"])
+    assert result.exit_code == 0
+    assert "national.json" in result.output.replace("\n", "")
+
+
+@pytest.mark.parametrize(("flag", "value"), [("--survey", "acs3"), ("--source", "ftp")])
+def test_invalid_survey_or_source_exits_two(flag: str, value: str) -> None:
+    result = runner.invoke(app, ["refresh-census-data", "--state", "VA", flag, value, "--dry-run"])
+    assert result.exit_code == 2
+
+
+def test_summary_file_source_builds_from_prefetched_tables(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """summary-file source fetches all states in one pass, then builds each from its raw tables."""
+    seen: dict[str, Any] = {}
+
+    def _fetch_all(states: list[str], year: int, survey: str) -> dict[str, Any]:
+        seen["fetch"] = (states, year, survey)
+        return {s: {"raw": s} for s in states}
+
+    def _build(state: str, year: int, api_key: str | None, **kw: object) -> dict[str, Any]:
+        assert kw["raw"] == {"raw": state}
+        assert kw["survey"] == "acs1"
+        return _fake_data(state)
+
+    monkeypatch.setattr("govsynth.sources.us.census_fetcher.fetch_states_summary_file", _fetch_all)
+    monkeypatch.setattr("govsynth.sources.us.census_fetcher.build_state_census_json", _build)
+    monkeypatch.setattr(
+        "govsynth.sources.us.census_fetcher.write_state_file",
+        lambda state, data, data_dir: tmp_path / f"{state.lower()}.json",
+    )
+    result = runner.invoke(
+        app, ["refresh-census-data", "--state", "VA", "--year", "2025", "--survey", "acs1", "--source", "summary-file"]
+    )
+    assert result.exit_code == 0, result.output
+    assert seen["fetch"] == (["VA"], 2025, "acs1")
 
 
 def test_dry_run_all_states_no_prompt() -> None:
@@ -80,44 +135,44 @@ class TestFetchAndWrite:
     def test_successful_single_state_refresh_exits_zero(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
         monkeypatch.setattr(
             "govsynth.sources.us.census_fetcher.build_state_census_json",
-            lambda state, year, api_key: _fake_data(state),
+            lambda state, year, api_key, **kw: _fake_data(state),
         )
         monkeypatch.setattr(
             "govsynth.sources.us.census_fetcher.write_state_file",
             lambda state, data, data_dir: tmp_path / f"{state.lower()}.json",
         )
-        result = runner.invoke(app, ["refresh-census-data", "--state", "VA"])
+        result = runner.invoke(app, ["refresh-census-data", "--state", "VA", "--source", "api"])
         assert result.exit_code == 0
         assert "VA" in result.output
 
     def test_successful_refresh_emits_json_status(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
         monkeypatch.setattr(
             "govsynth.sources.us.census_fetcher.build_state_census_json",
-            lambda state, year, api_key: _fake_data(state),
+            lambda state, year, api_key, **kw: _fake_data(state),
         )
         monkeypatch.setattr(
             "govsynth.sources.us.census_fetcher.write_state_file",
             lambda state, data, data_dir: tmp_path / f"{state.lower()}.json",
         )
-        result = runner.invoke(app, ["refresh-census-data", "--state", "VA", "--json"])
+        result = runner.invoke(app, ["refresh-census-data", "--state", "VA", "--json", "--source", "api"])
         assert result.exit_code == 0
         assert '"status": "ok"' in result.stderr
 
     def test_persistent_http_error_exits_one(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        def _raise(state: str, year: int, api_key: str | None) -> dict[str, Any]:
+        def _raise(state: str, year: int, api_key: str | None, **kw: object) -> dict[str, Any]:
             request = httpx.Request("GET", "https://api.census.gov/data")
             response = httpx.Response(503, request=request)
             raise httpx.HTTPStatusError("server error", request=request, response=response)
 
         monkeypatch.setattr("govsynth.sources.us.census_fetcher.build_state_census_json", _raise)
-        result = runner.invoke(app, ["refresh-census-data", "--state", "VA"])
+        result = runner.invoke(app, ["refresh-census-data", "--state", "VA", "--source", "api"])
         assert result.exit_code == 1
         assert "VA" in result.output
 
     def test_rate_limit_retries_and_succeeds(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
         calls = {"n": 0}
 
-        def _fetch(state: str, year: int, api_key: str | None) -> dict[str, Any]:
+        def _fetch(state: str, year: int, api_key: str | None, **kw: object) -> dict[str, Any]:
             calls["n"] += 1
             if calls["n"] == 1:
                 request = httpx.Request("GET", "https://api.census.gov/data")
@@ -131,15 +186,15 @@ class TestFetchAndWrite:
             lambda state, data, data_dir: tmp_path / f"{state.lower()}.json",
         )
         monkeypatch.setattr("govsynth.cli.commands.refresh_census.time.sleep", lambda s: None)
-        result = runner.invoke(app, ["refresh-census-data", "--state", "VA"])
+        result = runner.invoke(app, ["refresh-census-data", "--state", "VA", "--source", "api"])
         assert result.exit_code == 0
         assert calls["n"] == 2
 
     def test_generic_exception_is_caught_and_reported(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        def _raise(state: str, year: int, api_key: str | None) -> dict[str, Any]:
+        def _raise(state: str, year: int, api_key: str | None, **kw: object) -> dict[str, Any]:
             raise RuntimeError("boom")
 
         monkeypatch.setattr("govsynth.sources.us.census_fetcher.build_state_census_json", _raise)
-        result = runner.invoke(app, ["refresh-census-data", "--state", "VA"])
+        result = runner.invoke(app, ["refresh-census-data", "--state", "VA", "--source", "api"])
         assert result.exit_code == 1
         assert "boom" in result.output

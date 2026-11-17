@@ -31,6 +31,7 @@ class CSVFormatter:
         "source_citations",
         "scenario_summary",
         "expected_answer",
+        "census_vintage",
     ]
 
     def format_row(self, case: TestCase) -> dict[str, Any]:
@@ -52,6 +53,7 @@ class CSVFormatter:
             "source_citations": "|".join(case.source_citations),
             "scenario_summary": case.scenario.summary,
             "expected_answer": case.expected_answer,
+            "census_vintage": case.metadata.get("census_vintage", ""),
         }
 
     def write(self, cases: list[TestCase], path: str | Path) -> None:

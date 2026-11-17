@@ -39,6 +39,11 @@ govsynth/               Main Python package
 
 data/seeds/us/          Bundled policy seed data (income limits, CFR excerpts)
 data/thresholds/        Annually-updated threshold tables (FPL, program limits)
+data/census/            ACS population distributions for `realistic` profiles, one directory
+                         per vintage: <survey>/<year>/<state>.json (+ national.json). The
+                         default vintage is pinned in sources/us/census.py
+                         (DEFAULT_CENSUS_VINTAGE); bump it deliberately, since it changes
+                         realistic output for a given seed.
 
 tests/unit/             Unit tests — one file per module
 tests/integration/      Integration tests — end-to-end CLI workflow runs

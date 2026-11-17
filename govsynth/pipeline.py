@@ -14,6 +14,8 @@ Usage:
 from __future__ import annotations
 
 import importlib
+import inspect
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +26,9 @@ from govsynth.generators.base import Generator
 from govsynth.models.enums import OutputFormat
 from govsynth.models.test_case import TestCase
 from govsynth.presets import PRESETS, PresetConfig
+from govsynth.sources.us.census import CensusVintage, census_years_for_strategy, check_census_available
+
+CensusYearsArg = Sequence[CensusVintage | int | str] | CensusVintage | int | str | None
 
 
 def _import_class(dotted_path: str) -> Any:  # noqa: ANN401 -- dynamic dotted-path import, inherently untypeable
@@ -47,9 +52,36 @@ class Pipeline:
         generator: Generator | None,
         profile_strategy: str = "edge_saturated",
         console: Console | None = None,
+        census_years: CensusYearsArg = None,
     ) -> None:
+        """Create a Pipeline.
+
+        Args:
+            generator: The generator to run (None for save-only use).
+            profile_strategy: Profile-sampling strategy passed to the generator.
+            console: Optional Rich Console instance. Defaults to a stderr console.
+            census_years: ACS release(s) for 'realistic' profiles -- a year, a
+                spec such as "2021-2024" or "acs1-2025", a CensusVintage, or a
+                list of these. Spread evenly across all generated cases.
+
+        Raises:
+            ValueError: If census_years is set with a non-'realistic' strategy,
+                or the generator doesn't sample census data.
+        """
         self.generator = generator
         self.profile_strategy = profile_strategy
+        self.census_years = census_years_for_strategy(census_years, profile_strategy)
+        if (
+            self.census_years is not None
+            and generator is not None
+            and "census_years" not in inspect.signature(generator.generate).parameters
+        ):
+            raise ValueError(
+                f"{type(generator).__name__} does not support census_years: it never samples profiles from census data."
+            )
+        state = getattr(generator, "state", None)
+        if self.census_years is not None and isinstance(state, str) and state.lower() != "national":
+            check_census_available(state, self.census_years)
         self._console = console if console is not None else Console(stderr=True)
 
     @classmethod
@@ -58,6 +90,7 @@ class Pipeline:
         preset_name: str,
         profile_strategy: str | None = None,
         console: Console | None = None,
+        census_years: CensusYearsArg = None,
         **generator_kwargs: object,
     ) -> Pipeline:
         """Create a Pipeline from a named preset.
@@ -67,6 +100,7 @@ class Pipeline:
                          e.g. 'snap.va', 'snap.ca', 'wic.national'
             profile_strategy: Override the preset's default strategy.
             console: Optional Rich Console instance. Defaults to a stderr console.
+            census_years: ACS release(s) for 'realistic' profiles; see __init__.
             **generator_kwargs: Override specific generator constructor args.
         """
         if preset_name not in PRESETS:
@@ -79,7 +113,7 @@ class Pipeline:
         generator = gen_class(**kwargs)
 
         strategy = profile_strategy or config.profile_strategy
-        return cls(generator=generator, profile_strategy=strategy, console=console)
+        return cls(generator=generator, profile_strategy=strategy, console=console, census_years=census_years)
 
     def generate(self, n: int, seed: int | None = None) -> list[TestCase]:
         """Generate n test cases.
@@ -115,10 +149,18 @@ class Pipeline:
 
             while remaining > 0:
                 batch_n = min(batch_size, remaining)
+                extra: dict[str, Any] = {}
+                if self.census_years:
+                    # Generators assign years round-robin from index 0 of each
+                    # call; rotate by cases done so far so the spread stays even
+                    # across batches instead of favouring the first year.
+                    k = (n - remaining) % len(self.census_years)
+                    extra["census_years"] = self.census_years[k:] + self.census_years[:k]
                 batch = self.generator.generate(
                     n=batch_n,
                     profile_strategy=self.profile_strategy,
                     seed=batch_seed,
+                    **extra,
                 )
                 cases.extend(batch)
                 progress.advance(task, batch_n)

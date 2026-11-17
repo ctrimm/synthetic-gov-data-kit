@@ -7,15 +7,17 @@ import warnings
 from pathlib import Path
 
 import pytest
-from govsynth.sources.us.census import CensusDataSource, CensusDistribution
+from govsynth.sources.us.census import DEFAULT_CENSUS_VINTAGE, CensusDataSource, CensusDistribution, vintage_dir
 
 _FIXTURE = Path(__file__).parent.parent / "fixtures" / "census_va.json"
 
 
 @pytest.fixture
 def census_dir(tmp_path: Path) -> Path:
-    """Temp directory seeded with the VA fixture."""
-    (tmp_path / "va.json").write_text(_FIXTURE.read_text())
+    """Temp census root seeded with the VA fixture under the default vintage."""
+    vdir = vintage_dir(DEFAULT_CENSUS_VINTAGE, tmp_path)
+    vdir.mkdir(parents=True)
+    (vdir / "va.json").write_text(_FIXTURE.read_text())
     return tmp_path
 
 
@@ -92,7 +94,9 @@ class TestCensusDataSourceLoad:
         """If state file missing but national.json present, return national dist + warn."""
         data = json.loads(_FIXTURE.read_text())
         data["_metadata"]["state"] = "national"
-        (tmp_path / "national.json").write_text(json.dumps(data))
+        vdir = vintage_dir(DEFAULT_CENSUS_VINTAGE, tmp_path)
+        vdir.mkdir(parents=True)
+        (vdir / "national.json").write_text(json.dumps(data))
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -209,3 +213,48 @@ class TestRealisticProfile:
         profile = USHouseholdProfile.random(state="VA", seed=42, strategy="uniform")
         assert profile is not None
         assert 1 <= profile.household_size <= 6
+
+
+class TestRealisticMarginalsMatchBundledCensus:
+    """The realistic sampler must reproduce the bundled ACS household rates.
+
+    Guards the household-level semantics: pct_with_children is a share of ALL
+    households (sampled only for size > 1, so rescaled), and the 60+ head rule
+    must not push the elderly/disabled share past the ACS target.
+    """
+
+    N = 4000
+    TOL = 0.03  # ~3.5 standard errors at N=4000 for p near 0.5
+
+    @pytest.fixture(scope="class")
+    def sampled(self) -> tuple[list, dict]:
+        from govsynth.profiles.us_household import USHouseholdProfile
+
+        data = json.loads((vintage_dir(DEFAULT_CENSUS_VINTAGE) / "va.json").read_text())
+        profiles = [USHouseholdProfile.random(state="VA", seed=i, strategy="realistic") for i in range(self.N)]
+        return profiles, data
+
+    def _share(self, profiles: list, pred: object) -> float:
+        return sum(1 for p in profiles if pred(p)) / len(profiles)  # type: ignore[operator]
+
+    def test_children_share(self, sampled: tuple[list, dict]) -> None:
+        profiles, data = sampled
+        got = self._share(profiles, lambda p: p.has_dependent_children)
+        assert got == pytest.approx(data["demographics"]["pct_with_children"], abs=self.TOL)
+
+    def test_elderly_or_disabled_share(self, sampled: tuple[list, dict]) -> None:
+        profiles, data = sampled
+        got = self._share(profiles, lambda p: p.has_elderly_or_disabled)
+        assert got == pytest.approx(data["demographics"]["pct_elderly_or_disabled"], abs=self.TOL)
+
+    def test_citizen_share(self, sampled: tuple[list, dict]) -> None:
+        from govsynth.models.enums import CitizenshipStatus
+
+        profiles, data = sampled
+        got = self._share(profiles, lambda p: p.citizenship_status == CitizenshipStatus.CITIZEN)
+        assert got == pytest.approx(data["demographics"]["pct_citizen"], abs=self.TOL)
+
+    def test_households_with_earnings_share(self, sampled: tuple[list, dict]) -> None:
+        profiles, data = sampled
+        got = self._share(profiles, lambda p: (p.earned_income or 0) > 0)
+        assert got == pytest.approx(data["income_sources"]["pct_households_with_earnings"], abs=self.TOL)

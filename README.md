@@ -131,18 +131,53 @@ pipeline = Pipeline.from_preset("snap.va", profile_strategy="edge_saturated")
 # 60%+ of cases land at income/asset threshold boundaries — where models fail most
 
 pipeline = Pipeline.from_preset("snap.va", profile_strategy="realistic")
-# Sampled from Census ACS state distributions — representative of real applicants
-# Requires census data: run `govsynth refresh-census-data --state VA` first
+# Sampled from Census ACS state distributions (default vintage: ACS 2020-2024 5-year)
 
 pipeline = Pipeline.from_preset("snap.va", profile_strategy="uniform")
 # National-level approximations, no census data required
 ```
 
-Census data for Virginia is pre-bundled. For other states:
-```bash
-govsynth refresh-census-data --state TX   # fetch one state (~6 API calls)
-govsynth refresh-census-data --all        # fetch all 50 states + DC (~306 API calls)
+### Choosing the census year
+
+`realistic` profiles come from one ACS release ("vintage"). Pick a different year, or
+spread a dataset across several years, with `census_years`:
+
+```python
+# One year: 5-year estimates ending in 2022
+Pipeline.from_preset("snap.va", profile_strategy="realistic", census_years=2022)
+
+# Several years, spread evenly across cases (round-robin, deterministic per seed)
+Pipeline.from_preset("snap.va", profile_strategy="realistic", census_years="2021-2024")
+
+# The most current data: ACS 1-year estimates
+Pipeline.from_preset("snap.va", profile_strategy="realistic", census_years="acs1-2025")
 ```
+
+```bash
+govsynth generate snap.va -s realistic --census-year 2021-2024 -n 400 -o out/
+govsynth generate snap.va -s realistic --census-year 2022 --census-year acs1-2025
+```
+
+A bare year means the 5-year estimates ending that year (`2024` = 2020-2024); `acs1-YYYY` means
+the 1-year estimates. Each case records its vintage in `metadata["census_vintage"]`, and the
+YAML, JSONL and CSV outputs carry it too. Requesting a year with no data fails up front
+rather than silently falling back.
+
+Bundled: Virginia and national, for `acs5` 2021-2024 and `acs1` 2021-2025. States without
+their own file use the same year's national file (with a warning). Fetch more with:
+
+```bash
+govsynth refresh-census-data --state TX --year 2024              # one state, 5-year
+govsynth refresh-census-data --state TX --year 2025 --survey acs1  # one state, 1-year
+govsynth refresh-census-data --year 2024                          # all states + DC + national
+```
+
+No API key is needed for ACS 2021 onward: without `CENSUS_API_KEY` the command streams the
+Census Bureau's bulk summary files. Older years need the API (`--source api` plus a key).
+
+> Census years change the *population*, not the *policy*: SNAP thresholds are still FY2026 and
+> income is in each vintage's own dollars (not inflated to 2026), so older vintages look
+> somewhat poorer relative to the limits.
 
 ### Batch Generation
 
@@ -247,12 +282,12 @@ difficulty: hard
 | Command | Description |
 |---|---|
 | `govsynth list-presets [--json]` | List all registered presets |
-| `govsynth generate <preset> [--profile-strategy <s>]` | Generate cases for one preset |
+| `govsynth generate <preset> [--profile-strategy <s>] [--census-year <y>]` | Generate cases for one preset |
 | `govsynth batch --preset ... --output` | Generate across multiple presets |
 | `govsynth validate <file>` | Validate a generated output file |
 | `govsynth show <file> [case_id]` | Pretty-print a single case |
 | `govsynth verify-thresholds [--program]` | Check bundled threshold data is up to date |
-| `govsynth refresh-census-data [--state] [--all]` | Fetch ACS Census distributions from Census Bureau API |
+| `govsynth refresh-census-data [--state] [--year] [--survey]` | Fetch ACS Census distributions for one vintage (keyless for 2021+) |
 | `govsynth parse-policy <file>` | *(coming soon)* Extract thresholds from a policy PDF |
 
 All commands support `--json` for machine-readable output and are safe to use in CI pipelines and agentic workflows. Rich progress and status output always goes to **stderr**; data always goes to **stdout**.
