@@ -209,3 +209,48 @@ class TestRealisticProfile:
         profile = USHouseholdProfile.random(state="VA", seed=42, strategy="uniform")
         assert profile is not None
         assert 1 <= profile.household_size <= 6
+
+
+class TestRealisticMarginalsMatchBundledCensus:
+    """The realistic sampler must reproduce the bundled ACS household rates.
+
+    Guards the household-level semantics: pct_with_children is a share of ALL
+    households (sampled only for size > 1, so rescaled), and the 60+ head rule
+    must not push the elderly/disabled share past the ACS target.
+    """
+
+    N = 4000
+    TOL = 0.03  # ~3.5 standard errors at N=4000 for p near 0.5
+
+    @pytest.fixture(scope="class")
+    def sampled(self) -> tuple[list, dict]:
+        from govsynth.profiles.us_household import USHouseholdProfile
+
+        data = json.loads((Path(__file__).parent.parent.parent / "data" / "census" / "va.json").read_text())
+        profiles = [USHouseholdProfile.random(state="VA", seed=i, strategy="realistic") for i in range(self.N)]
+        return profiles, data
+
+    def _share(self, profiles: list, pred: object) -> float:
+        return sum(1 for p in profiles if pred(p)) / len(profiles)  # type: ignore[operator]
+
+    def test_children_share(self, sampled: tuple[list, dict]) -> None:
+        profiles, data = sampled
+        got = self._share(profiles, lambda p: p.has_dependent_children)
+        assert got == pytest.approx(data["demographics"]["pct_with_children"], abs=self.TOL)
+
+    def test_elderly_or_disabled_share(self, sampled: tuple[list, dict]) -> None:
+        profiles, data = sampled
+        got = self._share(profiles, lambda p: p.has_elderly_or_disabled)
+        assert got == pytest.approx(data["demographics"]["pct_elderly_or_disabled"], abs=self.TOL)
+
+    def test_citizen_share(self, sampled: tuple[list, dict]) -> None:
+        from govsynth.models.enums import CitizenshipStatus
+
+        profiles, data = sampled
+        got = self._share(profiles, lambda p: p.citizenship_status == CitizenshipStatus.CITIZEN)
+        assert got == pytest.approx(data["demographics"]["pct_citizen"], abs=self.TOL)
+
+    def test_households_with_earnings_share(self, sampled: tuple[list, dict]) -> None:
+        profiles, data = sampled
+        got = self._share(profiles, lambda p: (p.earned_income or 0) > 0)
+        assert got == pytest.approx(data["income_sources"]["pct_households_with_earnings"], abs=self.TOL)

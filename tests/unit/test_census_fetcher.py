@@ -5,11 +5,13 @@ tests never hit the network.
 """
 
 import json
+import math
 from pathlib import Path
 
 import httpx
 import pytest
 import respx
+from govsynth.sources.us import census_fetcher as cf
 from govsynth.sources.us.census_fetcher import (
     FIPS_CODES,
     _get,
@@ -86,129 +88,202 @@ def _table_row(header: list[str], values: dict[str, str]) -> list[list[str]]:
     return [header, row]
 
 
+def _raw(values: dict[str, str]) -> dict[str, list[list[str]]]:
+    """Build a full fetch_state()-shaped response; unspecified variables are 0."""
+    return {
+        "income": _table_row(cf.INCOME_VARS, values),
+        "poverty": _table_row(cf.POVERTY_VARS, values),
+        "housing": _table_row(cf.HOUSING_VARS, values),
+        "demographics": _table_row(cf.DEMOGRAPHIC_VARS, values),
+        "income_sources": _table_row(cf.INCOME_SOURCE_VARS, values),
+        "health": _table_row(cf.HEALTH_VARS, values),
+    }
+
+
+# Counts chosen so every derived rate has a hand-checkable expected value.
+_BASE_VALUES: dict[str, str] = {
+    # B19001: 100 households in every bracket
+    **{v: "100" for v in cf.INCOME_VARS},
+    # C17002: persons by ratio of income to poverty, total 1000
+    "C17002_001E": "1000",
+    "C17002_002E": "50",
+    "C17002_003E": "50",
+    "C17002_004E": "30",
+    "C17002_005E": "30",
+    "C17002_006E": "40",
+    "C17002_007E": "20",
+    "C17002_008E": "780",
+    # Housing
+    "B25064_001E": "1450",
+    "B25070_001E": "2100",
+    "B25070_007E": "100",
+    "B25070_008E": "100",
+    "B25070_009E": "100",
+    "B25070_010E": "100",
+    "B25070_011E": "100",  # not computed -> excluded from the base (2000)
+    "B25003_001E": "8000",
+    "B25003_003E": "3000",
+    # B25007: 100 owner + 100 renter householders aged 35-44 and 65-74
+    "B25007_001E": "400",
+    "B25007_005E": "100",
+    "B25007_015E": "100",
+    "B25007_009E": "100",
+    "B25007_019E": "100",
+    # B11016 household size
+    "B11016_001E": "1000",
+    "B11016_010E": "300",  # 1-person
+    "B11016_003E": "250",  # family 2
+    "B11016_011E": "50",  # nonfamily 2
+    "B11016_004E": "150",  # family 3
+    "B11016_005E": "120",  # family 4
+    "B11016_013E": "10",  # nonfamily 4
+    "B11016_006E": "60",  # family 5
+    "B11016_007E": "30",  # family 6
+    "B11016_008E": "20",  # family 7+
+    "B11016_016E": "10",  # nonfamily 7+
+    # B11005: households with someone under 18
+    "B11005_001E": "1000",
+    "B11005_002E": "300",
+    # B11006: households with someone 60+
+    "B11006_001E": "1000",
+    "B11006_002E": "400",
+    # B22010: households with a person with a disability (SNAP + non-SNAP)
+    "B22010_001E": "1000",
+    "B22010_003E": "50",
+    "B22010_006E": "150",
+    # B05001: citizenship (naturalized citizens are not listed separately)
+    "B05001_001E": "1000",
+    "B05001_006E": "50",
+    # Income sources
+    "B22003_001E": "1000",
+    "B22003_002E": "80",
+    "B23025_001E": "1000",
+    "B23025_002E": "650",
+    "B19051_001E": "1000",
+    "B19051_002E": "790",
+    "B19055_001E": "1000",
+    "B19055_002E": "300",
+    "B19056_001E": "1000",
+    "B19056_002E": "40",
+    "B19057_001E": "1000",
+    "B19057_002E": "20",
+    # C27007: Medicaid / means-tested coverage, 6 x 25 = 150 of 1000
+    "C27007_001E": "1000",
+    **{v: "25" for v in ["C27007_004E", "C27007_007E", "C27007_010E", "C27007_014E", "C27007_017E", "C27007_020E"]},
+}
+
+
 @pytest.fixture
 def raw_census_response() -> dict[str, list[list[str]]]:
-    income_header = [f"B19001_0{i:02d}E" for i in range(2, 18)]
-    income_values = {h: "100" for h in income_header}
+    return _raw(_BASE_VALUES)
 
-    poverty_header = ["B17024_002E", "B17024_003E", "B17024_004E", "B17024_005E", "B17024_001E"]
-    poverty_values = {
-        "B17024_002E": "500",
-        "B17024_003E": "1000",
-        "B17024_004E": "1500",
-        "B17024_005E": "2500",
-        "B17024_001E": "10000",
-    }
 
-    housing_header = [
-        "B25064_001E",
-        "B25070_007E",
-        "B25070_008E",
-        "B25070_009E",
-        "B25070_010E",
-        "B25070_001E",
-        "B25003_003E",
-        "B25003_001E",
-    ]
-    housing_values = {
-        "B25064_001E": "1450",
-        "B25070_007E": "100",
-        "B25070_008E": "100",
-        "B25070_009E": "100",
-        "B25070_010E": "100",
-        "B25070_001E": "2000",
-        "B25003_003E": "3000",
-        "B25003_001E": "8000",
-    }
+@pytest.fixture
+def built(raw_census_response: dict, monkeypatch: pytest.MonkeyPatch) -> dict:
+    monkeypatch.setattr("govsynth.sources.us.census_fetcher.fetch_state", lambda *a, **kw: raw_census_response)
+    return build_state_census_json("VA", year=2022, api_key=None)
 
-    demo_header = [
-        "B11016_003E",
-        "B11016_004E",
-        "B11016_005E",
-        "B11016_006E",
-        "B11016_007E",
-        "B11016_010E",
-        "B11016_011E",
-        "B11016_012E",
-        "B11016_013E",
-        "B11016_001E",
-        "B11003_003E",
-        "B11003_007E",
-        "B11003_001E",
-        "B01001_001E",
-        "B01001_020E",
-        "B01001_021E",
-        "B01001_022E",
-        "B01001_023E",
-        "B01001_024E",
-        "B01001_025E",
-        "B01001_044E",
-        "B01001_045E",
-        "B01001_046E",
-        "B01001_047E",
-        "B01001_048E",
-        "B01001_049E",
-        "B05001_002E",
-        "B05001_006E",
-        "B05001_001E",
-        "B18101_004E",
-        "B18101_007E",
-        "B18101_010E",
-        "B18101_023E",
-        "B18101_026E",
-        "B18101_029E",
-        "B18101_001E",
-    ]
-    demo_values = {h: "200" for h in demo_header}
-    demo_values["B01001_001E"] = "8600000"
-    demo_values["B05001_001E"] = "8600000"
-    demo_values["B18101_001E"] = "8600000"
-    demo_values["B11016_001E"] = "3200000"
-    demo_values["B11003_001E"] = "1500"
 
-    isrc_header = [
-        "B22003_002E",
-        "B22003_001E",
-        "B23025_002E",
-        "B23025_001E",
-        "B19055_002E",
-        "B19055_001E",
-        "B19056_002E",
-        "B19056_001E",
-        "B19057_002E",
-        "B19057_001E",
-    ]
-    isrc_values = {
-        "B22003_002E": "250000",
-        "B22003_001E": "3200000",
-        "B23025_002E": "4500000",
-        "B23025_001E": "7000000",
-        "B19055_002E": "1200000",
-        "B19055_001E": "3200000",
-        "B19056_002E": "150000",
-        "B19056_001E": "3200000",
-        "B19057_002E": "80000",
-        "B19057_001E": "3200000",
-    }
+class TestVariableSelection:
+    """Pin which ACS tables feed each concept.
 
-    health_header = ["B27001_004E", "B27001_007E", "B27001_010E", "B27001_013E", "B27001_016E", "B27001_001E"]
-    health_values = {
-        "B27001_004E": "50000",
-        "B27001_007E": "50000",
-        "B27001_010E": "50000",
-        "B27001_013E": "50000",
-        "B27001_016E": "50000",
-        "B27001_001E": "8600000",
-    }
+    Each of these previously pointed at a different table than its name implied
+    (B17024 under-6 rows for FPL buckets, B11003 married-couple rows for
+    children, B27001 any-insurance rows for Medicaid).
+    """
 
-    return {
-        "income": _table_row(income_header, income_values),
-        "poverty": _table_row(poverty_header, poverty_values),
-        "housing": _table_row(housing_header, housing_values),
-        "demographics": _table_row(demo_header, demo_values),
-        "income_sources": _table_row(isrc_header, isrc_values),
-        "health": _table_row(health_header, health_values),
-    }
+    def test_each_request_is_under_census_variable_limit(self) -> None:
+        for group in (
+            cf.INCOME_VARS,
+            cf.POVERTY_VARS,
+            cf.HOUSING_VARS,
+            cf.DEMOGRAPHIC_VARS,
+            cf.INCOME_SOURCE_VARS,
+            cf.HEALTH_VARS,
+        ):
+            assert len(group) <= 50
+            assert len(group) == len(set(group))
+
+    def test_mislabeled_tables_are_not_requested(self) -> None:
+        all_vars = (
+            cf.INCOME_VARS
+            + cf.POVERTY_VARS
+            + cf.HOUSING_VARS
+            + cf.DEMOGRAPHIC_VARS
+            + cf.INCOME_SOURCE_VARS
+            + cf.HEALTH_VARS
+        )
+        for table in ("B17024", "B11003", "B27001"):
+            assert not [v for v in all_vars if v.startswith(table)], table
+
+    def test_income_bracket_edges_match_acs_b19001(self) -> None:
+        # B19001_011E..017E per the ACS variable list.
+        assert cf._INCOME_BRACKETS[9:] == [
+            (50_000, 60_000),
+            (60_000, 75_000),
+            (75_000, 100_000),
+            (100_000, 125_000),
+            (125_000, 150_000),
+            (150_000, 200_000),
+            (200_000, None),
+        ]
+        assert cf._INCOME_BRACKET_LABELS[-1] == "$200,000 or more"
+        assert len(cf._INCOME_BRACKETS) == len(cf._INCOME_BRACKET_LABELS) == len(cf.INCOME_VARS) == 16
+
+
+class TestDerivedValues:
+    def test_income_buckets_use_corrected_midpoints(self, built: dict) -> None:
+        buckets = built["income"]["buckets_raw"]
+        assert buckets[9]["annual_midpoint"] == 55_000
+        assert buckets[14]["annual_midpoint"] == 175_000
+        # Equal 150-200k and 200k+ counts -> alpha = ln 2 / ln(4/3) ~ 2.41
+        # -> 200k * exp(1/alpha) ~ 303k.
+        assert buckets[15]["annual_midpoint"] == pytest.approx(303_000, rel=0.01)
+
+    def test_top_bracket_falls_back_when_counts_are_zero(self) -> None:
+        assert cf._top_bracket_representative(0, 0) == round(200_000 * math.exp(1 / cf._DEFAULT_PARETO_ALPHA))
+
+    def test_fpl_buckets_come_from_c17002(self, built: dict) -> None:
+        fpl = built["income"]["fpl_buckets"]
+        assert [b["fpl_pct"] for b in fpl] == [0.5, 1.0, 1.25, 1.5, 1.85, 2.0, None]
+        assert [b["weight"] for b in fpl] == [0.05, 0.05, 0.03, 0.03, 0.04, 0.02, 0.78]
+        assert sum(b["weight"] for b in fpl) == pytest.approx(1.0)
+
+    def test_pct_with_children_is_share_of_all_households(self, built: dict) -> None:
+        assert built["demographics"]["pct_with_children"] == 0.3
+
+    def test_naturalized_citizens_count_as_citizens(self, built: dict) -> None:
+        dem = built["demographics"]
+        assert dem["pct_citizen"] == 0.95
+        assert dem["pct_noncitizen"] == 0.05
+        assert dem["pct_noncitizen_eligible"] == round(0.05 * cf._NONCITIZEN_QUALIFIED_SHARE, 4)
+        assert dem["pct_citizen"] + dem["pct_noncitizen"] == pytest.approx(1.0)
+
+    def test_elderly_or_disabled_is_household_union(self, built: dict) -> None:
+        dem = built["demographics"]
+        assert dem["pct_households_60_plus"] == 0.4
+        assert dem["pct_households_with_disability"] == 0.2
+        assert dem["pct_elderly_or_disabled"] == pytest.approx(0.4 + 0.2 - 0.4 * 0.2)
+
+    def test_household_size_six_plus_includes_seven_or_more(self, built: dict) -> None:
+        # 1:300, 2:300, 3:150, 4:130, 5:60, 6+:30+20+10=60 over 1000
+        assert built["household_size"]["weights"] == [0.3, 0.3, 0.15, 0.13, 0.06, 0.06]
+
+    def test_householder_age_fitted_from_b25007(self, built: dict) -> None:
+        age = built["demographics"]["age"]
+        assert age["mu"] == pytest.approx(55.0)  # half at 40, half at 70
+        assert age["sigma"] == pytest.approx(15.0)
+
+    def test_medicaid_rate_uses_c27007(self, built: dict) -> None:
+        assert built["program_participation"]["medicaid_coverage_rate"] == 0.15
+
+    def test_household_earnings_and_lfpr_are_distinct(self, built: dict) -> None:
+        isrc = built["income_sources"]
+        assert isrc["pct_households_with_earnings"] == 0.79
+        assert isrc["labor_force_participation_rate"] == 0.65
+
+    def test_rent_burden_excludes_not_computed(self, built: dict) -> None:
+        assert built["housing"]["rent_burden_pct"] == 0.2
 
 
 class TestBuildStateCensusJson:
@@ -239,7 +314,13 @@ class TestBuildStateCensusJson:
     def test_rates_are_between_zero_and_one(self, raw_census_response: dict, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr("govsynth.sources.us.census_fetcher.fetch_state", lambda *a, **kw: raw_census_response)
         data = build_state_census_json("VA", year=2022, api_key=None)
-        for key in ("pct_citizen", "pct_noncitizen_eligible", "pct_with_children"):
+        for key in (
+            "pct_citizen",
+            "pct_noncitizen",
+            "pct_noncitizen_eligible",
+            "pct_with_children",
+            "pct_elderly_or_disabled",
+        ):
             assert 0.0 <= data["demographics"][key] <= 1.0
         for key in ("labor_force_participation_rate", "pct_social_security"):
             assert 0.0 <= data["income_sources"][key] <= 1.0

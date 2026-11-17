@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import math
 import os
+from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -76,24 +77,36 @@ FIPS_CODES: dict[str, str] = {
 
 _BASE_URL = "https://api.census.gov/data"
 
-# B19001: 16 annual income bracket midpoints (dollars)
-_INCOME_BRACKET_MIDPOINTS = [
-    5000,
-    12500,
-    17500,
-    22500,
-    27500,
-    32500,
-    37500,
-    42500,
-    47500,
-    52500,
-    57500,
-    62500,
-    70000,
-    87500,
-    112500,
-    150000,
+# ---------------------------------------------------------------------------
+# B19001: household income, 16 brackets (variables _002E through _017E).
+#
+# Bracket edges below are the ACS labels for B19001_002E..B19001_017E, verified
+# against https://api.census.gov/data/2022/acs/acs5/variables/<VAR>.json. They
+# are NOT evenly spaced above $50k: _011E is $50,000-59,999, _012E is
+# $60,000-74,999, ... _017E is $200,000 or more. An earlier version labeled
+# them as $5k-wide bins up to "$125,000 or more", which pushed the top ~40% of
+# households down by tens of thousands of dollars and biased the fitted
+# lognormal low.
+#
+# (lower, upper) in annual dollars; upper=None marks the open-ended top bracket.
+# ---------------------------------------------------------------------------
+_INCOME_BRACKETS: list[tuple[int, int | None]] = [
+    (0, 10_000),
+    (10_000, 15_000),
+    (15_000, 20_000),
+    (20_000, 25_000),
+    (25_000, 30_000),
+    (30_000, 35_000),
+    (35_000, 40_000),
+    (40_000, 45_000),
+    (45_000, 50_000),
+    (50_000, 60_000),
+    (60_000, 75_000),
+    (75_000, 100_000),
+    (100_000, 125_000),
+    (125_000, 150_000),
+    (150_000, 200_000),
+    (200_000, None),
 ]
 _INCOME_BRACKET_LABELS = [
     "Less than $10,000",
@@ -105,14 +118,86 @@ _INCOME_BRACKET_LABELS = [
     "$35,000 to $39,999",
     "$40,000 to $44,999",
     "$45,000 to $49,999",
-    "$50,000 to $54,999",
-    "$55,000 to $59,999",
-    "$60,000 to $64,999",
-    "$65,000 to $74,999",
+    "$50,000 to $59,999",
+    "$60,000 to $74,999",
     "$75,000 to $99,999",
     "$100,000 to $124,999",
-    "$125,000 or more",
+    "$125,000 to $149,999",
+    "$150,000 to $199,999",
+    "$200,000 or more",
 ]
+# Closed-bracket midpoints. The open-ended top bracket's representative value
+# is computed per state by `_top_bracket_representative`.
+_INCOME_BRACKET_MIDPOINTS = [(lo + hi) / 2 if hi is not None else float("nan") for lo, hi in _INCOME_BRACKETS]
+
+# Fallback Pareto shape for the open-ended $200k+ bracket when the two top
+# brackets can't support an estimate (e.g. zero counts in a mocked response).
+_DEFAULT_PARETO_ALPHA = 2.0
+
+# C17002: ratio of income to poverty level (persons for whom poverty status is
+# determined). Variables _002E.._008E, upper bound of each bin as a multiple of
+# the poverty line; None marks the open-ended "2.00 and over" bin.
+_FPL_BINS: list[tuple[str, float | None]] = [
+    ("C17002_002E", 0.50),
+    ("C17002_003E", 1.00),
+    ("C17002_004E", 1.25),
+    ("C17002_005E", 1.50),
+    ("C17002_006E", 1.85),
+    ("C17002_007E", 2.00),
+    ("C17002_008E", None),
+]
+
+# B25007: tenure by age of householder. Owner rows _003E.._011E and renter rows
+# _013E.._021E share these nine age bands. Representative ages are bin
+# midpoints; 85+ uses 90.
+_HOUSEHOLDER_AGE_BINS: list[tuple[str, float]] = [
+    ("15 to 24", 20.0),
+    ("25 to 34", 30.0),
+    ("35 to 44", 40.0),
+    ("45 to 54", 50.0),
+    ("55 to 59", 57.5),
+    ("60 to 64", 62.5),
+    ("65 to 74", 70.0),
+    ("75 to 84", 80.0),
+    ("85 and over", 90.0),
+]
+
+# ACS (B05001) reports citizenship but not immigration status, so it cannot by
+# itself separate "qualified" non-citizens (8 U.S.C. 1641 -- LPRs, refugees,
+# asylees, ...) from everyone else. This national share splits the ACS
+# non-citizen count. Derived from DHS Office of Homeland Security Statistics
+# January 2022 estimates: 12.9M lawful permanent residents vs. 11.0M
+# unauthorized immigrants, i.e. 12.9 / (12.9 + 11.0) ~= 0.54. It omits
+# refugees/asylees not yet adjusted (qualified) and nonimmigrant visa holders
+# (not qualified), and it is applied uniformly to every state even though the
+# real mix varies widely by state. Note "qualified" is not the same as
+# "eligible": SNAP and Medicaid layer a five-year bar and other conditions on top.
+_NONCITIZEN_QUALIFIED_SHARE = 0.54
+
+
+def _top_bracket_representative(n_150_200: float, n_200_plus: float) -> float:
+    """Representative annual income for the open-ended $200k+ bracket.
+
+    Fits a Pareto tail through the two top brackets: if incomes above $150k
+    follow Pareto(alpha), then P(X > 200k) / P(X > 150k) = (150/200)^alpha,
+    so alpha = ln((n_150_200 + n_200_plus) / n_200_plus) / ln(200/150).
+
+    Returns the value whose log equals E[ln X | X >= 200k] = ln(200k) + 1/alpha,
+    which is what the log-space moment fit in `fit_lognormal` needs.
+
+    Args:
+        n_150_200: Household count in the $150,000-$199,999 bracket.
+        n_200_plus: Household count in the $200,000+ bracket.
+
+    Returns:
+        Representative annual dollar value for the top bracket.
+    """
+    alpha = _DEFAULT_PARETO_ALPHA
+    if n_200_plus > 0 and n_150_200 > 0:
+        estimated = math.log((n_150_200 + n_200_plus) / n_200_plus) / math.log(200 / 150)
+        # Guard against implausibly fat or thin tails from noisy small-state counts.
+        alpha = min(max(estimated, 1.1), 5.0)
+    return round(200_000 * math.exp(1 / alpha))
 
 
 def fit_lognormal(buckets: list[dict[str, Any]]) -> tuple[float, float]:
@@ -161,8 +246,62 @@ def _safe_rate(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 4) if denominator > 0 else 0.0
 
 
+def _vars(table: str, numbers: list[int]) -> list[str]:
+    """Build ACS estimate variable names, e.g. _vars("B19001", [2]) -> ["B19001_002E"]."""
+    return [f"{table}_{n:03d}E" for n in numbers]
+
+
+# Variables requested per table group. Each group is one HTTP request and must
+# stay under the Census API's 50-variable limit.
+INCOME_VARS = _vars("B19001", list(range(2, 18)))
+POVERTY_VARS = _vars("C17002", list(range(1, 9)))
+HOUSING_VARS = (
+    _vars("B25064", [1])
+    + _vars("B25070", [1, 7, 8, 9, 10, 11])
+    + _vars("B25003", [1, 3])
+    + _vars("B25007", [1, *range(3, 12), *range(13, 22)])
+)
+DEMOGRAPHIC_VARS = (
+    _vars("B11016", [1, *range(3, 9), *range(10, 17)])
+    + _vars("B11005", [1, 2])
+    + _vars("B11006", [1, 2])
+    + _vars("B22010", [1, 3, 6])
+    + _vars("B05001", [1, 6])
+)
+INCOME_SOURCE_VARS = (
+    _vars("B22003", [1, 2])
+    + _vars("B23025", [1, 2])
+    + _vars("B19051", [1, 2])
+    + _vars("B19055", [1, 2])
+    + _vars("B19056", [1, 2])
+    + _vars("B19057", [1, 2])
+)
+HEALTH_VARS = _vars("C27007", [1, 4, 7, 10, 14, 17, 20])
+
+_TABLES = [
+    "B19001",
+    "C17002",
+    "B25064",
+    "B25070",
+    "B25003",
+    "B25007",
+    "B11016",
+    "B11005",
+    "B11006",
+    "B22010",
+    "B05001",
+    "B22003",
+    "B23025",
+    "B19051",
+    "B19055",
+    "B19056",
+    "B19057",
+    "C27007",
+]
+
+
 def fetch_state(state: str, year: int, api_key: str | None) -> dict[str, Any]:
-    """Fetch all ACS tables for one state (~6 HTTP requests).
+    """Fetch all ACS tables for one state (6 HTTP requests).
 
     Args:
         state: Two-letter state abbreviation, e.g. 'VA'.
@@ -178,70 +317,38 @@ def fetch_state(state: str, year: int, api_key: str | None) -> dict[str, Any]:
     """
     fips = FIPS_CODES[state.upper()]
     base_url = f"{_BASE_URL}/{year}/acs/acs5"
-    geo = f"state:{fips}"
-    base_params: dict[str, str] = {"for": geo}
+    base_params: dict[str, str] = {"for": f"state:{fips}"}
     if api_key:
         base_params["key"] = api_key
 
-    with httpx.Client() as client:
-        # B19001: Household income -- 16 brackets (variables _002E through _017E)
-        income_vars = ",".join(f"B19001_0{i:02d}E" for i in range(2, 18))
-        income_rows = _get(client, base_url, {**base_params, "get": income_vars})
-
-        # B17024: Ratio of income to poverty level -- key FPL buckets
-        poverty_vars = "B17024_002E,B17024_003E,B17024_004E,B17024_005E,B17024_001E"
-        poverty_rows = _get(client, base_url, {**base_params, "get": poverty_vars})
-
-        # B25064: Median gross rent; B25070: Rent burden; B25003: Tenure
-        housing_vars = "B25064_001E,B25070_007E,B25070_008E,B25070_009E,B25070_010E,B25070_001E,B25003_003E,B25003_001E"
-        housing_rows = _get(client, base_url, {**base_params, "get": housing_vars})
-
-        # Household size (B11016), children (B11003), age (B01001),
-        # citizenship (B05001), disability (B18101)
-        demo_vars = (
-            "B11016_003E,B11016_004E,B11016_005E,B11016_006E,B11016_007E,"
-            "B11016_010E,B11016_011E,B11016_012E,B11016_013E,B11016_001E,"
-            "B11003_003E,B11003_007E,B11003_001E,"
-            "B01001_001E,"
-            "B01001_020E,B01001_021E,B01001_022E,B01001_023E,B01001_024E,B01001_025E,"
-            "B01001_044E,B01001_045E,B01001_046E,B01001_047E,B01001_048E,B01001_049E,"
-            "B05001_002E,B05001_006E,B05001_001E,"
-            "B18101_004E,B18101_007E,B18101_010E,B18101_023E,B18101_026E,B18101_029E,B18101_001E"
-        )
-        demo_rows = _get(client, base_url, {**base_params, "get": demo_vars})
-
-        # Income sources: SNAP (B22003), employment (B23025),
-        # Social Security (B19055), SSI (B19056), public assistance (B19057)
-        isrc_vars = (
-            "B22003_002E,B22003_001E,"
-            "B23025_002E,B23025_001E,"
-            "B19055_002E,B19055_001E,"
-            "B19056_002E,B19056_001E,"
-            "B19057_002E,B19057_001E"
-        )
-        isrc_rows = _get(client, base_url, {**base_params, "get": isrc_vars})
-
-        # Health insurance coverage -- B27001 (medicaid approximation)
-        health_vars = "B27001_004E,B27001_007E,B27001_010E,B27001_013E,B27001_016E,B27001_001E"
-        health_rows = _get(client, base_url, {**base_params, "get": health_vars})
-
-    return {
-        "income": income_rows,
-        "poverty": poverty_rows,
-        "housing": housing_rows,
-        "demographics": demo_rows,
-        "income_sources": isrc_rows,
-        "health": health_rows,
+    groups = {
+        "income": INCOME_VARS,
+        "poverty": POVERTY_VARS,
+        "housing": HOUSING_VARS,
+        "demographics": DEMOGRAPHIC_VARS,
+        "income_sources": INCOME_SOURCE_VARS,
+        "health": HEALTH_VARS,
     }
+    with httpx.Client() as client:
+        return {name: _get(client, base_url, {**base_params, "get": ",".join(vs)}) for name, vs in groups.items()}
 
 
-def _idx(header: list[str], var: str) -> int:
-    """Return column index for a Census variable name."""
-    return header.index(var)
+def _reader(rows: list[list[str]]) -> Callable[[str], int]:
+    """Return a lookup function var -> int for a [header, values] Census response."""
+    header, values = rows[0], rows[1]
+
+    def get(var: str) -> int:
+        return _safe_int(values[header.index(var)])
+
+    return get
 
 
 def build_state_census_json(state: str, year: int, api_key: str | None) -> dict[str, Any]:
     """Fetch ACS data for one state and build the census JSON dict.
+
+    Every rate is computed over the universe the sampler applies it to: rates
+    used per household (children, elderly/disabled, earnings, SNAP receipt)
+    come from household-universe tables, not person or family tables.
 
     Args:
         state: Two-letter state abbreviation.
@@ -252,151 +359,108 @@ def build_state_census_json(state: str, year: int, api_key: str | None) -> dict[
         Dict matching the schema in data/census/<state>.json.
     """
     raw = fetch_state(state, year, api_key)
+    inc = _reader(raw["income"])
+    pov = _reader(raw["poverty"])
+    hsg = _reader(raw["housing"])
+    dem = _reader(raw["demographics"])
+    isrc = _reader(raw["income_sources"])
+    hlth = _reader(raw["health"])
 
-    # -- Income --
-    inc_h, inc_v = raw["income"][0], raw["income"][1]
-    bracket_counts = [_safe_int(inc_v[_idx(inc_h, f"B19001_0{i:02d}E")]) for i in range(2, 18)]
+    # -- Income (household, B19001) --
+    bracket_counts = [inc(v) for v in INCOME_VARS]
     total_hh_inc = sum(bracket_counts) or 1
+    top_rep = _top_bracket_representative(bracket_counts[-2], bracket_counts[-1])
     buckets_raw = [
         {
             "label": _INCOME_BRACKET_LABELS[i],
-            "annual_midpoint": _INCOME_BRACKET_MIDPOINTS[i],
+            "annual_lower": lo,
+            "annual_upper": hi,
+            "annual_midpoint": _INCOME_BRACKET_MIDPOINTS[i] if hi is not None else top_rep,
             "weight": round(c / total_hh_inc, 4),
         }
-        for i, c in enumerate(bracket_counts)
+        for i, (c, (lo, hi)) in enumerate(zip(bracket_counts, _INCOME_BRACKETS, strict=True))
     ]
     mu, sigma = fit_lognormal(buckets_raw)
 
-    # -- FPL buckets --
-    pov_h, pov_v = raw["poverty"][0], raw["poverty"][1]
-    pop_ratio = _safe_int(pov_v[_idx(pov_h, "B17024_001E")]) or 1
-    fpl_buckets = [
-        {
-            "fpl_pct": 0.50,
-            "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_002E")]), pop_ratio),
-        },
-        {
-            "fpl_pct": 1.00,
-            "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_003E")]), pop_ratio),
-        },
-        {
-            "fpl_pct": 1.30,
-            "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_004E")]), pop_ratio),
-        },
-        {
-            "fpl_pct": 1.85,
-            "weight": _safe_rate(_safe_int(pov_v[_idx(pov_h, "B17024_005E")]), pop_ratio),
-        },
-    ]
+    # -- Ratio of income to poverty level (persons, C17002) --
+    pov_total = pov("C17002_001E")
+    fpl_buckets = [{"fpl_pct": upper, "weight": _safe_rate(pov(var), pov_total)} for var, upper in _FPL_BINS]
 
     # -- Housing --
-    hsg_h, hsg_v = raw["housing"][0], raw["housing"][1]
-    median_rent = _safe_int(hsg_v[_idx(hsg_h, "B25064_001E")])
-    burden_high = sum(_safe_int(hsg_v[_idx(hsg_h, f"B25070_0{i:02d}E")]) for i in [7, 8, 9, 10])
-    burden_total = _safe_int(hsg_v[_idx(hsg_h, "B25070_001E")]) or 1
-    renter_occ = _safe_int(hsg_v[_idx(hsg_h, "B25003_003E")])
-    total_occ = _safe_int(hsg_v[_idx(hsg_h, "B25003_001E")]) or 1
+    burden_high = sum(hsg(v) for v in _vars("B25070", [7, 8, 9, 10]))
+    # Exclude "not computed" (zero/negative income or no cash rent) from the base.
+    burden_base = hsg("B25070_001E") - hsg("B25070_011E")
 
-    # -- Demographics --
-    dem_h, dem_v = raw["demographics"][0], raw["demographics"][1]
+    # -- Age of householder (B25007, owners + renters) --
+    age_counts = [
+        hsg(o) + hsg(r)
+        for o, r in zip(_vars("B25007", list(range(3, 12))), _vars("B25007", list(range(13, 22))), strict=True)
+    ]
+    age_total = sum(age_counts)
+    if age_total > 0:
+        age_mu = sum(c * a for c, (_, a) in zip(age_counts, _HOUSEHOLDER_AGE_BINS, strict=True)) / age_total
+        age_var = (
+            sum(c * (a - age_mu) ** 2 for c, (_, a) in zip(age_counts, _HOUSEHOLDER_AGE_BINS, strict=True)) / age_total
+        )
+        age_sigma = math.sqrt(age_var)
+    else:
+        age_mu, age_sigma = 40.0, 15.0
+    age_buckets = [
+        {"label": label, "weight": _safe_rate(c, age_total)}
+        for c, (label, _) in zip(age_counts, _HOUSEHOLDER_AGE_BINS, strict=True)
+    ]
 
-    def hh_c(var: str) -> int:
-        return _safe_int(dem_v[_idx(dem_h, var)])
-
-    # Household size 1-6:
-    # 1 = nonfamily 1-person (B11016_010E)
-    # 2 = family-2 (B11016_003E) + nonfamily-2 (B11016_011E)
-    # 3 = family-3 (B11016_004E) + nonfamily-3 (B11016_012E)
-    # 4 = family-4 (B11016_005E) + nonfamily-4+ (B11016_013E, grouped)
-    # 5 = family-5 (B11016_006E)
-    # 6 = family-6 (B11016_007E)
+    # -- Household size (B11016), family + nonfamily; bucket 6 is "6 or more" --
     raw_hh = [
-        hh_c("B11016_010E"),
-        hh_c("B11016_003E") + hh_c("B11016_011E"),
-        hh_c("B11016_004E") + hh_c("B11016_012E"),
-        hh_c("B11016_005E") + hh_c("B11016_013E"),
-        hh_c("B11016_006E"),
-        hh_c("B11016_007E"),
+        dem("B11016_010E"),
+        dem("B11016_003E") + dem("B11016_011E"),
+        dem("B11016_004E") + dem("B11016_012E"),
+        dem("B11016_005E") + dem("B11016_013E"),
+        dem("B11016_006E") + dem("B11016_014E"),
+        dem("B11016_007E") + dem("B11016_008E") + dem("B11016_015E") + dem("B11016_016E"),
     ]
     hh_total = sum(raw_hh) or 1
     hh_weights = [round(c / hh_total, 4) for c in raw_hh]
     # Re-normalize to exactly 1.0 by adjusting last element
     hh_weights[-1] = round(hh_weights[-1] + (1.0 - sum(hh_weights)), 4)
 
-    # Children
-    children = hh_c("B11003_003E") + hh_c("B11003_007E")
-    fam_total = hh_c("B11003_001E") or 1
+    # -- Children: share of ALL households with 1+ person under 18 (B11005) --
+    pct_with_children = _safe_rate(dem("B11005_002E"), dem("B11005_001E"))
 
-    # Elderly/disabled (65+ from B01001 + disabled from B18101)
-    elderly_male = sum(hh_c(f"B01001_0{i:02d}E") for i in range(20, 26))
-    elderly_female = sum(hh_c(f"B01001_0{i:02d}E") for i in range(44, 50))
-    total_pop = hh_c("B01001_001E") or 1
-    disabled = sum(hh_c(f"B18101_0{i:02d}E") for i in [4, 7, 10, 23, 26, 29])
-    disabled_total = hh_c("B18101_001E") or 1
-    pct_eld_dis = min(
-        _safe_rate(elderly_male + elderly_female + disabled, total_pop + disabled_total),
-        0.40,
-    )
+    # -- Elderly/disabled at the household level --
+    # SNAP's "elderly" is 60+ (7 CFR 271.2), so use B11006 (households with
+    # someone 60+), and B22010 for households with 1+ person with a disability.
+    # ACS publishes no cross-tab of the two, so the union assumes independence.
+    # Disability and age are positively correlated, so this is an upper bound
+    # on the true union; the true value lies in [max(p60, pdis), this].
+    pct_hh_60_plus = _safe_rate(dem("B11006_002E"), dem("B11006_001E"))
+    pct_hh_disability = _safe_rate(dem("B22010_003E") + dem("B22010_006E"), dem("B22010_001E"))
+    pct_eld_dis = round(pct_hh_60_plus + pct_hh_disability - pct_hh_60_plus * pct_hh_disability, 4)
 
-    # Citizenship
-    native_citizen = hh_c("B05001_002E")
-    noncit_eligible = hh_c("B05001_006E")
-    pop_b05 = hh_c("B05001_001E") or 1
+    # -- Citizenship (persons, B05001) --
+    pop_b05 = dem("B05001_001E")
+    pct_noncitizen = _safe_rate(dem("B05001_006E"), pop_b05)
+    pct_citizen = round(1.0 - pct_noncitizen, 4) if pop_b05 > 0 else 0.0
+    pct_noncitizen_eligible = round(pct_noncitizen * _NONCITIZEN_QUALIFIED_SHARE, 4)
 
-    # Age: national approximate (ACS median ~38-42; use 40 with sigma 15)
-    age_mu = 40.0
-    age_sigma = 15.0
-
-    # -- Income sources --
-    isrc_h, isrc_v = raw["income_sources"][0], raw["income_sources"][1]
-
-    def ir(var: str) -> int:
-        return _safe_int(isrc_v[_idx(isrc_h, var)])
-
-    snap_recv = ir("B22003_002E")
-    snap_total = ir("B22003_001E") or 1
-    employed = ir("B23025_002E")
-    labor_total = ir("B23025_001E") or 1
-    ss_recv = ir("B19055_002E")
-    ss_total = ir("B19055_001E") or 1
-    ssi_recv = ir("B19056_002E")
-    ssi_total = ir("B19056_001E") or 1
-    pa_recv = ir("B19057_002E")
-    pa_total = ir("B19057_001E") or 1
-
-    # -- Health / Medicaid approx --
-    hlth_h, hlth_v = raw["health"][0], raw["health"][1]
-
-    def hr(var: str) -> int:
-        return _safe_int(hlth_v[_idx(hlth_h, var)])
-
-    insured = sum(hr(f"B27001_0{i:02d}E") for i in [4, 7, 10, 13, 16])
-    hlth_total = hr("B27001_001E") or 1
+    # -- Medicaid / means-tested public coverage (persons, C27007) --
+    medicaid = sum(hlth(v) for v in _vars("C27007", [4, 7, 10, 14, 17, 20]))
 
     return {
         "_metadata": {
             "state": state.upper(),
             "acs_vintage": year,
             "acs_survey": "acs5",
+            "dollar_year": year,
             "fetch_date": date.today().isoformat(),
-            "tables": [
-                "B19001",
-                "B17024",
-                "B25064",
-                "B25070",
-                "B25003",
-                "B11016",
-                "B11003",
-                "B01001",
-                "B05001",
-                "B18101",
-                "B22003",
-                "B27001",
-                "B23025",
-                "B19055",
-                "B19056",
-                "B19057",
-            ],
+            "tables": list(_TABLES),
+            "notes": {
+                "income": "Household income in dollar_year dollars; not inflated to the program year.",
+                "fpl_buckets": "Persons (C17002), not households. fpl_pct = bin upper bound; null = open-ended.",
+                "pct_elderly_or_disabled": "B11006 (60+) union B22010 (disability), independence assumed; upper bound.",
+                "pct_noncitizen_eligible": f"Non-citizen share x {_NONCITIZEN_QUALIFIED_SHARE} (DHS LPR share).",
+                "medicaid_coverage_rate": "Persons with Medicaid/means-tested public coverage (C27007).",
+            },
         },
         "income": {
             "monthly_lognormal": {"mu": mu, "sigma": sigma},
@@ -404,29 +468,33 @@ def build_state_census_json(state: str, year: int, api_key: str | None) -> dict[
             "buckets_raw": buckets_raw,
         },
         "housing": {
-            "median_gross_rent_monthly": median_rent,
-            "pct_renter": _safe_rate(renter_occ, total_occ),
-            "rent_burden_pct": _safe_rate(burden_high, burden_total),
+            "median_gross_rent_monthly": hsg("B25064_001E"),
+            "pct_renter": _safe_rate(hsg("B25003_003E"), hsg("B25003_001E")),
+            "rent_burden_pct": _safe_rate(burden_high, burden_base),
         },
         "household_size": {
             "weights": hh_weights,
         },
         "demographics": {
-            "pct_with_children": _safe_rate(children, fam_total),
+            "pct_with_children": pct_with_children,
             "pct_elderly_or_disabled": pct_eld_dis,
-            "pct_citizen": _safe_rate(native_citizen, pop_b05),
-            "pct_noncitizen_eligible": _safe_rate(noncit_eligible, pop_b05),
-            "age": {"mu": age_mu, "sigma": age_sigma},
+            "pct_households_60_plus": pct_hh_60_plus,
+            "pct_households_with_disability": pct_hh_disability,
+            "pct_citizen": pct_citizen,
+            "pct_noncitizen": pct_noncitizen,
+            "pct_noncitizen_eligible": pct_noncitizen_eligible,
+            "age": {"mu": round(age_mu, 2), "sigma": round(age_sigma, 2), "householder_buckets": age_buckets},
         },
         "income_sources": {
-            "labor_force_participation_rate": _safe_rate(employed, labor_total),
-            "pct_social_security": _safe_rate(ss_recv, ss_total),
-            "pct_ssi": _safe_rate(ssi_recv, ssi_total),
-            "pct_public_assistance": _safe_rate(pa_recv, pa_total),
+            "labor_force_participation_rate": _safe_rate(isrc("B23025_002E"), isrc("B23025_001E")),
+            "pct_households_with_earnings": _safe_rate(isrc("B19051_002E"), isrc("B19051_001E")),
+            "pct_social_security": _safe_rate(isrc("B19055_002E"), isrc("B19055_001E")),
+            "pct_ssi": _safe_rate(isrc("B19056_002E"), isrc("B19056_001E")),
+            "pct_public_assistance": _safe_rate(isrc("B19057_002E"), isrc("B19057_001E")),
         },
         "program_participation": {
-            "snap_receipt_rate": _safe_rate(snap_recv, snap_total),
-            "medicaid_coverage_rate": _safe_rate(insured, hlth_total),
+            "snap_receipt_rate": _safe_rate(isrc("B22003_002E"), isrc("B22003_001E")),
+            "medicaid_coverage_rate": _safe_rate(medicaid, hlth("C27007_001E")),
         },
     }
 

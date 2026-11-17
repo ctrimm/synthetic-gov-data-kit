@@ -67,6 +67,13 @@ class CensusDistribution:
     pct_renter: float
     age_mu: float
     age_sigma: float
+    # Added with the corrected fetcher. Optional so census files written by the
+    # earlier fetcher still load; None means "not present in this file".
+    pct_households_with_earnings: float | None = None
+    pct_households_60_plus: float | None = None
+    pct_households_with_disability: float | None = None
+    pct_noncitizen: float | None = None
+    dollar_year: int | None = None
 
 
 class CensusDataSource:
@@ -136,4 +143,9 @@ def _parse(data: dict[str, Any]) -> CensusDistribution:
         pct_renter=hsg["pct_renter"],
         age_mu=dem["age"]["mu"],
         age_sigma=dem["age"]["sigma"],
+        pct_households_with_earnings=isrc.get("pct_households_with_earnings"),
+        pct_households_60_plus=dem.get("pct_households_60_plus"),
+        pct_households_with_disability=dem.get("pct_households_with_disability"),
+        pct_noncitizen=dem.get("pct_noncitizen"),
+        dollar_year=data["_metadata"].get("dollar_year"),
     )
