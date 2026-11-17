@@ -30,7 +30,13 @@ PHRASING_STYLES: tuple[str, ...] = ("caseworker_note", "narrative", "terse", "co
 # See `USHouseholdProfile.generate_scenario_question_styled`. Question phrasing styles
 # for eligibility scenarios -- all ask the same underlying question but from
 # different angles/registers, supporting semantic variation for RLVR training.
-SCENARIO_PHRASING_STYLES: tuple[str, ...] = ("direct", "exploratory", "constraint_focused", "outcome_focused", "policy_grounded")
+SCENARIO_PHRASING_STYLES: tuple[str, ...] = (
+    "direct",
+    "exploratory",
+    "constraint_focused",
+    "outcome_focused",
+    "policy_grounded",
+)
 
 
 @dataclass
@@ -312,13 +318,10 @@ class USHouseholdProfile:
                 f"In {self.city}, {self.state}, {self.head_of_household_name}, {self.age_of_head} years old, "
                 f"heads a household best described as a {hh_desc}."
             )
-            money = (
-                f"Every month the household brings in ${self.monthly_gross_income:,.0f} in gross income, "
-                + (
-                    f"against ${self.liquid_assets:,.0f} held in savings."
-                    if assets_present
-                    else "with no meaningful savings to draw on."
-                )
+            money = f"Every month the household brings in ${self.monthly_gross_income:,.0f} in gross income, " + (
+                f"against ${self.liquid_assets:,.0f} held in savings."
+                if assets_present
+                else "with no meaningful savings to draw on."
             )
             extra = ""
             if elderly:
@@ -403,25 +406,29 @@ class USHouseholdProfile:
         if style == "exploratory":
             return (
                 f"What factors determine whether this household qualifies for {program.upper()}? "
-                f"Walk through the relevant eligibility criteria and explain how this household meets or fails each one."
+                "Walk through the relevant eligibility criteria and explain how this household "
+                "meets or fails each one."
             )
 
         if style == "constraint_focused":
             return (
                 f"Evaluate this household against the key constraints for {program.upper()} eligibility. "
-                f"What income limits, asset limits, and other thresholds apply? Where does this household stand relative to each?"
+                "What income limits, asset limits, and other thresholds apply? "
+                "Where does this household stand relative to each?"
             )
 
         if style == "outcome_focused":
             return (
-                f"Based on the household's situation, what would be your eligibility determination for {program.upper()}? "
+                "Based on the household's situation, what would be your eligibility determination "
+                f"for {program.upper()}? "
                 f"Provide the specific policy justification and reference the applicable regulations."
             )
 
         # style == "policy_grounded"
         return (
             f"Using federal policy regulations, determine {program.upper()} eligibility for this household. "
-            f"Cite the specific CFR sections that apply and explain how this household's circumstances align with or diverge from the requirements."
+            "Cite the specific CFR sections that apply and explain how this household's circumstances "
+            "align with or diverge from the requirements."
         )
 
 
