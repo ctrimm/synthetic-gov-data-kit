@@ -14,7 +14,7 @@ models misapply them.
 
 ### 1. Homeless shelter deduction
 
-**CFR citation:** 7 CFR 273.9(c)(6)
+**CFR citation:** 7 CFR 273.9(d)(6)(i)
 
 **Policy rule:** Homeless households receive a flat **$198.99/month** deduction in place of the
 excess shelter deduction. These two deductions are mutually exclusive — the homeless deduction is

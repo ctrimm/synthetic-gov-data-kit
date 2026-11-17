@@ -12,6 +12,7 @@ FISCAL YEAR:
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from functools import lru_cache
 
 from govsynth.fiscal_year import DEFAULT_SNAP_FY, FiscalYearConfig
@@ -82,6 +83,30 @@ def _region_for_state(state: str) -> str:
     if state == "VI":
         return "virgin_islands"
     return "48_states_dc"
+
+
+@dataclass(frozen=True)
+class NetIncomeBreakdown:
+    """The steps of the SNAP net income calculation (7 CFR 273.9(d)), in order."""
+
+    gross_income: float
+    earned_income: float
+    earned_deduction_pct: float
+    earned_deduction: float
+    after_earned: float
+    standard_deduction: float
+    after_standard: float
+    dependent_care_deduction: float
+    medical_deduction: float
+    after_medical: float
+    shelter_costs: float
+    half_adjusted_income: float
+    excess_shelter: float
+    shelter_cap: float
+    shelter_capped: bool
+    shelter_deduction: float
+    is_homeless: bool
+    net_income: float
 
 
 class SNAPSource(DataSource):
@@ -171,7 +196,7 @@ class SNAPSource(DataSource):
             f"  [Based on {self.fy_config.fpl_year} HHS poverty guidelines]\n"
             f"- Gross income test: ≤130% FPL (7 CFR 273.9(a)(1))\n"
             f"- Net income test: ≤100% FPL (7 CFR 273.9(a)(2))\n"
-            f"- Deductions: 20% earned income + standard deduction + allowable shelter/utility (7 CFR 273.9(c))\n"
+            f"- Deductions: 20% earned income + standard deduction + allowable shelter/utility (7 CFR 273.9(d))\n"
             f"- {asset_note}\n"
             f"- Elderly/disabled: exempt from gross income test; "
             f"${t.asset_limit_elderly_disabled:,.0f} asset limit.\n"
@@ -192,42 +217,97 @@ class SNAPSource(DataSource):
         has_elderly_or_disabled: bool = False,
         is_homeless: bool = False,
     ) -> float:
-        """Apply 7 CFR 273.9(c) deductions to arrive at SNAP net income."""
+        """Apply 7 CFR 273.9(d) deductions to arrive at SNAP net income."""
+        return self.net_income_breakdown(
+            gross_income=gross_income,
+            household_size=household_size,
+            earned_income=earned_income,
+            shelter_costs=shelter_costs,
+            dependent_care=dependent_care,
+            medical_expenses=medical_expenses,
+            has_elderly_or_disabled=has_elderly_or_disabled,
+            is_homeless=is_homeless,
+        ).net_income
+
+    def net_income_breakdown(
+        self,
+        gross_income: float,
+        household_size: int,
+        earned_income: float | None = None,
+        shelter_costs: float | None = None,
+        dependent_care: float | None = None,
+        medical_expenses: float = 0.0,
+        has_elderly_or_disabled: bool = False,
+        is_homeless: bool = False,
+    ) -> NetIncomeBreakdown:
+        """Every intermediate amount of the 7 CFR 273.9(d) net income calculation.
+
+        `calculate_net_income` returns this breakdown's ``net_income``, and rationale
+        traces render the same breakdown, so a trace's arithmetic always reaches the
+        net income the case is judged on.
+
+        Raises:
+            ValueError: If ``is_homeless`` is combined with positive shelter costs.
+        """
         if is_homeless and shelter_costs and shelter_costs > 0:
             raise ValueError("is_homeless and shelter_costs > 0 are mutually exclusive")
 
         t = self.thresholds()
         assert t.extra is not None, "SNAP thresholds always populate `extra`"
         earned = earned_income if earned_income is not None else gross_income
+        earned_pct = float(t.earned_income_deduction_pct or 20)
 
-        # (c)(1) Earned income deduction — 20%
-        earned_ded = earned * (t.earned_income_deduction_pct or 20) / 100.0
+        # (d)(2) Earned income deduction -- 20% of earned income only
+        earned_ded = earned * earned_pct / 100.0
         after_earned = gross_income - earned_ded
 
-        # (c)(2) Standard deduction
-        std_ded = get_standard_deduction(household_size, self._region, self.year)
+        # (d)(1) Standard deduction
+        std_ded = float(get_standard_deduction(household_size, self._region, self.year))
         after_standard = after_earned - std_ded
 
-        # (c)(3) Dependent care deduction
-        after_dep_care = after_standard - (dependent_care or 0.0)
+        # (d)(4) Dependent care deduction
+        dep_ded = dependent_care or 0.0
+        after_dep_care = after_standard - dep_ded
 
-        # (c)(4) Medical expense deduction for elderly/disabled (over $35 threshold)
+        # (d)(3) Excess medical deduction for elderly/disabled (over $35 threshold)
         medical_ded = max(0.0, medical_expenses - 35) if has_elderly_or_disabled else 0.0
         after_medical = after_dep_care - medical_ded
 
-        # (c)(5) Shelter deduction — homeless flat deduction or excess shelter calculation
-        # Per 7 CFR 273.9(c)(6), these two paths are mutually exclusive.
+        # (d)(6) Shelter deduction -- homeless flat deduction or excess shelter calculation.
+        # Per 7 CFR 273.9(d)(6)(i)-(ii), these two paths are mutually exclusive.
+        shelter_cap = float(t.extra["excess_shelter_cap"]) if t.extra else 744.0
+        half_income = max(0.0, after_medical) * 0.5
+        raw_excess = 0.0
+        capped = False
         if is_homeless:
             shelter_ded = float(t.extra["homeless_shelter_deduction"])
         else:
             shelter_ded = 0.0
             if shelter_costs:
-                shelter_cap = float(t.extra["excess_shelter_cap"]) if t.extra else 744.0
-                half_income = max(0.0, after_medical) * 0.5
                 raw_excess = max(0.0, shelter_costs - half_income)
                 shelter_ded = raw_excess if has_elderly_or_disabled else min(raw_excess, shelter_cap)
+                capped = shelter_ded < raw_excess
 
-        return max(0.0, after_medical - shelter_ded)
+        return NetIncomeBreakdown(
+            gross_income=gross_income,
+            earned_income=earned,
+            earned_deduction_pct=earned_pct,
+            earned_deduction=earned_ded,
+            after_earned=after_earned,
+            standard_deduction=std_ded,
+            after_standard=after_standard,
+            dependent_care_deduction=dep_ded,
+            medical_deduction=medical_ded,
+            after_medical=after_medical,
+            shelter_costs=float(shelter_costs or 0.0),
+            half_adjusted_income=half_income,
+            excess_shelter=raw_excess,
+            shelter_cap=shelter_cap,
+            shelter_capped=capped,
+            shelter_deduction=shelter_ded,
+            is_homeless=is_homeless,
+            net_income=max(0.0, after_medical - shelter_ded),
+        )
 
     def is_eligible(
         self,

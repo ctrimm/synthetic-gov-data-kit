@@ -19,7 +19,7 @@ from govsynth.profiles.us_household import PHRASING_STYLES, SCENARIO_PHRASING_ST
 from govsynth.reasoning.rules_engine import build_short_uid
 from govsynth.sources.base import HouseholdThreshold
 from govsynth.sources.us.census import CensusVintage, census_years_for_strategy
-from govsynth.sources.us.snap import get_standard_deduction
+from govsynth.sources.us.snap import NetIncomeBreakdown, get_standard_deduction
 from govsynth.sources.us.snap_bbce import SNAPBBCESource, _load_bbce_table
 
 # Threshold types used in edge-saturated generation
@@ -607,7 +607,7 @@ class SNAPEligibilityGenerator(Generator):
         return cases
 
     def _build_homeless_case(self, rng: random.Random) -> TestCase:
-        """Build a homeless shelter deduction edge case (7 CFR 273.9(c)(6))."""
+        """Build a homeless shelter deduction edge case (7 CFR 273.9(d)(6)(i))."""
         t = self.bbce_source.thresholds()
         assert t.extra is not None, "SNAP thresholds always populate `extra`"
         fy_config = self.bbce_source.fy_config
@@ -665,7 +665,7 @@ class SNAPEligibilityGenerator(Generator):
             ReasoningStep(
                 step_number=2,
                 title="Apply standard deductions (earned income + standard)",
-                rule_applied="7 CFR 273.9(c)(1),(c)(2)",
+                rule_applied="7 CFR 273.9(d)(1),(d)(2)",
                 inputs={"earned_deduction": earned_ded, "standard_deduction": std_ded},
                 computation=(
                     f"${gross:,.2f} − ${earned_ded:,.2f} (20% earned) − "
@@ -677,11 +677,11 @@ class SNAPEligibilityGenerator(Generator):
             ReasoningStep(
                 step_number=3,
                 title=f"Apply homeless shelter deduction (flat ${homeless_ded:,.2f})",
-                rule_applied="7 CFR 273.9(c)(6)",
+                rule_applied="7 CFR 273.9(d)(6)(i)",
                 inputs={"homeless_shelter_deduction": homeless_ded},
                 computation=(
                     f"Household is homeless — apply flat homeless shelter deduction of ${homeless_ded:,.2f} "
-                    f"INSTEAD OF excess shelter deduction (7 CFR 273.9(c)(6)). These two deductions are "
+                    f"(7 CFR 273.9(d)(6)(i)) INSTEAD OF the excess shelter deduction (273.9(d)(6)(ii)). These are "
                     f"mutually exclusive. Net income: ${after_standard:,.2f} − "
                     f"${homeless_ded:,.2f} = ${net_income:,.2f}"
                 ),
@@ -729,7 +729,7 @@ class SNAPEligibilityGenerator(Generator):
             expected_answer=(
                 f"This household is {'ELIGIBLE' if is_eligible else 'INELIGIBLE'} for SNAP. "
                 f"As a homeless household, the flat ${homeless_ded:,.2f} homeless shelter deduction "
-                "(7 CFR 273.9(c)(6)) "
+                "(7 CFR 273.9(d)(6)(i)) "
                 f"is applied INSTEAD OF the excess shelter deduction — these are mutually exclusive. "
                 f"Net income after deductions: ${net_income:,.2f}."
             ),
@@ -739,7 +739,7 @@ class SNAPEligibilityGenerator(Generator):
                 policy_basis=[
                     PolicyCitation(
                         document="7 CFR Part 273",
-                        section="7 CFR 273.9(c)(6)",
+                        section="7 CFR 273.9(d)(6)(i)",
                         year=self.fiscal_year,
                         url="https://www.ecfr.gov/current/title-7/part-273",
                     )
@@ -977,7 +977,7 @@ class SNAPEligibilityGenerator(Generator):
             ReasoningStep(
                 step_number=3,
                 title="Net income after deductions",
-                rule_applied="7 CFR 273.9(c)(1),(c)(2)",
+                rule_applied="7 CFR 273.9(d)(1),(d)(2)",
                 inputs={"gross_income": countable_income, "net_income": round(net_income, 2)},
                 computation=f"Net income: ${net_income:,.2f} vs limit ${limits.net_monthly:,.2f}",
                 result="PASS" if net_income <= limits.net_monthly else "FAIL",
@@ -2889,6 +2889,142 @@ class SNAPEligibilityGenerator(Generator):
             },
         )
 
+    @staticmethod
+    def _net_income_steps(b: NetIncomeBreakdown, elderly_or_disabled: bool, household_size: int) -> list[ReasoningStep]:
+        """Reasoning steps for each deduction in a net income breakdown (7 CFR 273.9(d)), in order.
+
+        Step numbers are placeholders; the caller renumbers them.
+        """
+        steps: list[ReasoningStep] = []
+        unearned = b.gross_income - b.earned_income
+        if b.earned_income > 0:
+            split = f" (the other ${unearned:,.2f} is unearned and gets no deduction)" if unearned > 0.005 else ""
+            steps.append(
+                ReasoningStep(
+                    step_number=1,
+                    title="Apply earned income deduction (20%)",
+                    rule_applied="7 CFR 273.9(d)(2)",
+                    inputs={
+                        "earned_income": round(b.earned_income, 2),
+                        "deduction_rate": f"{b.earned_deduction_pct:g}%",
+                    },
+                    computation=(
+                        f"${b.earned_income:,.2f} earned × {b.earned_deduction_pct:g}% = "
+                        f"${b.earned_deduction:,.2f}{split}; "
+                        f"${b.gross_income:,.2f} − ${b.earned_deduction:,.2f} = ${b.after_earned:,.2f}"
+                    ),
+                    result=f"Income after earned deduction: ${b.after_earned:,.2f}",
+                    is_determinative=False,
+                )
+            )
+        else:
+            steps.append(
+                ReasoningStep(
+                    step_number=1,
+                    title="Earned income deduction — not applicable",
+                    rule_applied="7 CFR 273.9(d)(2)",
+                    inputs={"earned_income": 0.0, "unearned_income": round(b.gross_income, 2)},
+                    computation=(
+                        f"The household has no earned income; all ${b.gross_income:,.2f} is unearned, "
+                        "so the 20% earned income deduction does not apply."
+                    ),
+                    result=f"Income remains ${b.after_earned:,.2f}",
+                    is_determinative=False,
+                )
+            )
+        steps.append(
+            ReasoningStep(
+                step_number=1,
+                title="Apply standard deduction",
+                rule_applied="7 CFR 273.9(d)(1)",
+                inputs={"household_size": household_size, "standard_deduction": b.standard_deduction},
+                computation=f"${b.after_earned:,.2f} − ${b.standard_deduction:,.2f} = ${b.after_standard:,.2f}",
+                result=f"Income after standard deduction: ${b.after_standard:,.2f}",
+                is_determinative=False,
+            )
+        )
+        running = b.after_standard
+        if b.dependent_care_deduction > 0:
+            nxt = running - b.dependent_care_deduction
+            steps.append(
+                ReasoningStep(
+                    step_number=1,
+                    title="Apply dependent care deduction",
+                    rule_applied="7 CFR 273.9(d)(4)",
+                    inputs={"dependent_care": round(b.dependent_care_deduction, 2)},
+                    computation=f"${running:,.2f} − ${b.dependent_care_deduction:,.2f} = ${nxt:,.2f}",
+                    result=f"Income after dependent care deduction: ${nxt:,.2f}",
+                    is_determinative=False,
+                )
+            )
+            running = nxt
+        if b.medical_deduction > 0:
+            steps.append(
+                ReasoningStep(
+                    step_number=1,
+                    title="Apply excess medical deduction",
+                    rule_applied="7 CFR 273.9(d)(3)",
+                    inputs={"medical_deduction": round(b.medical_deduction, 2)},
+                    computation=f"${running:,.2f} − ${b.medical_deduction:,.2f} = ${b.after_medical:,.2f}",
+                    result=f"Adjusted income: ${b.after_medical:,.2f}",
+                    is_determinative=False,
+                )
+            )
+        if b.is_homeless:
+            steps.append(
+                ReasoningStep(
+                    step_number=1,
+                    title=f"Apply homeless shelter deduction (flat ${b.shelter_deduction:,.2f})",
+                    rule_applied="7 CFR 273.9(d)(6)(i)",
+                    inputs={"homeless_shelter_deduction": b.shelter_deduction},
+                    computation=f"${b.after_medical:,.2f} − ${b.shelter_deduction:,.2f} = ${b.net_income:,.2f}",
+                    result=f"Net income: ${b.net_income:,.2f}",
+                    is_determinative=False,
+                )
+            )
+        elif b.shelter_costs > 0:
+            half = f"${b.after_medical:,.2f} × 50% = ${b.half_adjusted_income:,.2f}"
+            if b.excess_shelter <= 0:
+                computation = (
+                    f"Half of adjusted income: {half}. Shelter costs ${b.shelter_costs:,.2f} do not exceed it, "
+                    "so there is no excess shelter deduction."
+                )
+            else:
+                excess = f"${b.shelter_costs:,.2f} − ${b.half_adjusted_income:,.2f} = ${b.excess_shelter:,.2f} excess"
+                if b.shelter_capped:
+                    cap = f", capped at ${b.shelter_cap:,.2f} (no elderly or disabled member)"
+                elif elderly_or_disabled:
+                    cap = " (no cap: the household has an elderly or disabled member)"
+                else:
+                    cap = f" (under the ${b.shelter_cap:,.2f} cap)"
+                computation = (
+                    f"Half of adjusted income: {half}. {excess}{cap}. "
+                    f"${b.after_medical:,.2f} − ${b.shelter_deduction:,.2f} = ${b.net_income:,.2f}"
+                )
+            if b.after_medical - b.shelter_deduction < 0:
+                computation += " (net income cannot go below $0)"
+            steps.append(
+                ReasoningStep(
+                    step_number=1,
+                    title="Apply excess shelter deduction",
+                    rule_applied="7 CFR 273.9(d)(6)(ii)",
+                    inputs={
+                        "adjusted_income": round(b.after_medical, 2),
+                        "shelter_costs": round(b.shelter_costs, 2),
+                        "shelter_deduction": round(b.shelter_deduction, 2),
+                        "shelter_cap": b.shelter_cap,
+                    },
+                    computation=computation,
+                    result=f"Net income: ${b.net_income:,.2f}",
+                    is_determinative=False,
+                )
+            )
+        elif b.after_medical < 0:
+            steps[-1] = steps[-1].model_copy(
+                update={"result": f"{steps[-1].result} (net income cannot go below $0, so it is $0.00)"}
+            )
+        return steps
+
     def _build_rationale_trace(
         self,
         profile: USHouseholdProfile,
@@ -2900,7 +3036,6 @@ class SNAPEligibilityGenerator(Generator):
     ) -> RationaleTrace:
         """Construct the step-by-step reasoning chain for SNAP eligibility."""
         steps: list[ReasoningStep] = []
-        std_ded = get_standard_deduction(profile.household_size, fiscal_year=self.fiscal_year)
         t = self.bbce_source.thresholds()
         bbce = self.bbce_source.is_bbce
         gross_pct = self.bbce_source.bbce_params.gross_income_limit_pct_fpl
@@ -2983,37 +3118,24 @@ class SNAPEligibilityGenerator(Generator):
             )
             step_n += 1
 
-        # Step 2: Earned income deduction
-        earned = profile.earned_income or profile.monthly_gross_income
-        earned_ded = earned * (t.earned_income_deduction_pct or 20) / 100
-        after_earned = profile.monthly_gross_income - earned_ded
-        steps.append(
-            ReasoningStep(
-                step_number=step_n,
-                title="Apply earned income deduction (20%)",
-                rule_applied="7 CFR 273.9(c)(1)",
-                inputs={"earned_income": earned, "deduction_rate": "20%"},
-                computation=f"${earned:,.2f} × 20% = ${earned_ded:,.2f} deduction → ${after_earned:,.2f}",
-                result=f"Income after earned deduction: ${after_earned:,.2f}",
-                is_determinative=False,
-            )
+        # Steps 2+: the net income calculation, rendered from the same breakdown that
+        # produced the case's net income, so the trace's arithmetic reaches that number.
+        b = self.bbce_source.net_income_breakdown(
+            gross_income=profile.monthly_gross_income,
+            household_size=profile.household_size,
+            earned_income=profile.earned_income,
+            shelter_costs=profile.shelter_costs,
+            has_elderly_or_disabled=profile.has_elderly_or_disabled,
+            is_homeless=profile.is_homeless,
         )
-        step_n += 1
-
-        # Step 3: Standard deduction
-        after_standard = after_earned - std_ded
-        steps.append(
-            ReasoningStep(
-                step_number=step_n,
-                title="Apply standard deduction",
-                rule_applied="7 CFR 273.9(c)(2)",
-                inputs={"household_size": profile.household_size, "standard_deduction": std_ded},
-                computation=f"${after_earned:,.2f} − ${std_ded:,.0f} = ${after_standard:,.2f}",
-                result=f"Income after standard deduction: ${after_standard:,.2f}",
-                is_determinative=False,
+        if abs(b.net_income - net_income) > 0.01:
+            raise ValueError(
+                f"Trace net income ${b.net_income:,.2f} does not match the case's net income ${net_income:,.2f}; "
+                "the profile's monthly_net_income was set inconsistently with its income and shelter costs."
             )
-        )
-        step_n += 1
+        for step in self._net_income_steps(b, profile.has_elderly_or_disabled, profile.household_size):
+            steps.append(step.model_copy(update={"step_number": step_n}))
+            step_n += 1
 
         # Step 4: Net income test
         net_pass = net_income <= limits.net_monthly

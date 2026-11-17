@@ -9,6 +9,7 @@ Income and household distributions are modeled on Census ACS microdata.
 
 from __future__ import annotations
 
+import math
 import random
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -22,6 +23,7 @@ from govsynth.models.enums import CitizenshipStatus
 if TYPE_CHECKING:
     from govsynth.sources.us.census import CensusDistribution, CensusVintage
     from govsynth.sources.us.household_types import HouseholdTypes
+    from govsynth.sources.us.snap import SNAPSource
 
 _faker = Faker("en_US")
 
@@ -703,6 +705,38 @@ def _build_from_household_types(
     )
 
 
+def _gross_for_net(
+    source: SNAPSource, target_net: float, household_size: int, has_elderly: bool, shelter_costs: float
+) -> float:
+    """Largest whole-cent gross income (all earned) whose SNAP net income is <= target_net.
+
+    Net income is non-decreasing in gross income (each extra dollar adds 80 cents of
+    income after the earned deduction and removes at most 40 cents of excess shelter
+    deduction), so bisection finds it. Rounding down to the cent keeps a case placed
+    exactly at the limit at or below it, never a cent over.
+    """
+
+    def net(g: float) -> float:
+        return source.calculate_net_income(
+            gross_income=g,
+            household_size=household_size,
+            shelter_costs=shelter_costs,
+            has_elderly_or_disabled=has_elderly,
+        )
+
+    lo, hi = 0.0, max(target_net, 1.0) * 4 + 5000
+    for _ in range(80):
+        mid = (lo + hi) / 2
+        if net(mid) <= target_net:
+            lo = mid
+        else:
+            hi = mid
+    gross = math.floor(lo * 100) / 100
+    while gross > 0 and net(gross) > target_net:  # guard against float edge cases
+        gross = round(gross - 0.01, 2)
+    return gross
+
+
 def _build_caseload_profile(
     state: str,
     rng: random.Random,
@@ -808,7 +842,6 @@ def _build_snap_threshold_profile(
     rng: random.Random,
 ) -> USHouseholdProfile:
     """Build a SNAP-specific threshold profile."""
-    from govsynth.sources.us.snap import get_standard_deduction
     from govsynth.sources.us.snap_bbce import SNAPBBCESource
 
     # Use the BBCE-aware source so income/asset boundaries reflect the state's actual
@@ -821,6 +854,8 @@ def _build_snap_threshold_profile(
     has_elderly = False
     gross_income: float
     assets: float = rng.uniform(500, 1500)
+    # Shown to the model in the scenario, so net income must account for them.
+    shelter_costs = round(rng.uniform(800, 1800), -1)
 
     if threshold == "gross_income_limit":
         gross_income = round(gross_limit * (1 + offset_pct), 2)
@@ -847,12 +882,11 @@ def _build_snap_threshold_profile(
         # sampled for the gross_income_limit threshold, where a waived gross test
         # would leave that case anchored on a test that does not bind.
         has_elderly = rng.random() < 0.40
-        # Back-calculate gross income that yields net income at the limit
-        std_ded = get_standard_deduction(household_size)
-        # net = gross - (gross * 0.20) - std = gross * 0.80 - std
-        # gross = (net + std) / 0.80
+        # Solve for the gross income whose net income -- after every deduction this
+        # profile gets, including the excess shelter deduction for the shelter costs
+        # stated in the scenario -- lands on the target (see _gross_for_net).
         target_net = limits.net_monthly * (1 + offset_pct)
-        gross_income = round((target_net + std_ded) / 0.80, 2)
+        gross_income = _gross_for_net(source, target_net, household_size, has_elderly, shelter_costs)
         assets = round(t.asset_limit_general * 0.4, 0) if t.asset_limit_general else 400.0
 
     elif threshold == "asset_limit_general":
@@ -873,10 +907,12 @@ def _build_snap_threshold_profile(
             "asset_limit_general, asset_limit_elderly_disabled"
         )
 
-    # Compute net income using source's authoritative formula
+    # Compute net income using source's authoritative formula, with the same shelter
+    # costs the scenario states (they used to be attached afterwards and ignored).
     net_income = source.calculate_net_income(
         gross_income=gross_income,
         household_size=household_size,
+        shelter_costs=shelter_costs,
         has_elderly_or_disabled=has_elderly,
     )
 
@@ -889,7 +925,7 @@ def _build_snap_threshold_profile(
         has_elderly_or_disabled=has_elderly,
         has_dependent_children=household_size > 1 and not has_elderly,
         age_of_head=_age_consistent_with(has_elderly, rng, young=(25, 65)),
-        shelter_costs=round(rng.uniform(800, 1800), -1),
+        shelter_costs=shelter_costs,
         extra={
             "threshold_type": threshold,
             "offset_pct": offset_pct,

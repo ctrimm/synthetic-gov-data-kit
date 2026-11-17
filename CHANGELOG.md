@@ -21,25 +21,37 @@ First PyPI pre-release: `pip install --pre synthetic-gov-data-kit`.
 - `realistic` SNAP cases are judged by the rules of their census year by default
   (`match_census_year=True`). Pass `match_census_year=False` (`--fixed-policy-year`) to apply one
   fiscal year to every case, as before.
+- **About 1.6% of SNAP `edge_saturated` labels change** (31 of 2,000 across VA/CA/TX/MD, seed 42),
+  because threshold profiles now count the shelter costs their scenarios state (see *Fixed*, #33).
 - `SNAPEligibilityGenerator(difficulty_distribution=...)` was removed (it was never read).
 - `TestCase.validate()` was renamed `check_output_contract()`.
 - Cases are stamped `generated_by: synthetic-gov-data-kit@<version>` from the package version
   (`govsynth/_version.py`, which `pyproject.toml` also reads). 0.1.0 hardcoded `@0.1.0`.
 
 ### Known limitations
-- **SNAP rationale traces on the general path can contradict the case's net income** (#33).
-  They take the 20% earned-income deduction from unearned income and omit the excess shelter,
-  dependent-care and medical steps. Outcomes are correct; the step-by-step trace is not. This
-  mostly affects `realistic` and `uniform` cases (about 3% of traces under the `edge_saturated`
-  default).
 - TANF (#17) and the ACA marketplace (#18) are not modeled yet; both wait on source documents.
-- The Medicaid and CHIP limit tables are restructured from KFF State Health Facts, and their
-  redistribution terms are not settled yet (see `DATA_SOURCES.md`). The Medicaid limits are marked
-  `verification_status: "estimated"`.
+- The Medicaid limits (from KFF State Health Facts, bundled with citation; see `DATA_SOURCES.md`)
+  are marked `verification_status: "estimated"`.
 - Joint household types cover acs5-2024 only; other census vintages use independent per-trait rates.
 - The caseload population (`population="caseload"`) covers SNAP only, from FY2024 data.
 
 ### Fixed
+- **SNAP rationale traces now reach the net income each case is judged on** (#33). The general
+  trace builder took the 20% earned-income deduction from unearned income (`earned_income or
+  gross` treated `0.0` as missing), skipped the excess shelter, dependent-care and medical steps,
+  and used the 48-state standard deduction in Alaska and Hawaii. It now renders
+  `SNAPSource.net_income_breakdown()`, the same calculation `calculate_net_income` returns, and
+  refuses to build a case whose stated net income disagrees with it. Before: 40–90% of
+  `realistic`/`uniform` traces contradicted their own net income; now none do (tested for every
+  strategy in VA, AK, HI and TX).
+- **SNAP threshold profiles ignored the shelter costs they showed.** `at_threshold` computed net
+  income without a shelter deduction, then attached $800–1,800 of shelter costs to the scenario.
+  Net income now includes them; `net_income_limit` profiles solve for the gross income that puts
+  net income on the target (to the cent, never over), which also fixes the region-less standard
+  deduction in the old back-calculation.
+- **SNAP deduction citations pointed at income exclusions.** Deductions are 7 CFR 273.9(d), not
+  (c): standard (d)(1), earned income (d)(2), medical (d)(3), dependent care (d)(4), homeless
+  shelter (d)(6)(i), excess shelter (d)(6)(ii). Fixed in traces, the seed file and the docs.
 - **Installed packages had no data.** The wheel shipped only `govsynth/`, so a `pip install`ed
   `govsynth generate` failed with `FileNotFoundError` on its first threshold file. `data/` now
   ships inside the package as `govsynth/data`, resolved by `govsynth/_paths.py` (falling back to

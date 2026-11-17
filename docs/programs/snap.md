@@ -27,15 +27,15 @@ SNAP eligibility for most households requires passing three tests:
 | 5 | $261/month |
 | 6+ | $299/month |
 
-### Net Income Calculation (7 CFR 273.9(c))
+### Net Income Calculation (7 CFR 273.9(d))
 
 ```
 Net income = Gross income
-           − 20% earned income deduction    [273.9(c)(1)]
-           − Standard deduction             [273.9(c)(2)]
-           − Dependent care deduction       [273.9(c)(3)]
-           − Medical expense deduction*     [273.9(c)(4)]
-           − Excess shelter deduction†      [273.9(c)(5)]
+           − 20% earned income deduction    [273.9(d)(2)]
+           − Standard deduction             [273.9(d)(1)]
+           − Dependent care deduction       [273.9(d)(4)]
+           − Medical expense deduction*     [273.9(d)(3)]
+           − Excess shelter deduction†      [273.9(d)(6)(ii)]
 ```
 
 \* Medical deduction applies only to elderly/disabled households; expenses over $35/month.
@@ -135,7 +135,7 @@ These are the scenarios LLMs most commonly misapply. Each is implemented as a de
 
 | Edge Case | CFR Citation | Key Policy Rule | Common Model Error |
 |---|---|---|---|
-| **Homeless shelter deduction** | 7 CFR 273.9(c)(6) | Flat $198.99 deduction applied **instead of** the excess shelter deduction — these are mutually exclusive | Applies the excess shelter formula to a homeless household instead of substituting the flat deduction |
+| **Homeless shelter deduction** | 7 CFR 273.9(d)(6)(i) | Flat $198.99 deduction applied **instead of** the excess shelter deduction — these are mutually exclusive | Applies the excess shelter formula to a homeless household instead of substituting the flat deduction |
 | **Student exclusion** | 7 CFR 273.5(a),(b) | A student enrolled at least half-time is **ineligible** unless a 273.5(b) exception applies (20+ hrs/week work, single parent, TANF, work-study). Check fires **before** the income test | Skips the student status check; income-eligible student incorrectly passes |
 | **Boarder income proration** | 7 CFR 273.1(b)(7) | Only the **profit** portion of board payments counts as income (payment received minus actual cost of food/housing provided) | Counts the full board payment as income instead of only the profit |
 | **Migrant income averaging** | 7 CFR 273.10(c)(3) | Seasonal/migrant income is averaged over the **work period**, not taken as a current-month snapshot | Uses current-month income (zero between jobs) or annualizes incorrectly |
