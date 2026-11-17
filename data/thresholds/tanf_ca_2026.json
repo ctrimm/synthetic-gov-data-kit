@@ -1,0 +1,95 @@
+{
+  "_metadata": {
+    "program": "tanf",
+    "state": "CA",
+    "period": "2026",
+    "source": "CDSS All-County Letters 26-39 (MBSAC, effective July 1, 2026) and 26-66 (MAP, effective October 1, 2026, AB 152)",
+    "source_url": "https://www.cdss.ca.gov/Portals/9/Additional-Resources/Letters-and-Notices/ACLs/2026/26-66.pdf",
+    "rules_reference": "Welfare and Institutions Code 11450-11453; ACL 26-39; ACL 26-66",
+    "retrieved": "2026-11-17",
+    "verification_status": "verified",
+    "verification_note": "Transcribed from the state primary sources posted to issue #17; see each section's effective date. Built by scripts/build_tanf_tables.py.",
+    "mbsac_url": "https://www.cdss.ca.gov/Portals/9/Additional-Resources/Letters-and-Notices/ACLs/2026/26-39.pdf"
+  },
+  "mbsac": {
+    "effective": "2026-07-01",
+    "region_1": {
+      "1": 963,
+      "2": 1581,
+      "3": 1960,
+      "4": 2325,
+      "5": 2653,
+      "6": 2983
+    },
+    "region_2": {
+      "1": 914,
+      "2": 1501,
+      "3": 1859,
+      "4": 2211,
+      "5": 2529,
+      "6": 2839
+    }
+  },
+  "map_non_exempt": {
+    "effective": "2026-10-01",
+    "region_1": {
+      "1": 747,
+      "2": 947,
+      "3": 1196,
+      "4": 1441,
+      "5": 1689,
+      "6": 1936
+    },
+    "region_2": {
+      "1": 708,
+      "2": 900,
+      "3": 1135,
+      "4": 1370,
+      "5": 1606,
+      "6": 1841
+    }
+  },
+  "map_exempt": {
+    "effective": "2026-10-01",
+    "region_1": {
+      "1": 824,
+      "2": 1058,
+      "3": 1338,
+      "4": 1607,
+      "5": 1883,
+      "6": 2161
+    },
+    "region_2": {
+      "1": 784,
+      "2": 1005,
+      "3": 1270,
+      "4": 1525,
+      "5": 1790,
+      "6": 2054
+    }
+  },
+  "applicant_earned_deduction_per_employed_adult": 450,
+  "benefit_earned_disregard_first": 600,
+  "benefit_earned_disregard_pct_of_remainder": 50,
+  "region_1_counties": [
+    "Alameda",
+    "Contra Costa",
+    "Los Angeles",
+    "Marin",
+    "Monterey",
+    "Napa",
+    "Orange",
+    "San Diego",
+    "San Francisco",
+    "San Luis Obispo",
+    "San Mateo",
+    "Santa Barbara",
+    "Santa Clara",
+    "Santa Cruz",
+    "Solano",
+    "Sonoma",
+    "Ventura"
+  ],
+  "asset_limit": null,
+  "asset_note": "CalWORKs has a property limit; sources disagree on the current amount, so it is not modeled."
+}

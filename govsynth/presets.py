@@ -182,6 +182,43 @@ PRESETS: dict[str, PresetConfig] = {
         profile_strategy="edge_saturated",
         description="Maryland ACA premium tax credit TY2026",
     ),
+    # ── TANF ─────────────────────────────────────────────────────────────
+    "tanf.va": PresetConfig(
+        program="tanf",
+        source_class="govsynth.sources.us.tanf.TANFSource",
+        source_kwargs={"state": "VA", "year": 2026},
+        generator_class="govsynth.generators.tanf_eligibility.TANFEligibilityGenerator",
+        generator_kwargs={"state": "VA", "year": 2026},
+        profile_strategy="edge_saturated",
+        description="Virginia TANF 2026 — standard of assistance by locality group (VDSS Ch. 300)",
+    ),
+    "tanf.md": PresetConfig(
+        program="tanf",
+        source_class="govsynth.sources.us.tanf.TANFSource",
+        source_kwargs={"state": "MD", "year": 2026},
+        generator_class="govsynth.generators.tanf_eligibility.TANFEligibilityGenerator",
+        generator_kwargs={"state": "MD", "year": 2026},
+        profile_strategy="edge_saturated",
+        description="Maryland TCA 2026 — COMAR 07.03.03 with the January 2026 FIP schedule",
+    ),
+    "tanf.tx": PresetConfig(
+        program="tanf",
+        source_class="govsynth.sources.us.tanf.TANFSource",
+        source_kwargs={"state": "TX", "year": 2026},
+        generator_class="govsynth.generators.tanf_eligibility.TANFEligibilityGenerator",
+        generator_kwargs={"state": "TX", "year": 2026},
+        profile_strategy="edge_saturated",
+        description="Texas TANF 2026 — budgetary and recognizable needs tests (TWH C-111 Rev. 26-4)",
+    ),
+    "tanf.ca": PresetConfig(
+        program="tanf",
+        source_class="govsynth.sources.us.tanf.TANFSource",
+        source_kwargs={"state": "CA", "year": 2026},
+        generator_class="govsynth.generators.tanf_eligibility.TANFEligibilityGenerator",
+        generator_kwargs={"state": "CA", "year": 2026},
+        profile_strategy="edge_saturated",
+        description="California CalWORKs 2026 — MBSAC applicant test and October 2026 MAP",
+    ),
     # ── LIHEAP ────────────────────────────────────────────────────────────
     "liheap.va": PresetConfig(
         program="liheap",

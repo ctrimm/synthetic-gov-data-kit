@@ -1,0 +1,30 @@
+{
+  "_metadata": {
+    "program": "tanf",
+    "state": "MD",
+    "period": "2026",
+    "source": "COMAR 07.03.03 (Temporary Cash Assistance) Regs. .11-.13; Maryland DHS FIA Information Memo 26-13 (FIP schedule effective January 1, 2026)",
+    "source_url": "https://regs.maryland.gov/us/md/exec/comar/07.03.03.01",
+    "rules_reference": "COMAR 07.03.03.11, .13E",
+    "retrieved": "2026-11-17",
+    "verification_status": "verified",
+    "verification_note": "Transcribed from the state primary sources posted to issue #17; see each section's effective date. Built by scripts/build_tanf_tables.py.",
+    "schedule_url": "https://dhs.maryland.gov/documents/FIA/Action%20Transmittals-AT%20-%20Information%20Memo-IM/AT-IM2026/26-13-IM-2026-TCA-TDAP-Benefit-Increase.pdf"
+  },
+  "allowable_payment": {
+    "effective": "2026-01-01",
+    "by_size": {
+      "1": 348,
+      "2": 612,
+      "3": 773,
+      "4": 926,
+      "5": 1074,
+      "6": 1180
+    }
+  },
+  "earned_disregard_pct_application": 20,
+  "earned_disregard_pct_ongoing": 40,
+  "self_employment_disregard_pct": 50,
+  "minimum_benefit": 10,
+  "asset_limit": null
+}

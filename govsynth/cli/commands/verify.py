@@ -24,6 +24,7 @@ _VERIFICATION_URLS: dict[str, str] = {
     "medicare": "https://www.medicare.gov/basics/costs/help/medicare-savings-programs",
     "ssi": "https://www.ssa.gov/oact/cola/SSIamts.html",
     "aca_ptc": "https://www.irs.gov/pub/irs-drop/rp-25-25.pdf",
+    "tanf": "https://www.acf.hhs.gov/ofa/programs/tanf",
     "us_fpl": "https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines",
 }
 
@@ -44,7 +45,9 @@ def verify_thresholds(
     program: Annotated[
         str | None,
         typer.Option(
-            "--program", "-p", help="Filter: snap | wic | medicaid | chip | liheap | medicare | ssi | aca_ptc | us_fpl"
+            "--program",
+            "-p",
+            help="Filter: snap | wic | medicaid | chip | liheap | medicare | ssi | aca_ptc | tanf | us_fpl",
         ),
     ] = None,
     as_json: Annotated[bool, typer.Option("--json")] = False,
