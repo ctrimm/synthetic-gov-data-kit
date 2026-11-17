@@ -9,17 +9,17 @@ import json
 import os
 import sys
 import time
-from pathlib import Path
 from typing import Annotated, Any
 
 import httpx
 import typer
 
+from govsynth._paths import CENSUS_DIR
 from govsynth.cli.output import make_console
 from govsynth.sources.us.census import DEFAULT_CENSUS_VINTAGE, CensusVintage, vintage_dir
 from govsynth.sources.us.census_fetcher import NATIONAL
 
-_DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "census"
+_DATA_DIR = CENSUS_DIR
 
 _ALL_STATES = [
     "AL",

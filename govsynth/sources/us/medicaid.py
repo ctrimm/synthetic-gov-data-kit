@@ -22,13 +22,13 @@ from __future__ import annotations
 import copy
 import json
 from functools import lru_cache
-from pathlib import Path
 from typing import Any
 
+from govsynth._paths import THRESHOLD_DIR
 from govsynth.fiscal_year import DEFAULT_MEDICAID_CY, FiscalYearConfig
 from govsynth.sources.base import DataSource, HouseholdThreshold, ProgramThresholds
 
-_DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "thresholds"
+_DATA_DIR = THRESHOLD_DIR
 
 
 @lru_cache(maxsize=16)

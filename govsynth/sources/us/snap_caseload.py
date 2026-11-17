@@ -28,10 +28,10 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
 
-from govsynth.sources.base import DATA_DIR, THRESHOLD_DIR, _load_json_file
+from govsynth._paths import CASELOAD_DIR, THRESHOLD_DIR
+from govsynth.sources.base import _load_json_file
 
 DEFAULT_QC_FY = 2024
-CASELOAD_DIR = DATA_DIR / "caseload"
 
 GROUPS = ("none", "elderly", "disabled_only")
 POV_BINS = ("none", "le25", "26_50", "51_75", "76_100", "101_130", "gt130")

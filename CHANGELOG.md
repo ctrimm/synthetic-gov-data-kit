@@ -9,7 +9,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+- **Installed packages had no data.** The wheel shipped only `govsynth/`, so a `pip install`ed
+  `govsynth generate` failed with `FileNotFoundError` on its first threshold file. `data/` now
+  ships inside the package as `govsynth/data`, resolved by `govsynth/_paths.py` (falling back to
+  the checkout's `data/` in development). CI builds the wheel, runs `twine check --strict`, and
+  generates cases for every program from a clean install (`scripts/smoke_test_wheel.sh`).
+
 ### Added
+- `.github/workflows/release.yml`: pushing a `v*` tag builds, smoke-tests, publishes to PyPI via
+  trusted publishing, and creates a GitHub release (pre-release for `a`/`b`/`rc` versions).
+- `DATA_SOURCES.md`: source and terms for every bundled dataset.
 - SNAP caseload population (#9): `population="caseload"` (CLI `--population caseload`) samples
   households that actually receive SNAP, from the FNS *Characteristics of SNAP Households: FY2024*
   (SNAP QC) tables in `data/caseload/snap_qc_fy2024.json` (`scripts/import_snap_qc.py`). A joint

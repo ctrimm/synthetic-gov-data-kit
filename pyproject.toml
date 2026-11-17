@@ -69,6 +69,14 @@ Issues = "https://github.com/ctrimm/synthetic-gov-data-kit/issues"
 [tool.hatch.build.targets.wheel]
 packages = ["govsynth"]
 
+# The policy, census and caseload data ship inside the package as govsynth/data
+# (see govsynth/_paths.py); a top-level data/ would land at site-packages/data.
+[tool.hatch.build.targets.wheel.force-include]
+"data" = "govsynth/data"
+
+[tool.hatch.build.targets.sdist]
+include = ["govsynth", "data", "tests", "README.md", "CHANGELOG.md", "LICENSE", "DATA_SOURCES.md"]
+
 [tool.ruff]
 # 120 rather than the more common 100: generators build long natural-language
 # rationale/citation f-strings (see govsynth/generators/*.py) that read worse
