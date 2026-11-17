@@ -4,45 +4,738 @@
     "period": "CY2026",
     "calendar_year": 2026,
     "fpl_basis_year": 2026,
-    "note": "Medicaid uses MAGI-based income, measured against HHS poverty guidelines published each January. CY2026 Medicaid income limits use the 2026 HHS poverty guidelines (published January 2026). Unlike SNAP/WIC, Medicaid follows the calendar year, not the federal fiscal year.",
-    "source": "KFF State Health Facts — Medicaid Income Eligibility Limits (2026)",
-    "source_url": "https://www.kff.org/medicaid/state-indicator/medicaid-income-eligibility-limits/",
+    "source": "KFF State Health Facts (national survey by KFF and the Georgetown University Center for Children and Families): Medicaid income eligibility limits for adults, for pregnant women, and for children (via chip_cy2026.json), as of January 2026; expansion status as of November 2026",
+    "source_url": "https://www.kff.org/affordable-care-act/state-indicator/medicaid-income-eligibility-limits-for-adults-as-a-percent-of-the-federal-poverty-level/",
+    "source_urls": {
+      "adults": "https://www.kff.org/affordable-care-act/state-indicator/medicaid-income-eligibility-limits-for-adults-as-a-percent-of-the-federal-poverty-level/",
+      "pregnant": "https://www.kff.org/affordable-care-act/state-indicator/medicaid-and-chip-income-eligibility-limits-for-pregnant-women-as-a-percent-of-the-federal-poverty-level/",
+      "expansion_status": "https://www.kff.org/health-reform/state-indicator/state-activity-around-expanding-medicaid-under-the-affordable-care-act/",
+      "children": "data/thresholds/chip_cy2026.json"
+    },
+    "retrieved": "2026-11-17",
     "cfr_reference": "42 CFR Part 435",
-    "verification_status": "estimated",
-    "verification_note": "Verify expansion status and non-expansion limits against CMS and KFF 2026 state data."
-  },
-  "expansion_income_limit_pct_fpl": 138,
-  "expansion_states": [
-    "AK","AZ","AR","CA","CO","CT","DE","DC","HI","ID","IL","IN","IA",
-    "KS","KY","LA","ME","MD","MA","MI","MN","MO","MT","NE","NV","NH",
-    "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SD","UT","VA",
-    "VT","WA","WV","WI"
-  ],
-  "non_expansion_states": [
-    "AL","FL","GA","MS","SC","TN","TX","WY"
-  ],
-  "non_expansion_income_limits_pct_fpl": {
-    "adults_without_children": {
-      "AL": 0, "FL": 0, "GA": 0, "MS": 0, "SC": 0, "TN": 0, "TX": 0, "WY": 0
-    },
-    "parents_caretaker_relative": {
-      "AL": 18, "FL": 33, "GA": 35, "MS": 29, "SC": 67, "TN": 95, "TX": 15, "WY": 54
-    },
-    "pregnant_women_pct_fpl": {
-      "AL": 146, "FL": 196, "GA": 220, "MS": 194, "SC": 194, "TN": 195, "TX": 198, "WY": 196
-    },
-    "children_0_18_pct_fpl": {
-      "AL": 312, "FL": 215, "GA": 247, "MS": 209, "SC": 208, "TN": 250, "TX": 201, "WY": 200
-    }
+    "verification_status": "verified",
+    "verification_note": "Transcribed from the KFF tables posted to issue #24; checked against KFF's stated counts (41 expansion / 10 not; 7 CHIP and 25 FCEP pregnancy states) and against Medicaid.gov (Dec 2023) for expansion status. Built by scripts/build_medicaid_limits.py.",
+    "units": "percent of the HHS poverty guideline for the MAGI household size; includes the 5-point disregard. other_adults_pct_fpl null = no coverage for adults without dependent children."
   },
   "income_methodology": "MAGI",
-  "notes": [
-    "Medicaid uses MAGI (Modified Adjusted Gross Income), NOT the same calculation as SNAP net income.",
-    "Expansion states cover adults up to 138% FPL under ACA Medicaid expansion.",
-    "Non-expansion states have coverage gaps for adults without dependent children.",
-    "Children and pregnant women have higher income limits in all states.",
-    "AR and OK have alternative/private-option expansion models.",
-    "CY2026 uses the 2026 HHS poverty guidelines published January 2026.",
-    "VERIFICATION REQUIRED: Confirm expansion status and limits against CMS data for 2026."
-  ]
+  "states": {
+    "AK": {
+      "aca_expansion": true,
+      "expansion_implemented": "2015-09-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 230,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 208,
+        "1-5": 208,
+        "6-18": 208
+      }
+    },
+    "AL": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 18,
+      "other_adults_pct_fpl": null,
+      "pregnant_medicaid_pct_fpl": 146,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 317,
+      "children_medicaid_pct_fpl": {
+        "0-1": 146,
+        "1-5": 146,
+        "6-18": 146
+      }
+    },
+    "AR": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 214,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 214,
+      "children_medicaid_pct_fpl": {
+        "0-1": 147,
+        "1-5": 147,
+        "6-18": 147
+      }
+    },
+    "AZ": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 161,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 152,
+        "1-5": 146,
+        "6-18": 138
+      }
+    },
+    "CA": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 213,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 322,
+      "children_medicaid_pct_fpl": {
+        "0-1": 266,
+        "1-5": 266,
+        "6-18": 266
+      }
+    },
+    "CO": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 195,
+      "pregnant_chip_pct_fpl": 260,
+      "pregnant_fcep_pct_fpl": 265,
+      "children_medicaid_pct_fpl": {
+        "0-1": 147,
+        "1-5": 147,
+        "6-18": 147
+      }
+    },
+    "CT": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 263,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 263,
+      "children_medicaid_pct_fpl": {
+        "0-1": 201,
+        "1-5": 201,
+        "6-18": 201
+      }
+    },
+    "DC": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 324,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 324,
+      "children_medicaid_pct_fpl": {
+        "0-1": 324,
+        "1-5": 324,
+        "6-18": 324
+      },
+      "note": "Effective January 1, 2026, parents and other adults were reduced from 221%/215% to 138%; the Healthy DC Plan (Basic Health Program) covers 138-200% FPL."
+    },
+    "DE": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 217,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 217,
+        "1-5": 147,
+        "6-18": 138
+      }
+    },
+    "FL": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 26,
+      "other_adults_pct_fpl": null,
+      "pregnant_medicaid_pct_fpl": 196,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 211,
+        "1-5": 145,
+        "6-18": 138
+      }
+    },
+    "GA": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 100,
+      "other_adults_pct_fpl": 100,
+      "pregnant_medicaid_pct_fpl": 225,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 210,
+        "1-5": 154,
+        "6-18": 138
+      },
+      "note": "Other adults to 100% FPL through Georgia Pathways to Coverage (a section 1115 demonstration with a qualifying-activities requirement), not ACA expansion."
+    },
+    "HI": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 196,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 313,
+        "1-5": 313,
+        "6-18": 313
+      }
+    },
+    "IA": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 220,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 305,
+        "1-5": 172,
+        "6-18": 172
+      }
+    },
+    "ID": {
+      "aca_expansion": true,
+      "expansion_implemented": "2020-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 138,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 147,
+        "1-5": 147,
+        "6-18": 138
+      }
+    },
+    "IL": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 213,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 213,
+      "children_medicaid_pct_fpl": {
+        "0-1": 318,
+        "1-5": 318,
+        "6-18": 318
+      }
+    },
+    "IN": {
+      "aca_expansion": true,
+      "expansion_implemented": "2015-02-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 213,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 213,
+        "1-5": 163,
+        "6-18": 163
+      }
+    },
+    "KS": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 38,
+      "other_adults_pct_fpl": null,
+      "pregnant_medicaid_pct_fpl": 171,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 171,
+        "1-5": 154,
+        "6-18": 138
+      }
+    },
+    "KY": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 195,
+      "pregnant_chip_pct_fpl": 218,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 218,
+        "1-5": 218,
+        "6-18": 218
+      }
+    },
+    "LA": {
+      "aca_expansion": true,
+      "expansion_implemented": "2016-07-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 138,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 214,
+      "children_medicaid_pct_fpl": {
+        "0-1": 217,
+        "1-5": 217,
+        "6-18": 217
+      }
+    },
+    "MA": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 205,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 205,
+      "children_medicaid_pct_fpl": {
+        "0-1": 205,
+        "1-5": 155,
+        "6-18": 155
+      }
+    },
+    "MD": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 264,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 264,
+      "children_medicaid_pct_fpl": {
+        "0-1": 322,
+        "1-5": 322,
+        "6-18": 322
+      }
+    },
+    "ME": {
+      "aca_expansion": true,
+      "expansion_implemented": "2019-01-10",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 214,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 213,
+      "children_medicaid_pct_fpl": {
+        "0-1": 305,
+        "1-5": 305,
+        "6-18": 305
+      }
+    },
+    "MI": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-04-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 200,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 200,
+      "children_medicaid_pct_fpl": {
+        "0-1": 217,
+        "1-5": 217,
+        "6-18": 217
+      }
+    },
+    "MN": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 283,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 283,
+      "children_medicaid_pct_fpl": {
+        "0-1": 288,
+        "1-5": 280,
+        "6-18": 280
+      }
+    },
+    "MO": {
+      "aca_expansion": true,
+      "expansion_implemented": "2021-10-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 196,
+      "pregnant_chip_pct_fpl": 305,
+      "pregnant_fcep_pct_fpl": 305,
+      "children_medicaid_pct_fpl": {
+        "0-1": 201,
+        "1-5": 155,
+        "6-18": 155
+      }
+    },
+    "MS": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 21,
+      "other_adults_pct_fpl": null,
+      "pregnant_medicaid_pct_fpl": 199,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 199,
+        "1-5": 148,
+        "6-18": 138
+      }
+    },
+    "MT": {
+      "aca_expansion": true,
+      "expansion_implemented": "2016-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 162,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 148,
+        "1-5": 148,
+        "6-18": 148
+      }
+    },
+    "NC": {
+      "aca_expansion": true,
+      "expansion_implemented": "2023-12-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 201,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 216,
+        "1-5": 216,
+        "6-18": 216
+      }
+    },
+    "ND": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 175,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 205,
+        "1-5": 205,
+        "6-18": 205
+      }
+    },
+    "NE": {
+      "aca_expansion": true,
+      "expansion_implemented": "2020-10-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 199,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 202,
+      "children_medicaid_pct_fpl": {
+        "0-1": 218,
+        "1-5": 218,
+        "6-18": 218
+      }
+    },
+    "NH": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-08-15",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 201,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 323,
+        "1-5": 323,
+        "6-18": 323
+      }
+    },
+    "NJ": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 194,
+      "pregnant_chip_pct_fpl": 205,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 199,
+        "1-5": 147,
+        "6-18": 147
+      }
+    },
+    "NM": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 255,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 305,
+        "1-5": 305,
+        "6-18": 245
+      }
+    },
+    "NV": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 205,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 165,
+        "1-5": 165,
+        "6-18": 138
+      }
+    },
+    "NY": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 223,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 223,
+      "children_medicaid_pct_fpl": {
+        "0-1": 223,
+        "1-5": 154,
+        "6-18": 154
+      }
+    },
+    "OH": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 205,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 211,
+        "1-5": 211,
+        "6-18": 211
+      }
+    },
+    "OK": {
+      "aca_expansion": true,
+      "expansion_implemented": "2021-07-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 210,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 210,
+      "children_medicaid_pct_fpl": {
+        "0-1": 210,
+        "1-5": 210,
+        "6-18": 210
+      }
+    },
+    "OR": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 190,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 190,
+      "children_medicaid_pct_fpl": {
+        "0-1": 305,
+        "1-5": 305,
+        "6-18": 305
+      }
+    },
+    "PA": {
+      "aca_expansion": true,
+      "expansion_implemented": "2015-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 220,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 220,
+        "1-5": 162,
+        "6-18": 138
+      }
+    },
+    "RI": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 190,
+      "pregnant_chip_pct_fpl": 258,
+      "pregnant_fcep_pct_fpl": 258,
+      "children_medicaid_pct_fpl": {
+        "0-1": 266,
+        "1-5": 266,
+        "6-18": 266
+      }
+    },
+    "SC": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 67,
+      "other_adults_pct_fpl": null,
+      "pregnant_medicaid_pct_fpl": 199,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 213,
+        "1-5": 213,
+        "6-18": 213
+      }
+    },
+    "SD": {
+      "aca_expansion": true,
+      "expansion_implemented": "2023-07-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 138,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 138,
+      "children_medicaid_pct_fpl": {
+        "0-1": 187,
+        "1-5": 187,
+        "6-18": 187
+      }
+    },
+    "TN": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 105,
+      "other_adults_pct_fpl": null,
+      "pregnant_medicaid_pct_fpl": 255,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 255,
+      "children_medicaid_pct_fpl": {
+        "0-1": 216,
+        "1-5": 216,
+        "6-18": 216
+      }
+    },
+    "TX": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 15,
+      "other_adults_pct_fpl": null,
+      "pregnant_medicaid_pct_fpl": 203,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 207,
+      "children_medicaid_pct_fpl": {
+        "0-1": 203,
+        "1-5": 149,
+        "6-18": 138
+      }
+    },
+    "UT": {
+      "aca_expansion": true,
+      "expansion_implemented": "2020-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 144,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 144,
+        "1-5": 144,
+        "6-18": 138
+      }
+    },
+    "VA": {
+      "aca_expansion": true,
+      "expansion_implemented": "2019-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 143,
+      "pregnant_chip_pct_fpl": 205,
+      "pregnant_fcep_pct_fpl": 205,
+      "children_medicaid_pct_fpl": {
+        "0-1": 148,
+        "1-5": 148,
+        "6-18": 148
+      }
+    },
+    "VT": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 213,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 317,
+        "1-5": 317,
+        "6-18": 317
+      }
+    },
+    "WA": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 215,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 215,
+      "children_medicaid_pct_fpl": {
+        "0-1": 215,
+        "1-5": 215,
+        "6-18": 215
+      }
+    },
+    "WI": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 100,
+      "other_adults_pct_fpl": 100,
+      "pregnant_medicaid_pct_fpl": 306,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": 306,
+      "children_medicaid_pct_fpl": {
+        "0-1": 306,
+        "1-5": 191,
+        "6-18": 156
+      },
+      "note": "Adults to 100% FPL through a section 1115 demonstration (BadgerCare), not ACA expansion."
+    },
+    "WV": {
+      "aca_expansion": true,
+      "expansion_implemented": "2014-01-01",
+      "parents_caretakers_pct_fpl": 138,
+      "other_adults_pct_fpl": 138,
+      "pregnant_medicaid_pct_fpl": 185,
+      "pregnant_chip_pct_fpl": 305,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 163,
+        "1-5": 146,
+        "6-18": 138
+      }
+    },
+    "WY": {
+      "aca_expansion": false,
+      "expansion_implemented": null,
+      "parents_caretakers_pct_fpl": 43,
+      "other_adults_pct_fpl": null,
+      "pregnant_medicaid_pct_fpl": 159,
+      "pregnant_chip_pct_fpl": null,
+      "pregnant_fcep_pct_fpl": null,
+      "children_medicaid_pct_fpl": {
+        "0-1": 205,
+        "1-5": 205,
+        "6-18": 205
+      }
+    }
+  }
 }

@@ -56,7 +56,7 @@ def test_expansion_state_produces_both_outcomes_across_seeds() -> None:
 def test_each_case_has_applicant_type_in_metadata() -> None:
     gen = MedicaidEligibilityGenerator(calendar_year=2026, state="VA")
     cases = gen.generate(n=10, seed=42)
-    valid_types = {"adult", "pregnant", "child_0_18", "parent_caretaker"}
+    valid_types = {"adult", "pregnant", "child", "parent_caretaker"}
     for case in cases:
         assert case.metadata["applicant_type"] in valid_types
 
@@ -102,14 +102,45 @@ def test_every_strategy_returns_exactly_n_deterministic_cases(strategy: str) -> 
     assert [c.case_id for c in a] == [c.case_id for c in b]
 
 
-def test_outcome_agrees_with_the_source_for_every_strategy() -> None:
-    gen = MedicaidEligibilityGenerator(calendar_year=2026, state="VA")
+@pytest.mark.parametrize("state", ["VA", "TX", "GA", "KS", "AK"])
+def test_outcome_agrees_with_the_source_for_every_strategy(state: str) -> None:
+    gen = MedicaidEligibilityGenerator(calendar_year=2026, state=state)
     for strategy in ("edge_saturated", "uniform", "realistic"):
         for case in gen.generate(n=40, seed=42, profile_strategy=strategy):
             ok, _ = gen.source.is_eligible(
-                case.scenario.household_size, case.scenario.monthly_gross_income, case.metadata["applicant_type"]
+                case.scenario.household_size,
+                case.scenario.monthly_gross_income,
+                case.metadata["applicant_type"],
+                case.metadata.get("child_age"),
             )
             assert ok == (case.expected_outcome == "eligible"), case.case_id
+
+
+@pytest.mark.parametrize("state", ["VA", "TX", "WI"])
+def test_trace_invariants(state: str) -> None:
+    for case in MedicaidEligibilityGenerator(state=state).generate(n=120, seed=42):
+        steps = case.rationale_trace.steps
+        determinative = [s for s in steps if s.is_determinative]
+        if case.expected_outcome == "ineligible":
+            assert len(determinative) == 1, case.case_id
+        else:
+            assert not determinative, case.case_id
+        assert [s.step_number for s in steps] == list(range(1, len(steps) + 1))
+        applicant = case.metadata["applicant_type"]
+        if applicant in ("pregnant", "parent_caretaker", "child"):
+            assert case.scenario.household_size >= 2, case.case_id
+        if applicant == "child":
+            assert 0 <= case.metadata["child_age"] <= 18
+        assert case.scenario.additional_context["age_of_head"] < 65  # MAGI adult groups are under 65
+
+
+def test_coverage_gap_note_depends_on_income() -> None:
+    cases = MedicaidEligibilityGenerator(state="TX").generate(n=300, seed=42)
+    gap = [c for c in cases if "non_expansion_coverage_gap" in c.variation_tags]
+    above = [c for c in cases if "no_adult_coverage_above_100pct" in c.variation_tags]
+    assert gap and above
+    assert all("coverage gap" in (c.rationale_trace.steps[1].note or "") for c in gap)
+    assert all("premium tax credits (100-400% FPL)" in (c.rationale_trace.steps[1].note or "") for c in above)
 
 
 def test_unknown_strategy_and_misplaced_census_years_raise() -> None:

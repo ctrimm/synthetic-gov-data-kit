@@ -1,7 +1,9 @@
 """Integration tests for govsynth verify-thresholds."""
 
 import json
+from pathlib import Path
 
+import pytest
 from govsynth.cli.main import app
 from typer.testing import CliRunner
 
@@ -20,8 +22,18 @@ def test_verify_thresholds_snap_all_verified() -> None:
     assert data["unverified"] == []
 
 
-def test_verify_thresholds_default_exits_one_for_unverified() -> None:
-    """Default run (no filter) finds medicaid_cy2026.json as unverified → exit 1."""
+def test_every_bundled_threshold_file_is_verified() -> None:
+    """medicaid_cy2026.json was the last estimated file; rebuilt from KFF January 2026 tables."""
+    result = runner.invoke(app, ["verify-thresholds", "--json"])
+    assert result.exit_code == 0, result.output
+    assert json.loads(result.output)["unverified"] == []
+
+
+def test_verify_thresholds_exits_one_for_an_unverified_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    (tmp_path / "medicaid_cy2099.json").write_text(
+        json.dumps({"_metadata": {"program": "medicaid", "verification_status": "estimated"}})
+    )
+    monkeypatch.setattr("govsynth.cli.commands.verify._DATA_DIR", tmp_path)
     result = runner.invoke(app, ["verify-thresholds"])
     assert result.exit_code == 1
 
@@ -36,7 +48,7 @@ def test_verify_thresholds_json_output_has_required_fields() -> None:
 
 def test_verify_thresholds_filter_by_program() -> None:
     _, data = _snap_report()
-    # snap_fy2021-2026 and snap_bbce_fy2021-2026; the estimated Medicaid file is filtered out.
+    # snap_fy2021-2026 and snap_bbce_fy2021-2026; other programs are filtered out.
     assert data["checked"] == 12
     assert all(entry["file"].startswith("snap_") for entry in data["unverified"])
 

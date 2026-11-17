@@ -44,7 +44,7 @@ with Claude Code.
 |---|---|---|---|
 | [SNAP (Food Stamps)](docs/programs/snap.md) | USDA/FNS | `snap.va`, `snap.ca`, `snap.tx`, `snap.md` | Stable |
 | WIC | USDA/FNS | `wic.national` | Stable |
-| Medicaid | CMS/HHS | `medicaid.va`, `medicaid.tx` | Stable |
+| [Medicaid](docs/programs/medicaid.md) | CMS/HHS | `medicaid.va`, `medicaid.tx` | Stable |
 | [Medicare Savings Programs + Extra Help](docs/programs/medicare.md) | CMS / SSA | `medicare.national` | Stable |
 | [SSI](docs/programs/ssi.md) | SSA | `ssi.national` | Stable |
 | [LIHEAP](docs/programs/liheap.md) | HHS/ACF | `liheap.va`, `liheap.ca`, `liheap.tx`, `liheap.md` | Stable |

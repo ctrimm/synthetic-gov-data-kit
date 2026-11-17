@@ -28,8 +28,8 @@ limit is never rounded into it.
 
 KFF, *Medicaid and CHIP Income Eligibility Limits for Children as a Percent of the Federal
 Poverty Level*, as of January 2026 (survey with the Georgetown University Center for Children and
-Families). A secondary compilation: the CMS Medicaid.gov eligibility-levels table could not be
-reached from the build sandbox and has not been cross-checked (see #24). All 51 rows are
+Families). A secondary compilation: the CMS Medicaid.gov eligibility-levels table, retrieved for
+#24, is dated December 1, 2023, so it is a stale cross-check rather than a 2026 source. All 51 rows are
 internally consistent (upper limit = the row's maximum; CHIP-funded ranges start at or below the
 Medicaid limit).
 

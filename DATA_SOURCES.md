@@ -37,7 +37,7 @@ as the source.
 | Files | Source | Status |
 |---|---|---|
 | `thresholds/chip_cy2026.json` | KFF, *Medicaid and CHIP Income Eligibility Limits for Children as a Percent of the Federal Poverty Level*, as of January 2026 (survey by KFF and the Georgetown University Center for Children and Families) | Restructured from the KFF table, with citation |
-| `thresholds/medicaid_cy2026.json` | KFF State Health Facts, *Medicaid Income Eligibility Limits* (2026) | Restructured from the KFF table, with citation; `verification_status: "estimated"` |
+| `thresholds/medicaid_cy2026.json` | KFF State Health Facts, *Medicaid Income Eligibility Limits for Adults* and *for Pregnant Women* (as of January 2026), *Status of State Medicaid Expansion Decisions* (as of November 2026); children from `chip_cy2026.json` | Transcribed with citation by `scripts/build_medicaid_limits.py`; verified |
 
 KFF's [permissions page](https://www.kff.org/about-us/permissions-citations-reprints/) says
 that "most of KFF's State Health Facts information is public and may be reproduced for free with
@@ -60,8 +60,13 @@ Citation, in KFF's format:
 > Level, KFF, accessed January 2026,
 > https://www.kff.org/affordable-care-act/state-indicator/medicaid-and-chip-income-eligibility-limits-for-children-as-a-percent-of-the-federal-poverty-level/
 >
-> Medicaid Income Eligibility Limits, KFF, accessed 2026,
-> https://www.kff.org/medicaid/state-indicator/medicaid-income-eligibility-limits/
+> Medicaid Income Eligibility Limits for Adults as a Percent of the Federal Poverty Level, KFF,
+> accessed November 17, 2026,
+> https://www.kff.org/affordable-care-act/state-indicator/medicaid-income-eligibility-limits-for-adults-as-a-percent-of-the-federal-poverty-level/
+>
+> Medicaid and CHIP Income Eligibility Limits for Pregnant Women as a Percent of the Federal Poverty
+> Level, KFF, accessed November 17, 2026,
+> https://www.kff.org/affordable-care-act/state-indicator/medicaid-and-chip-income-eligibility-limits-for-pregnant-women-as-a-percent-of-the-federal-poverty-level/
 
 ## Updating data
 
