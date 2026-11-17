@@ -170,6 +170,7 @@ class CatalaEligibilityGenerator(Generator):
                 "catala_outputs": result.outputs,
                 "state": self.state,
                 **({"census_vintage": profile.census_vintage} if profile.census_vintage else {}),
+                **({"household_model": profile.household_model} if profile.household_model else {}),
             },
         )
 

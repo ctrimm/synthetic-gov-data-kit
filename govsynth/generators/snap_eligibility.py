@@ -2875,6 +2875,7 @@ class SNAPEligibilityGenerator(Generator):
                 "state": self.state,
                 "fiscal_year": self.fiscal_year,
                 **({"census_vintage": profile.census_vintage} if profile.census_vintage else {}),
+                **({"household_model": profile.household_model} if profile.household_model else {}),
                 **({"income_dollar_year": profile.income_dollar_year} if profile.income_dollar_year else {}),
             },
         )

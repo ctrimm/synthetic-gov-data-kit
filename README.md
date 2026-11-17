@@ -193,6 +193,25 @@ CY2026 limits), income is restated with the BLS CPI-U annual average
 (`data/thresholds/cpi_u_annual.json`, built by `scripts/import_cpi.py`), and each case records
 `metadata["income_dollar_year"]`.
 
+### Whole households, not independent traits
+
+For the default vintage (`acs5-2024`), `realistic` profiles are drawn from **joint household
+types** built from the ACS Public Use Microdata Sample: household size, income band, any member
+60+ or disabled, any child, any earnings, the householder's citizenship and age band, plus the
+type's earned share of income. Drawing a whole type keeps the correlations that drive
+eligibility -- a one-person household never has children, older households earn less, larger
+households have more income -- which the per-trait summary rates lose. Exact income, age and
+earnings are drawn synthetically within the type; shelter costs and assets still come from the
+summary tables. No microdata record is stored: each type aggregates at least three sampled
+households, and smaller cells are folded into their nearest type with the same size, children,
+elderly/disabled, earnings and citizenship. Profiles record `household_model`
+(`pums_household_types` or `acs_marginals`), and cases copy it to `metadata["household_model"]`.
+Other vintages use the summary rates until their types are built:
+
+```bash
+python scripts/build_pums_households.py --state VA --year 2023 --survey acs5
+```
+
 ### Checking representativeness
 
 ```bash
@@ -203,7 +222,9 @@ govsynth validate-distribution --state all --json  # all 51 jurisdictions; exits
 This samples `realistic` profiles and compares them with their census targets (children,
 elderly/disabled, citizenship, earnings, household size, median income), using tolerances of
 4 standard errors. It also checks the census targets themselves against plausible ranges, since
-a sampler faithfully reproduces wrong data. The same checks run in the test suite for every state.
+a sampler faithfully reproduces wrong data. When a state uses PUMS household types the targets are
+the types' own shares, and the test suite separately checks those shares against the summary
+tables. The same checks run in the test suite for every state.
 
 ### Batch Generation
 

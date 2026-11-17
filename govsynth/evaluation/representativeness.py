@@ -12,6 +12,10 @@ Tolerances are statistical: for a share p over n profiles the allowed gap is
 mislabeled field (typically off by 10+ points) fails. The income check compares
 the median with the median of the fitted lognormal truncated at the sampler's
 redraw cap.
+
+When a state has PUMS household types (#8) the sampler draws from them, so the
+targets are the types' own weighted shares and median; `pums_crosscheck` then
+compares those shares with the summary tables, which catches a wrong PUMS build.
 """
 
 from __future__ import annotations
@@ -26,6 +30,7 @@ from typing import Any
 from govsynth.models.enums import CitizenshipStatus
 from govsynth.profiles.us_household import _REALISTIC_INCOME_CAP, USHouseholdProfile
 from govsynth.sources.us.census import CensusDataSource, CensusVintage
+from govsynth.sources.us.household_types import HouseholdTypes, load_household_types
 
 
 @dataclass(frozen=True)
@@ -123,6 +128,9 @@ def check_state(
         USHouseholdProfile.random(state=state, seed=seed + i, strategy="realistic", census_vintage=vintage)
         for i in range(n)
     ]
+    types = load_household_types(state, dist.vintage)
+    if types is not None:
+        return _check_against_types(types, profiles, n)
     checks = [
         _share_check(
             "pct_with_children", dist.pct_with_children, sum(p.has_dependent_children for p in profiles) / n, n
@@ -165,4 +173,77 @@ def check_state(
             abs(got_median - target_median) <= rel_tol * target_median + 10,
         )
     )
+    return checks
+
+
+def _check_against_types(types: HouseholdTypes, profiles: list[USHouseholdProfile], n: int) -> list[MetricCheck]:
+    """Compare profiles with the shares of the PUMS household types they were drawn from."""
+    checks = [
+        _share_check("pct_with_children", types.share("kids"), sum(p.has_dependent_children for p in profiles) / n, n),
+        _share_check(
+            "pct_elderly_or_disabled", types.share("eld_dis"), sum(p.has_elderly_or_disabled for p in profiles) / n, n
+        ),
+        _share_check(
+            "pct_citizen_head",
+            types.share("head_citizen"),
+            sum(p.citizenship_status == CitizenshipStatus.CITIZEN for p in profiles) / n,
+            n,
+        ),
+        _share_check(
+            "pct_households_with_earnings",
+            types.share("earns"),
+            sum((p.earned_income or 0) > 0 for p in profiles) / n,
+            n,
+        ),
+    ]
+    sizes = Counter(p.household_size for p in profiles)
+    for size in range(1, 7):
+        checks.append(_share_check(f"household_size_{size}", types.size_share(size), sizes[size] / n, n))
+    target = types.median_annual_income() / 12
+    got = median(p.monthly_gross_income for p in profiles)
+    # 4 standard errors of a sample median (sqrt(1/(4n)) / density at the median), plus $10 rounding.
+    tol = 4 * math.sqrt(1 / (4 * n)) / max(types.density_at_median(), 1e-12) / 12 + 10
+    checks.append(
+        MetricCheck("median_monthly_income", round(target, 2), round(got, 2), round(tol, 2), abs(got - target) <= tol)
+    )
+    return checks
+
+
+# PUMS household types vs. the summary tables, in percentage points. Not identical by
+# construction: PUMS is a ~1% sample of the 5-year ACS, citizenship is the head's
+# (summary: persons), and the summary file's elderly/disabled rate is an
+# independence upper bound, so PUMS may sit below it by up to ELD_DIS_SLACK.
+CROSSCHECK_TOLERANCE = 0.03
+ELD_DIS_SLACK = 0.10
+
+
+def pums_crosscheck(state: str, vintage: CensusVintage | int | str | None = None) -> list[MetricCheck]:
+    """Compare a state's PUMS household-type shares with its summary-table rates.
+
+    Returns an empty list when the state has no PUMS types for the vintage.
+    """
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        dist = CensusDataSource(state, vintage=vintage).load()
+    if dist is None:
+        raise ValueError(f"No census data for {state}")
+    types = load_household_types(state, dist.vintage)
+    if types is None:
+        return []
+    tol = CROSSCHECK_TOLERANCE
+
+    def check(metric: str, target: float, got: float, lo: float = tol, hi: float = tol) -> MetricCheck:
+        return MetricCheck(metric, round(target, 4), round(got, 4), round(max(lo, hi), 4), -lo <= got - target <= hi)
+
+    earn_target = dist.pct_households_with_earnings or dist.labor_force_participation_rate
+    total_w = sum(dist.household_size_weights)
+    checks = [
+        check("pct_with_children", dist.pct_with_children, types.share("kids")),
+        check("pct_elderly_or_disabled", dist.pct_elderly_or_disabled, types.share("eld_dis"), lo=ELD_DIS_SLACK),
+        check("pct_households_with_earnings", earn_target, types.share("earns")),
+        # Heads are likelier to be citizens than all residents (children of immigrants are often US-born
+        # citizens, but so are many non-head adults); allow a wider band.
+        check("pct_citizen", dist.pct_citizen, types.share("head_citizen"), lo=0.06, hi=0.06),
+        check("household_size_1", dist.household_size_weights[0] / total_w, types.size_share(1)),
+    ]
     return checks
