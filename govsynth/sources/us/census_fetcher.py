@@ -13,10 +13,11 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 from collections.abc import Callable
 from datetime import date
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 
@@ -300,13 +301,44 @@ _TABLES = [
 ]
 
 
-def fetch_state(state: str, year: int, api_key: str | None) -> dict[str, Any]:
-    """Fetch all ACS tables for one state (6 HTTP requests).
+# The two ACS products this module reads. 1-year estimates are more current;
+# 5-year estimates are more precise. Both cover every state.
+Survey = Literal["acs1", "acs5"]
+
+# Pseudo-state accepted everywhere a state code is, for the whole-US row.
+NATIONAL = "NATIONAL"
+
+_TABLE_GROUPS: dict[str, list[str]] = {
+    "income": INCOME_VARS,
+    "poverty": POVERTY_VARS,
+    "housing": HOUSING_VARS,
+    "demographics": DEMOGRAPHIC_VARS,
+    "income_sources": INCOME_SOURCE_VARS,
+    "health": HEALTH_VARS,
+}
+
+
+def _geo(state: str) -> str:
+    """Census API `for=` clause for a state code or NATIONAL."""
+    return "us:1" if state.upper() == NATIONAL else f"state:{FIPS_CODES[state.upper()]}"
+
+
+def _geo_id(state: str) -> str:
+    """Summary-file GEO_ID for a state code or NATIONAL, e.g. '0400000US51'."""
+    return "0100000US" if state.upper() == NATIONAL else f"0400000US{FIPS_CODES[state.upper()]}"
+
+
+def fetch_state(state: str, year: int, api_key: str | None, survey: Survey = "acs5") -> dict[str, Any]:
+    """Fetch all ACS tables for one state from the Census API (6 HTTP requests).
+
+    The API redirects keyless data requests to an error page, so in practice
+    this needs `api_key`. `fetch_states_summary_file` needs no key.
 
     Args:
-        state: Two-letter state abbreviation, e.g. 'VA'.
-        year:  ACS vintage year, e.g. 2022.
-        api_key: Census API key or None (unauthenticated: 500 req/day).
+        state: Two-letter state abbreviation, e.g. 'VA', or 'NATIONAL'.
+        year:  ACS vintage (end) year, e.g. 2024.
+        api_key: Census API key or None.
+        survey: 'acs5' (5-year estimates) or 'acs1' (1-year estimates).
 
     Returns:
         Raw response dict keyed by table group name.
@@ -315,22 +347,103 @@ def fetch_state(state: str, year: int, api_key: str | None) -> dict[str, Any]:
         KeyError: Unknown state abbreviation.
         httpx.HTTPStatusError: On Census API HTTP errors.
     """
-    fips = FIPS_CODES[state.upper()]
-    base_url = f"{_BASE_URL}/{year}/acs/acs5"
-    base_params: dict[str, str] = {"for": f"state:{fips}"}
+    geo = _geo(state)
+    base_url = f"{_BASE_URL}/{year}/acs/{survey}"
+    base_params: dict[str, str] = {"for": geo}
     if api_key:
         base_params["key"] = api_key
 
-    groups = {
-        "income": INCOME_VARS,
-        "poverty": POVERTY_VARS,
-        "housing": HOUSING_VARS,
-        "demographics": DEMOGRAPHIC_VARS,
-        "income_sources": INCOME_SOURCE_VARS,
-        "health": HEALTH_VARS,
-    }
     with httpx.Client() as client:
-        return {name: _get(client, base_url, {**base_params, "get": ",".join(vs)}) for name, vs in groups.items()}
+        return {
+            name: _get(client, base_url, {**base_params, "get": ",".join(vs)}) for name, vs in _TABLE_GROUPS.items()
+        }
+
+
+_SUMMARY_FILE_URL = (
+    "https://www2.census.gov/programs-surveys/acs/summary_file/{year}/table-based-SF/data/"
+    "{folder}/acsdt{n}y{year}-{table}.dat"
+)
+
+
+def _summary_file_url(table: str, year: int, survey: Survey) -> str:
+    """URL of one ACS table-based summary file (all geographies, pipe-delimited)."""
+    folder, n = ("1YRData", 1) if survey == "acs1" else ("5YRData", 5)
+    return _SUMMARY_FILE_URL.format(year=year, folder=folder, n=n, table=table.lower())
+
+
+def _sf_column_to_api_var(column: str) -> str | None:
+    """Map a summary-file estimate column ('B19001_E002') to its API name ('B19001_002E')."""
+    m = re.fullmatch(r"([BC]\d+[A-Z]?)_E(\d{3})", column)
+    return f"{m.group(1)}_{m.group(2)}E" if m else None
+
+
+def fetch_states_summary_file(
+    states: list[str],
+    year: int,
+    survey: Survey = "acs5",
+    client: httpx.Client | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Fetch ACS tables for several states from the keyless table-based summary files.
+
+    Each table is one file covering every geography (tens of MB), so this
+    streams each file once, keeps only the requested state rows, and stops
+    reading as soon as all of them are found -- state rows sit near the top.
+    Table-based summary files exist for ACS 2021 onward.
+
+    Args:
+        states: State codes and/or 'NATIONAL'.
+        year: ACS vintage (end) year.
+        survey: 'acs5' or 'acs1'.
+        client: Optional httpx client (for tests); one is created otherwise.
+
+    Returns:
+        {state: raw} where each raw dict has the same shape `fetch_state` returns.
+
+    Raises:
+        KeyError: Unknown state abbreviation.
+        httpx.HTTPStatusError: If a table file is missing for that year/survey.
+        ValueError: If a requested state's row or a needed variable is absent.
+    """
+    wanted = {_geo_id(s): s.upper() for s in states}
+    values: dict[str, dict[str, str]] = {s.upper(): {} for s in states}
+    tables = sorted({v.split("_")[0] for vs in _TABLE_GROUPS.values() for v in vs})
+
+    own_client = client is None
+    http = client if client is not None else httpx.Client(timeout=120)
+    try:
+        for table in tables:
+            remaining = set(wanted)
+            with http.stream("GET", _summary_file_url(table, year, survey)) as resp:
+                resp.raise_for_status()
+                header: list[str] | None = None
+                for line in resp.iter_lines():
+                    if header is None:
+                        header = line.split("|")
+                        continue
+                    geo_id, _, _ = line.partition("|")
+                    if geo_id not in remaining:
+                        continue
+                    for column, value in zip(header, line.split("|"), strict=False):
+                        var = _sf_column_to_api_var(column)
+                        if var is not None:
+                            values[wanted[geo_id]][var] = value
+                    remaining.discard(geo_id)
+                    if not remaining:
+                        break
+            if remaining:
+                missing = ", ".join(sorted(wanted[g] for g in remaining))
+                raise ValueError(f"No row for {missing} in {table} ({survey} {year}).")
+    finally:
+        if own_client:
+            http.close()
+
+    out: dict[str, dict[str, Any]] = {}
+    for state, vals in values.items():
+        absent = [v for vs in _TABLE_GROUPS.values() for v in vs if v not in vals]
+        if absent:
+            raise ValueError(f"{state} {survey} {year}: variables missing from summary file: {absent[:5]}")
+        out[state] = {name: [list(vs), [vals[v] for v in vs]] for name, vs in _TABLE_GROUPS.items()}
+    return out
 
 
 def _reader(rows: list[list[str]]) -> Callable[[str], int]:
@@ -343,7 +456,13 @@ def _reader(rows: list[list[str]]) -> Callable[[str], int]:
     return get
 
 
-def build_state_census_json(state: str, year: int, api_key: str | None) -> dict[str, Any]:
+def build_state_census_json(
+    state: str,
+    year: int,
+    api_key: str | None,
+    survey: Survey = "acs5",
+    raw: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Fetch ACS data for one state and build the census JSON dict.
 
     Every rate is computed over the universe the sampler applies it to: rates
@@ -351,14 +470,18 @@ def build_state_census_json(state: str, year: int, api_key: str | None) -> dict[
     come from household-universe tables, not person or family tables.
 
     Args:
-        state: Two-letter state abbreviation.
-        year:  ACS vintage year.
-        api_key: Census API key or None.
+        state: Two-letter state abbreviation, or 'NATIONAL'.
+        year:  ACS vintage (end) year.
+        api_key: Census API key or None. Unused when `raw` is given.
+        survey: 'acs5' or 'acs1'.
+        raw: Pre-fetched tables (e.g. from `fetch_states_summary_file`);
+            fetched from the API when None.
 
     Returns:
-        Dict matching the schema in data/census/<state>.json.
+        Dict matching the schema in data/census/<survey>/<year>/<state>.json.
     """
-    raw = fetch_state(state, year, api_key)
+    if raw is None:
+        raw = fetch_state(state, year, api_key, survey=survey)
     inc = _reader(raw["income"])
     pov = _reader(raw["poverty"])
     hsg = _reader(raw["housing"])
@@ -448,9 +571,9 @@ def build_state_census_json(state: str, year: int, api_key: str | None) -> dict[
 
     return {
         "_metadata": {
-            "state": state.upper(),
+            "state": "national" if state.upper() == NATIONAL else state.upper(),
             "acs_vintage": year,
-            "acs_survey": "acs5",
+            "acs_survey": survey,
             "dollar_year": year,
             "fetch_date": date.today().isoformat(),
             "tables": list(_TABLES),

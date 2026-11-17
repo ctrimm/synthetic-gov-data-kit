@@ -70,6 +70,8 @@ def _case_to_dict(case: TestCase) -> dict[str, Any]:
         "generated_by": case.generated_by,
         "generated_at": case.generated_at.isoformat(),
         **({"seed": case.seed} if case.seed is not None else {}),
+        # Which ACS release a 'realistic' profile came from; absent otherwise.
+        **({"census_vintage": case.metadata["census_vintage"]} if "census_vintage" in case.metadata else {}),
     }
 
 

@@ -7,7 +7,7 @@ including full rationale traces grounded in 7 CFR Part 273.
 from __future__ import annotations
 
 import random
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from typing import TypedDict
 
 from govsynth.fiscal_year import DEFAULT_SNAP_FY, FiscalYearConfig
@@ -18,6 +18,7 @@ from govsynth.models.test_case import ScenarioBlock, TaskBlock, TestCase
 from govsynth.profiles.us_household import PHRASING_STYLES, SCENARIO_PHRASING_STYLES, USHouseholdProfile
 from govsynth.reasoning.rules_engine import build_short_uid
 from govsynth.sources.base import HouseholdThreshold
+from govsynth.sources.us.census import CensusVintage, census_years_for_strategy
 from govsynth.sources.us.snap import get_standard_deduction
 from govsynth.sources.us.snap_bbce import SNAPBBCESource
 
@@ -167,6 +168,7 @@ class SNAPEligibilityGenerator(Generator):
         phrasing_style: str | None = None,
         scenario_phrasing_style: str | None = None,
         builder_weights: dict[str, float] | None = None,
+        census_years: Sequence[CensusVintage | int | str] | CensusVintage | int | str | None = None,
     ) -> list[TestCase]:
         """Generate n SNAP eligibility test cases.
 
@@ -201,6 +203,13 @@ class SNAPEligibilityGenerator(Generator):
             builders are selected uniformly at random (default). Only used when
             profile_strategy is 'edge_saturated'.
 
+        census_years: Which ACS release(s) 'realistic' profiles are sampled
+            from: a year (5-year estimates ending that year), a spec such as
+            "2021-2024" or "acs1-2025", a CensusVintage, or a list of any of
+            these. Several vintages are spread round-robin across cases, and
+            each case records its vintage in metadata["census_vintage"]. None
+            uses DEFAULT_CENSUS_VINTAGE. Only valid with 'realistic'.
+
         When profile_strategy is 'edge_saturated', 20% of cases (minimum 1 per special
         type if n >= 6) are special-population edge cases. The remainder use threshold-boundary
         profiles.
@@ -225,15 +234,27 @@ class SNAPEligibilityGenerator(Generator):
             List of TestCase objects.
         """
         rng = random.Random(seed)
+        years = census_years_for_strategy(census_years, profile_strategy)
 
         if profile_strategy != "edge_saturated":
             # Non-edge-saturated strategies: use existing random profile path
             cases: list[TestCase] = []
             for i in range(n):
                 case_seed = rng.randint(0, 2**31) if seed is not None else None
-                profile = USHouseholdProfile.random(state=self.state, seed=case_seed, strategy=profile_strategy)
+                profile = USHouseholdProfile.random(
+                    state=self.state,
+                    seed=case_seed,
+                    strategy=profile_strategy,
+                    census_vintage=years[i % len(years)] if years else None,
+                )
                 try:
-                    case = self._build_case(profile, case_seed, i, phrasing_style=phrasing_style, scenario_phrasing_style=scenario_phrasing_style)
+                    case = self._build_case(
+                        profile,
+                        case_seed,
+                        i,
+                        phrasing_style=phrasing_style,
+                        scenario_phrasing_style=scenario_phrasing_style,
+                    )
                     cases.append(case)
                 except Exception as exc:
                     raise RuntimeError(
@@ -259,7 +280,13 @@ class SNAPEligibilityGenerator(Generator):
             case_seed = rng.randint(0, 2**31) if seed is not None else None
             profile = self._sample_edge_profile(rng, case_seed)
             try:
-                case = self._build_case(profile, case_seed, i, phrasing_style=phrasing_style, scenario_phrasing_style=scenario_phrasing_style)
+                case = self._build_case(
+                    profile,
+                    case_seed,
+                    i,
+                    phrasing_style=phrasing_style,
+                    scenario_phrasing_style=scenario_phrasing_style,
+                )
                 edge_cases.append(case)
             except Exception as exc:
                 raise RuntimeError(
@@ -2755,6 +2782,7 @@ class SNAPEligibilityGenerator(Generator):
                 "profile_strategy": profile.extra.get("threshold_type", "random"),
                 "state": self.state,
                 "fiscal_year": self.fiscal_year,
+                **({"census_vintage": profile.census_vintage} if profile.census_vintage else {}),
             },
         )
 

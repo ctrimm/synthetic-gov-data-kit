@@ -78,6 +78,7 @@ class JSONLFormatter:
                 "expected_outcome": case.expected_outcome,
                 "difficulty": case.difficulty.value,
                 "variation_tags": case.variation_tags,
+                **({"census_vintage": case.metadata["census_vintage"]} if "census_vintage" in case.metadata else {}),
             },
         }
 

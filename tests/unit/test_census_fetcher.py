@@ -333,8 +333,8 @@ class TestBuildStateCensusJson:
 
         monkeypatch.setattr("govsynth.sources.us.census_fetcher.fetch_state", lambda *a, **kw: raw_census_response)
         data = build_state_census_json("VA", year=2022, api_key=None)
-        write_state_file("VA", data, tmp_path)
-        dist = CensusDataSource("VA", data_dir=tmp_path).load()
+        write_state_file("VA", data, tmp_path / "acs5" / "2022")
+        dist = CensusDataSource("VA", vintage=2022, data_dir=tmp_path).load()
         assert dist is not None
         assert dist.state == "VA"
 

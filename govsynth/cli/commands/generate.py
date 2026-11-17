@@ -14,6 +14,7 @@ from govsynth.formatters.jsonl import JSONLFormatter
 from govsynth.formatters.yaml_fmt import YAMLFormatter
 from govsynth.models.test_case import TestCase
 from govsynth.pipeline import Pipeline
+from govsynth.sources.us.census import DEFAULT_CENSUS_VINTAGE, normalize_census_years
 
 
 def generate(
@@ -30,6 +31,16 @@ def generate(
             help="Profile sampling strategy: edge_saturated|realistic|uniform|adversarial",
         ),
     ] = None,
+    census_year: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--census-year",
+            help="ACS release(s) for --profile-strategy realistic (repeatable). A year means the 5-year "
+            "estimates ending that year; also accepts ranges and surveys: 2023, 2021-2024, acs1-2025, "
+            "2022,2024. Several years are spread evenly across cases. Default: "
+            f"{DEFAULT_CENSUS_VINTAGE.label}",
+        ),
+    ] = None,
     quiet: Annotated[bool, typer.Option("--quiet", "-q")] = False,
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
@@ -39,7 +50,10 @@ def generate(
     console = make_console(quiet=quiet)
 
     try:
-        pipeline = Pipeline.from_preset(preset, profile_strategy=profile_strategy, console=console)
+        census_years = normalize_census_years(census_year) if census_year else None
+        pipeline = Pipeline.from_preset(
+            preset, profile_strategy=profile_strategy, console=console, census_years=census_years
+        )
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(2) from e
@@ -65,6 +79,7 @@ def generate(
             "command": "generate",
             "preset": preset,
             "n": len(cases),
+            **({"census_years": [v.label for v in pipeline.census_years]} if pipeline.census_years else {}),
             "output": str(output),
             "status": "ok",
         },

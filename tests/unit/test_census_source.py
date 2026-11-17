@@ -7,15 +7,17 @@ import warnings
 from pathlib import Path
 
 import pytest
-from govsynth.sources.us.census import CensusDataSource, CensusDistribution
+from govsynth.sources.us.census import DEFAULT_CENSUS_VINTAGE, CensusDataSource, CensusDistribution, vintage_dir
 
 _FIXTURE = Path(__file__).parent.parent / "fixtures" / "census_va.json"
 
 
 @pytest.fixture
 def census_dir(tmp_path: Path) -> Path:
-    """Temp directory seeded with the VA fixture."""
-    (tmp_path / "va.json").write_text(_FIXTURE.read_text())
+    """Temp census root seeded with the VA fixture under the default vintage."""
+    vdir = vintage_dir(DEFAULT_CENSUS_VINTAGE, tmp_path)
+    vdir.mkdir(parents=True)
+    (vdir / "va.json").write_text(_FIXTURE.read_text())
     return tmp_path
 
 
@@ -92,7 +94,9 @@ class TestCensusDataSourceLoad:
         """If state file missing but national.json present, return national dist + warn."""
         data = json.loads(_FIXTURE.read_text())
         data["_metadata"]["state"] = "national"
-        (tmp_path / "national.json").write_text(json.dumps(data))
+        vdir = vintage_dir(DEFAULT_CENSUS_VINTAGE, tmp_path)
+        vdir.mkdir(parents=True)
+        (vdir / "national.json").write_text(json.dumps(data))
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -226,7 +230,7 @@ class TestRealisticMarginalsMatchBundledCensus:
     def sampled(self) -> tuple[list, dict]:
         from govsynth.profiles.us_household import USHouseholdProfile
 
-        data = json.loads((Path(__file__).parent.parent.parent / "data" / "census" / "va.json").read_text())
+        data = json.loads((vintage_dir(DEFAULT_CENSUS_VINTAGE) / "va.json").read_text())
         profiles = [USHouseholdProfile.random(state="VA", seed=i, strategy="realistic") for i in range(self.N)]
         return profiles, data
 

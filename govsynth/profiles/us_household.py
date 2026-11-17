@@ -13,11 +13,14 @@ import random
 from dataclasses import dataclass, field
 from functools import lru_cache
 from statistics import NormalDist
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from faker import Faker
 
 from govsynth.models.enums import CitizenshipStatus
+
+if TYPE_CHECKING:
+    from govsynth.sources.us.census import CensusVintage
 
 _faker = Faker("en_US")
 
@@ -31,7 +34,13 @@ PHRASING_STYLES: tuple[str, ...] = ("caseworker_note", "narrative", "terse", "co
 # See `USHouseholdProfile.generate_scenario_question_styled`. Question phrasing styles
 # for eligibility scenarios -- all ask the same underlying question but from
 # different angles/registers, supporting semantic variation for RLVR training.
-SCENARIO_PHRASING_STYLES: tuple[str, ...] = ("direct", "exploratory", "constraint_focused", "outcome_focused", "policy_grounded")
+SCENARIO_PHRASING_STYLES: tuple[str, ...] = (
+    "direct",
+    "exploratory",
+    "constraint_focused",
+    "outcome_focused",
+    "policy_grounded",
+)
 
 
 @dataclass
@@ -75,6 +84,12 @@ class USHouseholdProfile:
     has_ineligible_members: bool = False  # mixed-status HH
     ineligible_member_count: int = 0
 
+    # Provenance: the ACS vintage a 'realistic' profile was sampled from (e.g.
+    # 'acs5-2024'), or None for other strategies / built-in fallback numbers.
+    # Deliberately not in `extra`, which `to_scenario_fields` copies into the
+    # scenario the model sees.
+    census_vintage: str | None = None
+
     def __post_init__(self) -> None:
         if not self.head_of_household_name:
             self.head_of_household_name = _faker.name()
@@ -116,6 +131,7 @@ class USHouseholdProfile:
         state: str = "VA",
         seed: int | None = None,
         strategy: str = "uniform",
+        census_vintage: CensusVintage | int | str | None = None,
     ) -> USHouseholdProfile:
         """Generate a random profile using the given strategy.
 
@@ -123,13 +139,26 @@ class USHouseholdProfile:
             state: Two-letter state code.
             seed: RNG seed for reproducibility.
             strategy: 'uniform' samples freely; 'realistic' uses ACS-based weights.
+            census_vintage: ACS release to sample a 'realistic' profile from --
+                a year (5-year estimates ending that year), 'acs1-2025', or a
+                CensusVintage. None uses DEFAULT_CENSUS_VINTAGE.
+
+        Raises:
+            ValueError: If `census_vintage` is given with a strategy other than
+                'realistic' (only that strategy reads census data), or names a
+                vintage with no data for this state.
         """
+        if census_vintage is not None and strategy != "realistic":
+            raise ValueError(
+                f"census_vintage only applies to strategy='realistic' (got strategy='{strategy}'); "
+                "other strategies don't sample from census data."
+            )
         rng = random.Random(seed)
         if seed is not None:
             Faker.seed(seed)
 
         if strategy == "realistic":
-            return _build_realistic_profile(state=state, rng=rng)
+            return _build_realistic_profile(state=state, rng=rng, census_vintage=census_vintage)
 
         # uniform (default): national-level approximations
         hh_size = rng.choices(
@@ -313,13 +342,10 @@ class USHouseholdProfile:
                 f"In {self.city}, {self.state}, {self.head_of_household_name}, {self.age_of_head} years old, "
                 f"heads a household best described as a {hh_desc}."
             )
-            money = (
-                f"Every month the household brings in ${self.monthly_gross_income:,.0f} in gross income, "
-                + (
-                    f"against ${self.liquid_assets:,.0f} held in savings."
-                    if assets_present
-                    else "with no meaningful savings to draw on."
-                )
+            money = f"Every month the household brings in ${self.monthly_gross_income:,.0f} in gross income, " + (
+                f"against ${self.liquid_assets:,.0f} held in savings."
+                if assets_present
+                else "with no meaningful savings to draw on."
             )
             extra = ""
             if elderly:
@@ -437,15 +463,20 @@ def _age_consistent_with(has_elderly: bool, rng: random.Random, *, young: tuple[
     return rng.randint(60, 85) if has_elderly else rng.randint(young[0], min(young[1], 59))
 
 
-def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfile:
+def _build_realistic_profile(
+    state: str,
+    rng: random.Random,
+    census_vintage: CensusVintage | int | str | None = None,
+) -> USHouseholdProfile:
     """Build a profile sampled from Census ACS state-level distributions.
 
-    Falls back to hardcoded national weights if no census data file exists
-    (warning already emitted by CensusDataSource.load()).
+    Falls back to hardcoded national weights if the default vintage has no
+    census data file (warning already emitted by CensusDataSource.load()). An
+    explicitly requested vintage with no data raises instead.
     """
     from govsynth.sources.us.census import CensusDataSource
 
-    dist = CensusDataSource(state).load()
+    dist = CensusDataSource(state, vintage=census_vintage).load()
 
     if dist is None:
         # No census data available -- silent fallback to national approximations
@@ -534,6 +565,7 @@ def _build_realistic_profile(state: str, rng: random.Random) -> USHouseholdProfi
         unearned_income=unearned,
         shelter_costs=shelter,
         age_of_head=age,
+        census_vintage=dist.vintage,
     )
 
 
