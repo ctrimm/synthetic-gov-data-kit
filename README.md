@@ -413,6 +413,17 @@ Medicaid and CHIP state limit tables, which are restructured from KFF's State He
 
 All generated profiles are entirely synthetic. No real applicant data is used or represented.
 
+## Known Limitations (0.2.0a1)
+
+- SNAP rationale traces on the general (`realistic`/`uniform`) path can contradict the case's own
+  net income: earned-income deduction applied to unearned income, and no shelter step
+  ([#33](https://github.com/ctrimm/synthetic-gov-data-kit/issues/33)). Outcomes are correct.
+- TANF and the ACA marketplace are not modeled yet (#17, #18).
+- Medicaid and CHIP limits come from KFF tables whose reuse terms are still being settled; see
+  [DATA_SOURCES.md](DATA_SOURCES.md).
+
+Full list: [CHANGELOG.md](CHANGELOG.md#020a1--2026-11-17).
+
 ## Roadmap
 
 - **Policy document parser** — `govsynth parse-policy` stub is available; full PDF/DOCX ingestion coming soon

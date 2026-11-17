@@ -15,6 +15,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from govsynth._version import __version__
 from govsynth.models.enums import Difficulty, TaskType
 from govsynth.models.rationale import RationaleTrace
 
@@ -84,7 +85,9 @@ class TestCase(BaseModel):
     )
 
     # Generation metadata
-    generated_by: str = Field(default="synthetic-gov-data-kit@0.1.0")
+    generated_by: str = Field(
+        default=f"synthetic-gov-data-kit@{__version__}", description="Package name and version that generated the case"
+    )
     generated_at: datetime = Field(default_factory=datetime.utcnow)
     seed: int | None = Field(default=None, description="RNG seed used for generation")
     metadata: dict[str, Any] = Field(
