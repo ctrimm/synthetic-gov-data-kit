@@ -50,6 +50,7 @@ with Claude Code.
 | [LIHEAP](docs/programs/liheap.md) | HHS/ACF | `liheap.va`, `liheap.ca`, `liheap.tx`, `liheap.md` | Stable |
 | [CHIP / children's Medicaid](docs/programs/chip.md) | CMS/HHS | `chip.va`, `chip.ca`, `chip.tx`, `chip.md` | Stable |
 | [ACA premium tax credit](docs/programs/aca.md) | IRS/CMS | `aca.va`, `aca.tx`, `aca.ca`, `aca.md` | Alpha |
+| [TANF](docs/programs/tanf.md) | HHS/ACF + states | `tanf.va`, `tanf.md`, `tanf.tx`, `tanf.ca` | Alpha |
 
 ## Quickstart
 
@@ -416,7 +417,7 @@ All generated profiles are entirely synthetic. No real applicant data is used or
 
 ## Known Limitations (0.2.0a1)
 
-- TANF is not modeled yet (#17).
+- TANF covers first-time applicants in VA, MD, TX and CA only; see [docs/programs/tanf.md](docs/programs/tanf.md).
 - Joint census household types cover the acs5-2024 vintage only; the SNAP caseload population is
   FY2024 only.
 

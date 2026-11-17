@@ -29,7 +29,7 @@ First PyPI pre-release: `pip install --pre synthetic-gov-data-kit`.
   (`govsynth/_version.py`, which `pyproject.toml` also reads). 0.1.0 hardcoded `@0.1.0`.
 
 ### Known limitations
-- TANF (#17) is not modeled yet.
+- TANF covers first-time applicants in VA, MD, TX and CA (`docs/programs/tanf.md` lists what is not modeled).
 - Joint household types cover acs5-2024 only; other census vintages use independent per-trait rates.
 - The caseload population (`population="caseload"`) covers SNAP only, from FY2024 data.
 
@@ -66,6 +66,13 @@ First PyPI pre-release: `pip install --pre synthetic-gov-data-kit`.
   generates cases for every program from a clean install (`scripts/smoke_test_wheel.sh`).
 
 ### Added
+- TANF (#17): `TANFSource` and `TANFEligibilityGenerator` for Virginia, Maryland, Texas and
+  California, presets `tanf.va|md|tx|ca`, `data/thresholds/tanf_{va,md,tx,ca}_2026.json`
+  (`scripts/build_tanf_tables.py`, verified). Each state's own tests in its own order: VA locality
+  groups, maximum income chart and standard of assistance; MD COMAR 07.03.03 net-income test and
+  $10 minimum benefit; TX resources, Budgetary Needs and Recognizable Needs Parts A/B; CA MBSAC
+  applicant test and MAP grant. Edge cases place income on each test's boundary, found by
+  bisection on the test itself.
 - ACA premium tax credit, tax year 2026 (#18): `ACAPremiumTaxCreditSource` and
   `ACAPremiumTaxCreditGenerator`, presets `aca.va|tx|ca|md`. Rev. Proc. 2025-25 applicable
   percentages (linear within bands, rounded to 0.01% per 26 CFR 1.36B-3(g)), the 9.96% employer

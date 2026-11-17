@@ -33,6 +33,18 @@ restrictions. Please cite the agency.
 Census Bureau data products are produced by a federal agency; the Bureau asks that users cite it
 as the source.
 
+## State government sources
+
+State regulations, manuals and policy letters, cited in each file's `_metadata`. These are
+public rules of general application, transcribed as amounts and test definitions.
+
+| Files | Source | Agency |
+|---|---|---|
+| `thresholds/tanf_va_2026.json` | VDSS TANF Manual Chapter 300; 22VAC40-295-50 | Virginia Department of Social Services (state government work, cited) |
+| `thresholds/tanf_md_2026.json` | COMAR 07.03.03; Maryland DHS FIA IM 26-13 | Maryland Department of Human Services (state regulation, cited) |
+| `thresholds/tanf_tx_2026.json` | Texas Works Handbook A-1341, A-1425, C-111 (Rev. 26-4) | Texas Health and Human Services Commission (state government work, cited) |
+| `thresholds/tanf_ca_2026.json` | CDSS All-County Letters 26-39 and 26-66 | California Department of Social Services (state government work, cited) |
+
 ## Third-party data: KFF
 
 | Files | Source | Status |
