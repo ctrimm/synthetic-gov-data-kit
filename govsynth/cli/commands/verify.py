@@ -18,7 +18,12 @@ _DATA_DIR = THRESHOLD_DIR
 _VERIFICATION_URLS: dict[str, str] = {
     "snap": "https://www.fns.usda.gov/snap/allotment/cola",
     "wic": "https://www.fns.usda.gov/wic/wic-income-eligibility-guidelines",
-    "medicaid": "https://www.kff.org/medicaid/state-indicator/medicaid-income-eligibility-limits/",
+    "medicaid": "https://www.kff.org/affordable-care-act/state-indicator/medicaid-income-eligibility-limits-for-adults-as-a-percent-of-the-federal-poverty-level/",
+    "chip": "https://www.kff.org/affordable-care-act/state-indicator/medicaid-and-chip-income-eligibility-limits-for-children-as-a-percent-of-the-federal-poverty-level/",
+    "liheap": "https://acf.gov/ocs/programs/liheap",
+    "medicare": "https://www.medicare.gov/basics/costs/help/medicare-savings-programs",
+    "ssi": "https://www.ssa.gov/oact/cola/SSIamts.html",
+    "aca_ptc": "https://www.irs.gov/pub/irs-drop/rp-25-25.pdf",
     "us_fpl": "https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines",
 }
 
@@ -38,7 +43,9 @@ def _get_program_key(meta: dict[str, Any]) -> str:
 def verify_thresholds(
     program: Annotated[
         str | None,
-        typer.Option("--program", "-p", help="Filter: snap | wic | medicaid | us_fpl"),
+        typer.Option(
+            "--program", "-p", help="Filter: snap | wic | medicaid | chip | liheap | medicare | ssi | aca_ptc | us_fpl"
+        ),
     ] = None,
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:

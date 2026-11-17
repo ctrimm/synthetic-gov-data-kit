@@ -83,6 +83,7 @@ class Program(str, Enum):
     TANF = "tanf"
     MEDICARE = "medicare"
     SSI = "ssi"
+    ACA_PTC = "aca_ptc"
 
 
 # Known states + DC for validation

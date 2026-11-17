@@ -29,7 +29,7 @@ First PyPI pre-release: `pip install --pre synthetic-gov-data-kit`.
   (`govsynth/_version.py`, which `pyproject.toml` also reads). 0.1.0 hardcoded `@0.1.0`.
 
 ### Known limitations
-- TANF (#17) and the ACA marketplace (#18) are not modeled yet; both wait on source documents.
+- TANF (#17) is not modeled yet.
 - Joint household types cover acs5-2024 only; other census vintages use independent per-trait rates.
 - The caseload population (`population="caseload"`) covers SNAP only, from FY2024 data.
 
@@ -66,6 +66,14 @@ First PyPI pre-release: `pip install --pre synthetic-gov-data-kit`.
   generates cases for every program from a clean install (`scripts/smoke_test_wheel.sh`).
 
 ### Added
+- ACA premium tax credit, tax year 2026 (#18): `ACAPremiumTaxCreditSource` and
+  `ACAPremiumTaxCreditGenerator`, presets `aca.va|tx|ca|md`. Rev. Proc. 2025-25 applicable
+  percentages (linear within bands, rounded to 0.01% per 26 CFR 1.36B-3(g)), the 9.96% employer
+  affordability test, 100–400% FPL on the 2025 guidelines (enhanced credits expired), Medicaid
+  overlap via `MedicaidSource`, the joint-filing rule and its abuse/abandonment exception, and the
+  2026 Public Law 119-21 changes (§71302 under-100% lawfully present route removed; §71304
+  income-based SEP enrollments excluded). `verify-thresholds --program` accepts every bundled
+  program.
 - `.github/workflows/release.yml`: pushing a `v*` tag builds, smoke-tests, publishes to PyPI via
   trusted publishing, and creates a GitHub release (pre-release for `a`/`b`/`rc` versions).
 - `DATA_SOURCES.md`: source and terms for every bundled dataset.

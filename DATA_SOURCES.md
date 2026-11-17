@@ -23,6 +23,7 @@ restrictions. Please cite the agency.
 | `thresholds/us_fpl_2020.json` – `us_fpl_2026.json` | HHS Poverty Guidelines (Federal Register) | HHS ASPE |
 | `thresholds/liheap_fy2026.json` | LIHEAP IM2025-02 (poverty guidelines and state median income estimates) and state FY2026 LIHEAP plans | HHS ACF Office of Community Services; state LIHEAP offices |
 | `thresholds/medicare_cy2026.json` | Medicare Savings Programs limits (Medicare.gov); SSA POMS HI 03001.020 | CMS; Social Security Administration |
+| `thresholds/aca_ptc_ty2026.json` | IRS Rev. Proc. 2025-25 (2026 applicable percentage table, 9.96% required contribution); Public Law 119-21 §§71302, 71304, 71305 (91 FR 65494) | Internal Revenue Service |
 | `thresholds/ssi_cy2026.json` | Cost-of-Living Increase and Other Determinations for 2026, 90 FR 49047 | Social Security Administration |
 | `thresholds/cpi_u_annual.json` | CPI-U, U.S. city average (series CUUR0000SA0 / FRED CPIAUCNS), annual averages | Bureau of Labor Statistics (retrieved via FRED, Federal Reserve Bank of St. Louis) |
 | `census/<survey>/<year>/*.json` | American Community Survey 1-year and 5-year table-based summary files | U.S. Census Bureau |
