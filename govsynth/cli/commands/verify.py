@@ -6,14 +6,14 @@ Checks _metadata.verification_status in all bundled threshold JSON files.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Annotated, Any
 
 import typer
 
+from govsynth._paths import THRESHOLD_DIR
 from govsynth.cli.output import emit_json, make_console
 
-_DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "thresholds"
+_DATA_DIR = THRESHOLD_DIR
 
 _VERIFICATION_URLS: dict[str, str] = {
     "snap": "https://www.fns.usda.gov/snap/allotment/cola",

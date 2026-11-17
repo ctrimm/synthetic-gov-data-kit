@@ -27,7 +27,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
 
-_CENSUS_DIR = Path(__file__).parent.parent.parent.parent / "data" / "census"
+from govsynth._paths import CENSUS_DIR
+
+_CENSUS_DIR = CENSUS_DIR
 
 CensusSurvey = Literal["acs1", "acs5"]
 _SURVEYS: tuple[CensusSurvey, ...] = ("acs5", "acs1")

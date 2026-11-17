@@ -7,12 +7,11 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import lru_cache
-from pathlib import Path
 from typing import Any
 
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
-THRESHOLD_DIR = DATA_DIR / "thresholds"
-SEED_DIR = DATA_DIR / "seeds"
+from govsynth._paths import DATA_DIR as DATA_DIR
+from govsynth._paths import SEED_DIR as SEED_DIR
+from govsynth._paths import THRESHOLD_DIR as THRESHOLD_DIR
 
 
 @lru_cache(maxsize=128)

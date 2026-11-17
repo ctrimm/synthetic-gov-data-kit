@@ -52,7 +52,14 @@ with Claude Code.
 
 ## Quickstart
 
-**Install from source** (PyPI release coming soon):
+**Install from PyPI** (alpha; `--pre` picks up pre-releases):
+
+```bash
+pip install --pre synthetic-gov-data-kit          # add [hf] for HuggingFace export
+```
+
+The policy thresholds, census distributions and caseload tables ship inside the package, so
+nothing else needs downloading. **Or install from source** for development:
 
 ```bash
 git clone https://github.com/ctrimm/synthetic-gov-data-kit
@@ -395,7 +402,9 @@ govsynth verify-thresholds && echo "All thresholds verified"
 
 ## Policy Data Sources
 
-All threshold values and policy rules are sourced from official US government publications:
+Thresholds and policy rules come from official US government publications, except the
+Medicaid and CHIP state limit tables, which are restructured from KFF's State Health Facts.
+**[DATA_SOURCES.md](DATA_SOURCES.md)** lists every bundled dataset with its source and terms.
 
 - **SNAP**: [7 CFR Part 273](https://www.ecfr.gov/current/title-7/part-273) + FNS SNAP Handbook
 - **WIC**: [7 CFR Part 246](https://www.ecfr.gov/current/title-7/part-246) + FNS WIC Policy
@@ -429,4 +438,5 @@ for any threshold values you add or modify.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Code: MIT. See [LICENSE](LICENSE). Bundled data: see [DATA_SOURCES.md](DATA_SOURCES.md); federal
+data are public domain, and the two KFF-derived tables carry KFF's attribution terms.

@@ -44,3 +44,22 @@ jobs:
         with:
           name: coverage-xml
           path: coverage.xml
+
+  package:
+    name: build and smoke-test the wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist and wheel
+        run: |
+          pip install build twine
+          python -m build
+          twine check --strict dist/*
+
+      - name: Install the wheel in a clean venv and generate from it
+        run: scripts/smoke_test_wheel.sh dist/*.whl
