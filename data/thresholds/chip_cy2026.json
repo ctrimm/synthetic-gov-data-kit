@@ -1,0 +1,1873 @@
+{
+  "_metadata": {
+    "program": "chip",
+    "period": "CY2026",
+    "calendar_year": 2026,
+    "fpl_basis_year": 2026,
+    "source": "KFF, 'Medicaid and CHIP Income Eligibility Limits for Children as a Percent of the Federal Poverty Level', as of January 2026 (national survey by KFF and the Georgetown University Center for Children and Families)",
+    "source_url": "https://www.kff.org/affordable-care-act/state-indicator/medicaid-and-chip-income-eligibility-limits-for-children-as-a-percent-of-the-federal-poverty-level/",
+    "source_type": "secondary compilation (survey of state Medicaid/CHIP officials); the CMS Medicaid.gov eligibility-levels table returned 403 from the build sandbox and has not been cross-checked",
+    "cfr_reference": "42 CFR 435.118 (children's Medicaid); 42 CFR 457.310, 457.320 (CHIP)",
+    "verification_status": "verified",
+    "verification_note": "Retrieved 2026-11-17 by the documents pass on issue #18. Internally consistent for all 51 jurisdictions: each row's upper limit equals the highest percentage in that row, and every CHIP-funded Medicaid range starts at or below the Medicaid-funded limit. Limits are MAGI-converted and already include the standard 5-percentage-point disregard at the highest income level, so they are compared directly with household MAGI as a percent of the 2026 poverty guidelines.",
+    "how_to_read": [
+      "medicaid_funded_pct_fpl: upper limit of regular Medicaid for the age band; any child at or below it is Medicaid-eligible, insured or not.",
+      "chip_funded_medicaid_pct_fpl: the income range covered through Medicaid but paid with CHIP funds (Medicaid-expansion CHIP). Only uninsured children qualify above the Medicaid-funded limit.",
+      "separate_chip_pct_fpl: upper limit of the state's separate CHIP program (uninsured children); null where the state runs only Medicaid-expansion CHIP."
+    ],
+    "not_modeled": [
+      "CHIP waiting periods and state-employee exclusions",
+      "premiums and enrollment fees",
+      "immigrant-children options (ICHIA) and the unborn-child option",
+      "county-level variation (e.g. higher separate-CHIP limits in some California counties, KFF footnote)",
+      "pregnant-women coverage"
+    ]
+  },
+  "states": {
+    "AL": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 146,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 146,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 146,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 107,
+            "high": 146
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 317,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 317,
+      "kff_row": [
+        "Alabama",
+        "146%",
+        "N/A",
+        "146%",
+        "N/A",
+        "146%",
+        "107%-146%",
+        "317%",
+        "317%"
+      ]
+    },
+    "AK": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 177,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 159,
+            "high": 208
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 177,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 159,
+            "high": 208
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 177,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 124,
+            "high": 208
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 208,
+      "kff_row": [
+        "Alaska",
+        "177%",
+        "159%-208%",
+        "177%",
+        "159%-208%",
+        "177%",
+        "124%-208%",
+        "N/A (M-CHIP)",
+        "208%"
+      ]
+    },
+    "AZ": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 152,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 146,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 104,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 230,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 230,
+      "kff_row": [
+        "Arizona",
+        "152%",
+        "N/A",
+        "146%",
+        "N/A",
+        "138%",
+        "104%-138%",
+        "230%",
+        "230%"
+      ]
+    },
+    "AR": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 107,
+            "high": 147
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 216,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 216,
+      "kff_row": [
+        "Arkansas",
+        "147%",
+        "N/A",
+        "147%",
+        "N/A",
+        "147%",
+        "107%-147%",
+        "216%",
+        "216%"
+      ]
+    },
+    "CA": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 208,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 208,
+            "high": 266
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 142,
+            "high": 266
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 108,
+            "high": 266
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 266,
+      "kff_row": [
+        "California",
+        "208%",
+        "208%-266%",
+        "142%",
+        "142%-266%",
+        "133%",
+        "108%-266%",
+        "N/A (M-CHIP)",
+        "266%"
+      ]
+    },
+    "CO": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 108,
+            "high": 147
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 265,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 265,
+      "kff_row": [
+        "Colorado",
+        "147%",
+        "N/A",
+        "147%",
+        "N/A",
+        "147%",
+        "108%-147%",
+        "265%",
+        "265%"
+      ]
+    },
+    "CT": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 201,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 201,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 201,
+          "chip_funded_medicaid_pct_fpl": null
+        }
+      },
+      "separate_chip_pct_fpl": 323,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 323,
+      "kff_row": [
+        "Connecticut",
+        "201%",
+        "N/A",
+        "201%",
+        "N/A",
+        "201%",
+        "N/A",
+        "323%",
+        "323%"
+      ]
+    },
+    "DE": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 217,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 194,
+            "high": 217
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 110,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 217,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 217,
+      "kff_row": [
+        "Delaware",
+        "217%",
+        "194%-217%",
+        "147%",
+        "N/A",
+        "138%",
+        "110%-138%",
+        "217%",
+        "217%"
+      ]
+    },
+    "DC": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 324,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 206,
+            "high": 324
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 324,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 146,
+            "high": 324
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 324,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 112,
+            "high": 324
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 324,
+      "kff_row": [
+        "District of Columbia",
+        "324%",
+        "206%-324%",
+        "324%",
+        "146%-324%",
+        "324%",
+        "112%-324%",
+        "N/A (M-CHIP)",
+        "324%"
+      ]
+    },
+    "FL": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 211,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 192,
+            "high": 211
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 145,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 112,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 215,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 215,
+      "kff_row": [
+        "Florida",
+        "211%",
+        "192%-211%",
+        "145%",
+        "N/A",
+        "138%",
+        "112%-138%",
+        "215%",
+        "215%"
+      ]
+    },
+    "GA": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 210,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 154,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 113,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 252,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 252,
+      "kff_row": [
+        "Georgia",
+        "210%",
+        "N/A",
+        "154%",
+        "N/A",
+        "138%",
+        "113%-138%",
+        "252%",
+        "252%"
+      ]
+    },
+    "HI": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 191,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 191,
+            "high": 313
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 139,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 139,
+            "high": 313
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 133,
+            "high": 313
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 313,
+      "kff_row": [
+        "Hawaii",
+        "191%",
+        "191%-313%",
+        "139%",
+        "139%-313%",
+        "133%",
+        "133%-313%",
+        "N/A (M-CHIP)",
+        "313%"
+      ]
+    },
+    "ID": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 107,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 190,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 190,
+      "kff_row": [
+        "Idaho",
+        "147%",
+        "N/A",
+        "147%",
+        "N/A",
+        "138%",
+        "107%-138%",
+        "190%",
+        "190%"
+      ]
+    },
+    "IL": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 142,
+            "high": 318
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 142,
+            "high": 318
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 108,
+            "high": 318
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 318,
+      "kff_row": [
+        "Illinois",
+        "142%",
+        "142%-318%",
+        "142%",
+        "142%-318%",
+        "142%",
+        "108%-318%",
+        "N/A (M-CHIP)",
+        "318%"
+      ]
+    },
+    "IN": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 213,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 157,
+            "high": 213
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 163,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 141,
+            "high": 163
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 163,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 106,
+            "high": 163
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 255,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 255,
+      "kff_row": [
+        "Indiana",
+        "213%",
+        "157%-213%",
+        "163%",
+        "141%-163%",
+        "163%",
+        "106%-163%",
+        "255%",
+        "255%"
+      ]
+    },
+    "IA": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 305,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 240,
+            "high": 305
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 172,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 172,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 122,
+            "high": 172
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 307,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 307,
+      "kff_row": [
+        "Iowa",
+        "305%",
+        "240%-305%",
+        "172%",
+        "N/A",
+        "172%",
+        "122%-172%",
+        "307%",
+        "307%"
+      ]
+    },
+    "KS": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 171,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 154,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 113,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 255,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 255,
+      "kff_row": [
+        "Kansas",
+        "171%",
+        "N/A",
+        "154%",
+        "N/A",
+        "138%",
+        "113%-138%",
+        "255%",
+        "255%"
+      ]
+    },
+    "KY": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 195,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 195,
+            "high": 218
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 142,
+            "high": 218
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 109,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 109,
+            "high": 218
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 218,
+      "kff_row": [
+        "Kentucky",
+        "195%",
+        "195%-218%",
+        "142%",
+        "142%-218%",
+        "109%",
+        "109%-218%",
+        "N/A (M-CHIP)",
+        "218%"
+      ]
+    },
+    "LA": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 142,
+            "high": 217
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 142,
+            "high": 217
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 108,
+            "high": 217
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 255,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 255,
+      "kff_row": [
+        "Louisiana",
+        "142%",
+        "142%-217%",
+        "142%",
+        "142%-217%",
+        "142%",
+        "108%-217%",
+        "255%",
+        "255%"
+      ]
+    },
+    "ME": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 305,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 191,
+            "high": 208
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 305,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 140,
+            "high": 208
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 305,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 132,
+            "high": 208
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 305,
+      "kff_row": [
+        "Maine",
+        "305%",
+        "191%-208%",
+        "305%",
+        "140%-208%",
+        "305%",
+        "132%-208%",
+        "N/A (M-CHIP)",
+        "305%"
+      ]
+    },
+    "MD": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 194,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 194,
+            "high": 322
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 138,
+            "high": 322
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 109,
+            "high": 322
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 322,
+      "kff_row": [
+        "Maryland",
+        "194%",
+        "194%-322%",
+        "138%",
+        "138%-322%",
+        "133%",
+        "109%-322%",
+        "N/A (M-CHIP)",
+        "322%"
+      ]
+    },
+    "MA": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 205,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 185,
+            "high": 205
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 155,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 133,
+            "high": 155
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 155,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 114,
+            "high": 155
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 305,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 305,
+      "kff_row": [
+        "Massachusetts",
+        "205%",
+        "185%-205%",
+        "155%",
+        "133%-155%",
+        "155%",
+        "114%-155%",
+        "305%",
+        "305%"
+      ]
+    },
+    "MI": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 195,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 195,
+            "high": 217
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 160,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 143,
+            "high": 217
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 160,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 109,
+            "high": 217
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 217,
+      "kff_row": [
+        "Michigan",
+        "195%",
+        "195%-217%",
+        "160%",
+        "143%-217%",
+        "160%",
+        "109%-217%",
+        "N/A (M-CHIP)",
+        "217%"
+      ]
+    },
+    "MN": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 288,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 275,
+            "high": 288
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 280,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 280,
+          "chip_funded_medicaid_pct_fpl": null
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 288,
+      "kff_row": [
+        "Minnesota",
+        "288%",
+        "275%-288%",
+        "280%",
+        "N/A",
+        "280%",
+        "N/A",
+        "N/A (M-CHIP)",
+        "288%"
+      ]
+    },
+    "MS": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 199,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 148,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 107,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 214,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 214,
+      "kff_row": [
+        "Mississippi",
+        "199%",
+        "N/A",
+        "148%",
+        "N/A",
+        "138%",
+        "107%-138%",
+        "214%",
+        "214%"
+      ]
+    },
+    "MO": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 201,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 148,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 148,
+            "high": 155
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 148,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 110,
+            "high": 155
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 305,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 305,
+      "kff_row": [
+        "Missouri",
+        "201%",
+        "N/A",
+        "148%",
+        "148%-155%",
+        "148%",
+        "110%-155%",
+        "305%",
+        "305%"
+      ]
+    },
+    "MT": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 148,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 148,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 109,
+            "high": 148
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 266,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 266,
+      "kff_row": [
+        "Montana",
+        "148%",
+        "N/A",
+        "148%",
+        "N/A",
+        "133%",
+        "109%-148%",
+        "266%",
+        "266%"
+      ]
+    },
+    "NE": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 162,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 162,
+            "high": 218
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 145,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 145,
+            "high": 218
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 109,
+            "high": 218
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 218,
+      "kff_row": [
+        "Nebraska",
+        "162%",
+        "162%-218%",
+        "145%",
+        "145%-218%",
+        "133%",
+        "109%-218%",
+        "N/A (M-CHIP)",
+        "218%"
+      ]
+    },
+    "NV": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 165,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 165,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 122,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 205,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 205,
+      "kff_row": [
+        "Nevada",
+        "165%",
+        "N/A",
+        "165%",
+        "N/A",
+        "138%",
+        "122%-138%",
+        "205%",
+        "205%"
+      ]
+    },
+    "NH": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 196,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 196,
+            "high": 323
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 196,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 196,
+            "high": 323
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 196,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 196,
+            "high": 323
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 323,
+      "kff_row": [
+        "New Hampshire",
+        "196%",
+        "196%-323%",
+        "196%",
+        "196%-323%",
+        "196%",
+        "196%-323%",
+        "N/A (M-CHIP)",
+        "323%"
+      ]
+    },
+    "NJ": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 199,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 107,
+            "high": 147
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 355,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 355,
+      "kff_row": [
+        "New Jersey",
+        "199%",
+        "N/A",
+        "147%",
+        "N/A",
+        "147%",
+        "107%-147%",
+        "355%",
+        "355%"
+      ]
+    },
+    "NM": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 240,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 200,
+            "high": 305
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 240,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 200,
+            "high": 305
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 190,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 138,
+            "high": 245
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 305,
+      "kff_row": [
+        "New Mexico",
+        "240%",
+        "200%-305%",
+        "240%",
+        "200%-305%",
+        "190%",
+        "138%-245%",
+        "N/A (M-CHIP)",
+        "305%"
+      ]
+    },
+    "NY": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 223,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 154,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 154,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 110,
+            "high": 154
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 405,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 405,
+      "kff_row": [
+        "New York",
+        "223%",
+        "N/A",
+        "154%",
+        "N/A",
+        "154%",
+        "110%-154%",
+        "405%",
+        "405%"
+      ]
+    },
+    "NC": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 194,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 194,
+            "high": 216
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 141,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 141,
+            "high": 216
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 107,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 107,
+            "high": 216
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 216,
+      "kff_row": [
+        "North Carolina",
+        "194%",
+        "194%-216%",
+        "141%",
+        "141%-216%",
+        "107%",
+        "107%-216%",
+        "N/A (M-CHIP)",
+        "216%"
+      ]
+    },
+    "ND": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 147,
+            "high": 205
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 147,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 147,
+            "high": 205
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 111,
+            "high": 205
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 205,
+      "kff_row": [
+        "North Dakota",
+        "147%",
+        "147%-205%",
+        "147%",
+        "147%-205%",
+        "133%",
+        "111%-205%",
+        "N/A (M-CHIP)",
+        "205%"
+      ]
+    },
+    "OH": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 156,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 141,
+            "high": 211
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 156,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 141,
+            "high": 211
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 156,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 107,
+            "high": 211
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 211,
+      "kff_row": [
+        "Ohio",
+        "156%",
+        "141%-211%",
+        "156%",
+        "141%-211%",
+        "156%",
+        "107%-211%",
+        "N/A (M-CHIP)",
+        "211%"
+      ]
+    },
+    "OK": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 210,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 169,
+            "high": 210
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 210,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 151,
+            "high": 210
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 210,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 115,
+            "high": 210
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 210,
+      "kff_row": [
+        "Oklahoma",
+        "210%",
+        "169%-210%",
+        "210%",
+        "151%-210%",
+        "210%",
+        "115%-210%",
+        "N/A (M-CHIP)",
+        "210%"
+      ]
+    },
+    "OR": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 185,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 133,
+            "high": 305
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 133,
+            "high": 305
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 100,
+            "high": 305
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 305,
+      "kff_row": [
+        "Oregon",
+        "185%",
+        "133%-305%",
+        "133%",
+        "133%-305%",
+        "133%",
+        "100%-305%",
+        "N/A (M-CHIP)",
+        "305%"
+      ]
+    },
+    "PA": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 220,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 162,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 119,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 319,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 319,
+      "kff_row": [
+        "Pennsylvania",
+        "220%",
+        "N/A",
+        "162%",
+        "N/A",
+        "138%",
+        "119%-138%",
+        "319%",
+        "319%"
+      ]
+    },
+    "RI": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 190,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 190,
+            "high": 266
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 142,
+            "high": 266
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 109,
+            "high": 266
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 266,
+      "kff_row": [
+        "Rhode Island",
+        "190%",
+        "190%-266%",
+        "142%",
+        "142%-266%",
+        "133%",
+        "109%-266%",
+        "N/A (M-CHIP)",
+        "266%"
+      ]
+    },
+    "SC": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 194,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 194,
+            "high": 213
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 143,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 143,
+            "high": 213
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 107,
+            "high": 213
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 213,
+      "kff_row": [
+        "South Carolina",
+        "194%",
+        "194%-213%",
+        "143%",
+        "143%-213%",
+        "133%",
+        "107%-213%",
+        "N/A (M-CHIP)",
+        "213%"
+      ]
+    },
+    "SD": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 187,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 147,
+            "high": 187
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 187,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 147,
+            "high": 187
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 187,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 111,
+            "high": 187
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 209,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 209,
+      "kff_row": [
+        "South Dakota",
+        "187%",
+        "147%-187%",
+        "187%",
+        "147%-187%",
+        "187%",
+        "111%-187%",
+        "209%",
+        "209%"
+      ]
+    },
+    "TN": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 195,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 195,
+            "high": 216
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 142,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 142,
+            "high": 216
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 109,
+            "high": 216
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 255,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 255,
+      "kff_row": [
+        "Tennessee",
+        "195%",
+        "195%-216%",
+        "142%",
+        "142%-216%",
+        "133%",
+        "109%-216%",
+        "255%",
+        "255%"
+      ]
+    },
+    "TX": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 203,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 149,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 109,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 206,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 206,
+      "kff_row": [
+        "Texas",
+        "203%",
+        "N/A",
+        "149%",
+        "N/A",
+        "138%",
+        "109%-138%",
+        "206%",
+        "206%"
+      ]
+    },
+    "UT": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 144,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 144,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 105,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 205,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 205,
+      "kff_row": [
+        "Utah",
+        "144%",
+        "N/A",
+        "144%",
+        "N/A",
+        "138%",
+        "105%-138%",
+        "205%",
+        "205%"
+      ]
+    },
+    "VT": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 317,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 237,
+            "high": 317
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 317,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 237,
+            "high": 317
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 317,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 237,
+            "high": 317
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 317,
+      "kff_row": [
+        "Vermont",
+        "317%",
+        "237%-317%",
+        "317%",
+        "237%-317%",
+        "317%",
+        "237%-317%",
+        "N/A (M-CHIP)",
+        "317%"
+      ]
+    },
+    "VA": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 148,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 148,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 148,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 109,
+            "high": 148
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 205,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 205,
+      "kff_row": [
+        "Virginia",
+        "148%",
+        "N/A",
+        "148%",
+        "N/A",
+        "148%",
+        "109%-148%",
+        "205%",
+        "205%"
+      ]
+    },
+    "WA": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 215,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 215,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 215,
+          "chip_funded_medicaid_pct_fpl": null
+        }
+      },
+      "separate_chip_pct_fpl": 317,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 317,
+      "kff_row": [
+        "Washington",
+        "215%",
+        "N/A",
+        "215%",
+        "N/A",
+        "215%",
+        "N/A",
+        "317%",
+        "317%"
+      ]
+    },
+    "WV": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 163,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 146,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 138,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 108,
+            "high": 138
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 305,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 305,
+      "kff_row": [
+        "West Virginia",
+        "163%",
+        "N/A",
+        "146%",
+        "N/A",
+        "138%",
+        "108%-138%",
+        "305%",
+        "305%"
+      ]
+    },
+    "WI": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 306,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 191,
+          "chip_funded_medicaid_pct_fpl": null
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 101,
+            "high": 156
+          }
+        }
+      },
+      "separate_chip_pct_fpl": 306,
+      "chip_model": "separate",
+      "upper_limit_pct_fpl": 306,
+      "kff_row": [
+        "Wisconsin",
+        "306%",
+        "N/A",
+        "191%",
+        "N/A",
+        "133%",
+        "101%-156%",
+        "306%",
+        "306%"
+      ]
+    },
+    "WY": {
+      "age_bands": {
+        "0-1": {
+          "medicaid_funded_pct_fpl": 154,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 154,
+            "high": 205
+          }
+        },
+        "1-5": {
+          "medicaid_funded_pct_fpl": 154,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 154,
+            "high": 205
+          }
+        },
+        "6-18": {
+          "medicaid_funded_pct_fpl": 133,
+          "chip_funded_medicaid_pct_fpl": {
+            "low": 119,
+            "high": 205
+          }
+        }
+      },
+      "separate_chip_pct_fpl": null,
+      "chip_model": "medicaid_expansion_only",
+      "upper_limit_pct_fpl": 205,
+      "kff_row": [
+        "Wyoming",
+        "154%",
+        "154%-205%",
+        "154%",
+        "154%-205%",
+        "133%",
+        "119%-205%",
+        "N/A (M-CHIP)",
+        "205%"
+      ]
+    }
+  }
+}

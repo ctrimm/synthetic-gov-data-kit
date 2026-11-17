@@ -1,0 +1,24 @@
+CHILDREN'S MEDICAID AND CHIP — POLICY SEED
+Source: 42 CFR 435.118, 435.603; 42 CFR 457.310; KFF/Georgetown CCF state limits (January 2026)
+For use in rationale trace generation. Not a complete regulatory text.
+
+=== INCOME TEST ===
+Household MAGI (42 CFR 435.603) as a percent of the 2026 HHS poverty guidelines.
+Published state limits are MAGI-converted and already include the 5-percentage-point
+disregard, so they are compared directly with MAGI.
+
+=== ORDER OF DETERMINATION ===
+1. Children ages 0-18 only. Each state sets a Medicaid limit per age group
+   (infants 0-1, children 1-5, children 6-18).
+2. MAGI at or below the Medicaid limit -> Medicaid, whether or not the child has
+   other coverage.
+3. Above the Medicaid limit, CHIP covers only children with no other health
+   coverage (42 CFR 457.310(b)(2)), either:
+   - through Medicaid paid with CHIP funds (Medicaid-expansion CHIP), or
+   - through a separate CHIP program, up to the state's upper limit.
+
+=== PRESET STATES (CY2026, % FPL) ===
+Virginia:   Medicaid 148% (all ages); separate CHIP to 205%.
+California: Medicaid 208% / 142% / 133% (0-1 / 1-5 / 6-18); CHIP-funded Medicaid to 266%.
+Texas:      Medicaid 203% / 149% / 138%; separate CHIP to 206%.
+Maryland:   Medicaid 194% / 138% / 133%; CHIP-funded Medicaid to 322%.

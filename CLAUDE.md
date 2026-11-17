@@ -21,7 +21,7 @@ policy reasoning chain. This enables evaluation of *how* a model reasons, not ju
 
 ```
 govsynth/               Main Python package
-  sources/us/           US government data connectors (SNAP, WIC, Medicaid, Medicare, SSI, LIHEAP)
+  sources/us/           US government data connectors (SNAP, WIC, Medicaid, Medicare, SSI, LIHEAP, CHIP)
   profiles/             Synthetic citizen/household profile generator (USHouseholdProfile)
   generators/           Test case generators. base.py defines the Generator ABC;
                          snap_eligibility.py / wic_eligibility.py / medicaid_eligibility.py
