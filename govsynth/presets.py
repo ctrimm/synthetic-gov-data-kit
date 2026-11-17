@@ -145,6 +145,43 @@ PRESETS: dict[str, PresetConfig] = {
         profile_strategy="edge_saturated",
         description="Maryland children's Medicaid + Medicaid-expansion CHIP (to 322%) CY2026",
     ),
+    # ── ACA premium tax credit ───────────────────────────────────────────
+    "aca.va": PresetConfig(
+        program="aca_ptc",
+        source_class="govsynth.sources.us.aca_ptc.ACAPremiumTaxCreditSource",
+        source_kwargs={"tax_year": 2026, "state": "VA"},
+        generator_class="govsynth.generators.aca_ptc_eligibility.ACAPremiumTaxCreditGenerator",
+        generator_kwargs={"tax_year": 2026, "state": "VA"},
+        profile_strategy="edge_saturated",
+        description="Virginia ACA premium tax credit TY2026 — expansion state (Medicaid to 138% FPL)",
+    ),
+    "aca.tx": PresetConfig(
+        program="aca_ptc",
+        source_class="govsynth.sources.us.aca_ptc.ACAPremiumTaxCreditSource",
+        source_kwargs={"tax_year": 2026, "state": "TX"},
+        generator_class="govsynth.generators.aca_ptc_eligibility.ACAPremiumTaxCreditGenerator",
+        generator_kwargs={"tax_year": 2026, "state": "TX"},
+        profile_strategy="edge_saturated",
+        description="Texas ACA premium tax credit TY2026 — non-expansion state (credit from 100% FPL)",
+    ),
+    "aca.ca": PresetConfig(
+        program="aca_ptc",
+        source_class="govsynth.sources.us.aca_ptc.ACAPremiumTaxCreditSource",
+        source_kwargs={"tax_year": 2026, "state": "CA"},
+        generator_class="govsynth.generators.aca_ptc_eligibility.ACAPremiumTaxCreditGenerator",
+        generator_kwargs={"tax_year": 2026, "state": "CA"},
+        profile_strategy="edge_saturated",
+        description="California ACA premium tax credit TY2026",
+    ),
+    "aca.md": PresetConfig(
+        program="aca_ptc",
+        source_class="govsynth.sources.us.aca_ptc.ACAPremiumTaxCreditSource",
+        source_kwargs={"tax_year": 2026, "state": "MD"},
+        generator_class="govsynth.generators.aca_ptc_eligibility.ACAPremiumTaxCreditGenerator",
+        generator_kwargs={"tax_year": 2026, "state": "MD"},
+        profile_strategy="edge_saturated",
+        description="Maryland ACA premium tax credit TY2026",
+    ),
     # ── LIHEAP ────────────────────────────────────────────────────────────
     "liheap.va": PresetConfig(
         program="liheap",

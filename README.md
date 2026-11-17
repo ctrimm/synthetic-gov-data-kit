@@ -49,6 +49,7 @@ with Claude Code.
 | [SSI](docs/programs/ssi.md) | SSA | `ssi.national` | Stable |
 | [LIHEAP](docs/programs/liheap.md) | HHS/ACF | `liheap.va`, `liheap.ca`, `liheap.tx`, `liheap.md` | Stable |
 | [CHIP / children's Medicaid](docs/programs/chip.md) | CMS/HHS | `chip.va`, `chip.ca`, `chip.tx`, `chip.md` | Stable |
+| [ACA premium tax credit](docs/programs/aca.md) | IRS/CMS | `aca.va`, `aca.tx`, `aca.ca`, `aca.md` | Alpha |
 
 ## Quickstart
 
@@ -415,7 +416,7 @@ All generated profiles are entirely synthetic. No real applicant data is used or
 
 ## Known Limitations (0.2.0a1)
 
-- TANF and the ACA marketplace are not modeled yet (#17, #18).
+- TANF is not modeled yet (#17).
 - Joint census household types cover the acs5-2024 vintage only; the SNAP caseload population is
   FY2024 only.
 

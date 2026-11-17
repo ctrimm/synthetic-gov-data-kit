@@ -1,0 +1,48 @@
+{
+  "_metadata": {
+    "program": "aca_ptc",
+    "tax_year": 2026,
+    "period": "TY2026",
+    "fpl_basis_year": 2025,
+    "fpl_basis_note": "PTC for coverage year 2026 uses the poverty guidelines most recently published as of the first day of open enrollment (November 1, 2025): the 2025 guidelines (26 CFR 1.36B-1(h)).",
+    "source": "IRS Rev. Proc. 2025-25 (applicable percentage table and required contribution percentage for 2026); Public Law 119-21 sections 71302, 71304, 71305 as implemented in IRS FS-2025-10, IR-2025-127 and the proposed regulations at 91 FR 65494",
+    "source_url": "https://www.irs.gov/pub/irs-drop/rp-25-25.pdf",
+    "source_urls": {
+      "rev_proc_2025_25": "https://www.irs.gov/pub/irs-drop/rp-25-25.pdf",
+      "enhanced_credits_expired": "https://www.federalregister.gov/documents/2025/06/25/2025-11606/patient-protection-and-affordable-care-act-marketplace-integrity-and-affordability",
+      "cms_aptc_csr_basics": "https://www.cms.gov/marketplace/technical-assistance-resources/aptc-csr-basics.pdf",
+      "proposed_regs_pl_119_21": "https://www.federalregister.gov/d/2026-21056"
+    },
+    "retrieved": "2026-11-17",
+    "cfr_reference": "26 U.S.C. 36B; 26 CFR 1.36B-1 through 1.36B-3",
+    "verification_status": "verified",
+    "verification_note": "Applicable percentage table scraped in full from Rev. Proc. 2025-25 (posted to issue #18, pass 3); PL 119-21 effective dates quoted from 91 FR 65494 (issue #18, pass 4). No law extended the ARPA/IRA enhanced credits for 2026 (H.R.5145 introduced only)."
+  },
+  "eligibility_pct_fpl": {
+    "min": 100,
+    "max": 400
+  },
+  "applicable_percentage_table": [
+    {"from_pct_fpl": 0, "to_pct_fpl": 133, "initial_pct": 2.10, "final_pct": 2.10},
+    {"from_pct_fpl": 133, "to_pct_fpl": 150, "initial_pct": 3.14, "final_pct": 4.19},
+    {"from_pct_fpl": 150, "to_pct_fpl": 200, "initial_pct": 4.19, "final_pct": 6.60},
+    {"from_pct_fpl": 200, "to_pct_fpl": 250, "initial_pct": 6.60, "final_pct": 8.44},
+    {"from_pct_fpl": 250, "to_pct_fpl": 300, "initial_pct": 8.44, "final_pct": 9.96},
+    {"from_pct_fpl": 300, "to_pct_fpl": 400, "initial_pct": 9.96, "final_pct": 9.96}
+  ],
+  "required_contribution_pct": 9.96,
+  "enhanced_credits_in_effect": false,
+  "excess_aptc_repayment_caps": false,
+  "pl_119_21": {
+    "71302": "Removes 36B(c)(1)(B) for taxable years beginning after December 31, 2025: a lawfully present noncitizen below 100% FPL who is ineligible for Medicaid because of immigration status is no longer an applicable taxpayer.",
+    "71304": "For plan years beginning after December 31, 2025, a plan enrolled in during a special enrollment period based on a change in expected household income is not a qualified health plan for the PTC.",
+    "71305": "Removes the 36B(f)(2)(B) repayment limitation for taxable years beginning after December 31, 2025: excess advance PTC is repaid in full.",
+    "71301_not_in_2026": "Eligible-alien restriction applies to taxable years beginning after December 31, 2026.",
+    "71303_not_in_2026": "Pre-enrollment verification applies to taxable years beginning after December 31, 2027."
+  },
+  "notes": [
+    "The ARPA/IRA enhanced credits (no 400% FPL limit, 0-8.5% contribution) applied to 2021-2025 only.",
+    "Rows give the applicable percentage at the start (initial) and end (final) of each band; within a band it rises linearly (26 CFR 1.36B-3(g)).",
+    "The first band is 'less than 133%' and the last is 'at least 300% but not more than 400%'."
+  ]
+}

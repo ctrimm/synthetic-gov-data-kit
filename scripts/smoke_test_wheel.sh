@@ -20,11 +20,11 @@ PY
 "$gs" generate snap.va -n 5 --seed 42 -o out/snap -q
 "$gs" generate snap.ca -s realistic --census-year 2022 -n 5 --seed 42 -o out/realistic -q
 "$gs" generate snap.tx -s realistic --population caseload -n 5 --seed 42 -o out/caseload -q
-for preset in wic.national medicaid.va chip.va liheap.va medicare.national ssi.national; do
+for preset in wic.national medicaid.va chip.va liheap.va medicare.national ssi.national aca.tx; do
   "$gs" generate "$preset" -n 3 --seed 42 -o "out/$preset" -q
 done
 "$gs" validate-distribution --state VA -n 500 > /dev/null 2>&1
 "$gs" validate-distribution --state VA --population caseload -n 500 > /dev/null 2>&1
 count=$(find out -name '*.yaml' | wc -l)
-[ "$count" -ge 33 ] || { echo "expected >= 33 cases, got $count"; exit 1; }
+[ "$count" -ge 36 ] || { echo "expected >= 36 cases, got $count"; exit 1; }
 echo "wheel smoke test passed: $count cases"
