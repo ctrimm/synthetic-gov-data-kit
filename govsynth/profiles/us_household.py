@@ -89,6 +89,9 @@ class USHouseholdProfile:
     # Deliberately not in `extra`, which `to_scenario_fields` copies into the
     # scenario the model sees.
     census_vintage: str | None = None
+    # The calendar year whose dollars `monthly_gross_income` is stated in, for
+    # 'realistic' profiles (the census vintage's year unless restated); else None.
+    income_dollar_year: int | None = None
 
     def __post_init__(self) -> None:
         if not self.head_of_household_name:
@@ -132,6 +135,7 @@ class USHouseholdProfile:
         seed: int | None = None,
         strategy: str = "uniform",
         census_vintage: CensusVintage | int | str | None = None,
+        income_dollar_year: int | None = None,
     ) -> USHouseholdProfile:
         """Generate a random profile using the given strategy.
 
@@ -142,23 +146,29 @@ class USHouseholdProfile:
             census_vintage: ACS release to sample a 'realistic' profile from --
                 a year (5-year estimates ending that year), 'acs1-2025', or a
                 CensusVintage. None uses DEFAULT_CENSUS_VINTAGE.
+            income_dollar_year: For 'realistic' profiles, restate income in this
+                calendar year's dollars using CPI-U (census incomes are in the
+                vintage's own dollars). None leaves them in the vintage's dollars.
 
         Raises:
-            ValueError: If `census_vintage` is given with a strategy other than
-                'realistic' (only that strategy reads census data), or names a
-                vintage with no data for this state.
+            ValueError: If `census_vintage` or `income_dollar_year` is given with a
+                strategy other than 'realistic' (only that strategy reads census
+                data), or a vintage has no data for this state.
         """
-        if census_vintage is not None and strategy != "realistic":
-            raise ValueError(
-                f"census_vintage only applies to strategy='realistic' (got strategy='{strategy}'); "
-                "other strategies don't sample from census data."
-            )
+        for name, value in (("census_vintage", census_vintage), ("income_dollar_year", income_dollar_year)):
+            if value is not None and strategy != "realistic":
+                raise ValueError(
+                    f"{name} only applies to strategy='realistic' (got strategy='{strategy}'); "
+                    "other strategies don't sample from census data."
+                )
         rng = random.Random(seed)
         if seed is not None:
             Faker.seed(seed)
 
         if strategy == "realistic":
-            return _build_realistic_profile(state=state, rng=rng, census_vintage=census_vintage)
+            return _build_realistic_profile(
+                state=state, rng=rng, census_vintage=census_vintage, income_dollar_year=income_dollar_year
+            )
 
         # uniform (default): national-level approximations
         hh_size = rng.choices(
@@ -467,10 +477,15 @@ def _age_consistent_with(has_elderly: bool, rng: random.Random, *, young: tuple[
     return rng.randint(60, 85) if has_elderly else rng.randint(young[0], min(young[1], 59))
 
 
+# Monthly income above which a 'realistic' draw is redrawn ($600,000/year in the vintage's dollars).
+_REALISTIC_INCOME_CAP = 50_000.0
+
+
 def _build_realistic_profile(
     state: str,
     rng: random.Random,
     census_vintage: CensusVintage | int | str | None = None,
+    income_dollar_year: int | None = None,
 ) -> USHouseholdProfile:
     """Build a profile sampled from Census ACS state-level distributions.
 
@@ -501,8 +516,23 @@ def _build_realistic_profile(
     # Step 3: household size from ACS weights
     hh_size = rng.choices(list(range(1, 7)), weights=dist.household_size_weights)[0]
 
-    # Step 4: monthly gross income -- lognormal fitted to ACS income brackets
-    gross = min(max(round(rng.lognormvariate(dist.income_mu, dist.income_sigma), -1), 0), 15000)
+    # Step 4: monthly gross income -- lognormal fitted to ACS income brackets, in the
+    # vintage's dollars. Draws above the cap are redrawn rather than clamped: clamping
+    # used to put ~21% of profiles at exactly $15,000/month once the top income brackets
+    # were labeled correctly (#11). The cap only trims the fitted lognormal's extreme tail.
+    draw = _REALISTIC_INCOME_CAP
+    for _ in range(50):
+        candidate = rng.lognormvariate(dist.income_mu, dist.income_sigma)
+        if candidate <= _REALISTIC_INCOME_CAP:
+            draw = candidate
+            break
+    dollar_year = dist.dollar_year
+    if income_dollar_year is not None and dollar_year is not None:
+        from govsynth.sources.us.cpi import inflation_factor
+
+        draw *= inflation_factor(dollar_year, income_dollar_year)
+        dollar_year = income_dollar_year
+    gross = max(round(draw, -1), 0)
 
     # Step 5: age of householder -- Normal(mu, sigma) fitted to ACS B25007, clamped to [18, 80].
     # Drawn before the elderly/disabled flag so the flag can be conditioned on it.
@@ -570,6 +600,7 @@ def _build_realistic_profile(
         shelter_costs=shelter,
         age_of_head=age,
         census_vintage=dist.vintage,
+        income_dollar_year=dollar_year,
     )
 
 

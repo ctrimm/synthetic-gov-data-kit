@@ -10,6 +10,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- `govsynth validate-distribution` and `govsynth.evaluation.representativeness` (#12): compare
+  `realistic` profiles with their census targets (4-SE tolerances) and check the targets against
+  plausible ranges; run for all 51 jurisdictions in the test suite.
+- CPI-U restatement (#11): `data/thresholds/cpi_u_annual.json` (BLS CPI-U via FRED,
+  `scripts/import_cpi.py`) and `income_dollar_year` on `USHouseholdProfile.random`. SNAP with a
+  fixed fiscal year and Medicaid restate census incomes into the rules year's dollars and record
+  `metadata["income_dollar_year"]`.
 - CHIP and children's Medicaid (#18): `CHIPSource` and `CHIPEligibilityGenerator` (Medicaid /
   CHIP-funded Medicaid / separate CHIP / ineligible, by age group and insurance status), CY2026,
   all 50 states + DC from the KFF/Georgetown January 2026 table; presets `chip.va|ca|tx|md`.
@@ -79,6 +86,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `is_homeless` parameter on `SNAPSource.calculate_net_income()` for homeless shelter deduction
 
 ### Fixed
+- `realistic` income no longer piles up at $15,000/month (~21% of profiles): draws above the
+  cap are redrawn instead of clamped, and the cap is raised to $50,000/month (#11).
 - SNAP BBCE tables for FY2021–FY2025 are now verified row by row against each year's FNS
   BBCE States Chart (May 2020 – Aug 2024), replacing values carried back from FY2026 (#23).
   23 rows changed across the five years — e.g. Virginia had no BBCE in FY2021, Louisiana was

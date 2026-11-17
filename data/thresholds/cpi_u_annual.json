@@ -1,0 +1,60 @@
+{
+  "_metadata": {
+    "type": "cpi_u_annual_average",
+    "series": "CPI-U, U.S. city average, all items, NSA (BLS CUUR0000SA0; FRED CPIAUCNS), 1982-84=100",
+    "source": "U.S. Bureau of Labor Statistics, via Federal Reserve Bank of St. Louis FRED",
+    "source_url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCNS",
+    "retrieved": "2026-11-17",
+    "verification_status": "verified",
+    "verification_note": "Complete-year averages equal the BLS published CPI-U annual averages (e.g. 2022 292.655, 2023 304.702, 2024 313.689). Years with missing months are averages of the published months only and are marked complete=false."
+  },
+  "annual": {
+    "2019": {
+      "average": 255.657,
+      "months": 12,
+      "complete": true
+    },
+    "2020": {
+      "average": 258.811,
+      "months": 12,
+      "complete": true
+    },
+    "2021": {
+      "average": 270.97,
+      "months": 12,
+      "complete": true
+    },
+    "2022": {
+      "average": 292.655,
+      "months": 12,
+      "complete": true
+    },
+    "2023": {
+      "average": 304.702,
+      "months": 12,
+      "complete": true
+    },
+    "2024": {
+      "average": 313.689,
+      "months": 12,
+      "complete": true
+    },
+    "2025": {
+      "average": 321.943,
+      "months": 11,
+      "complete": false,
+      "missing_months": [
+        "2025-10"
+      ]
+    },
+    "2026": {
+      "average": 332.769,
+      "months": 10,
+      "complete": false,
+      "missing_months": [
+        "2026-11",
+        "2026-12"
+      ]
+    }
+  }
+}
