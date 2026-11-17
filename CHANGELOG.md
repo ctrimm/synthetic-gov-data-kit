@@ -10,6 +10,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- SNAP caseload population (#9): `population="caseload"` (CLI `--population caseload`) samples
+  households that actually receive SNAP, from the FNS *Characteristics of SNAP Households: FY2024*
+  (SNAP QC) tables in `data/caseload/snap_qc_fy2024.json` (`scripts/import_snap_qc.py`). A joint
+  table is fit by IPF to the report's national cross-tabs and raked to each state's poverty,
+  composition and income-source shares; `validate-distribution --population caseload` and the
+  tests check every state against the QC targets. Profiles record `income_sources`.
 - Joint household types from ACS PUMS (#8): `realistic` profiles for acs5-2024 draw a whole
   weighted household type (size, income band, elderly/disabled, children, earnings, head
   citizenship, head age band, earned share) per state, built by

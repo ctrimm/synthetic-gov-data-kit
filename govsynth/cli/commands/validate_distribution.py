@@ -1,8 +1,9 @@
 """govsynth validate-distribution command.
 
 Samples 'realistic' profiles and checks them against the census targets they are
-drawn from (see govsynth.evaluation.representativeness). Exits 1 if any metric is
-outside tolerance, so it can gate CI.
+drawn from (see govsynth.evaluation.representativeness), or with
+--population caseload, SNAP caseload profiles against the SNAP Quality Control
+tables. Exits 1 if any metric is outside tolerance, so it can gate CI.
 """
 
 from __future__ import annotations
@@ -23,27 +24,40 @@ def validate_distribution(
     ] = None,
     n: Annotated[int, typer.Option("--n", "-n", help="Profiles to sample per state")] = 3000,
     seed: Annotated[int, typer.Option(help="Base seed")] = 42,
+    population: Annotated[
+        str, typer.Option("--population", help="'general' (ACS targets) or 'caseload' (SNAP QC targets)")
+    ] = "general",
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
     """Check that realistic profiles reproduce their census targets."""
-    from govsynth.evaluation.representativeness import check_state, plausibility_problems
+    from govsynth.evaluation.representativeness import check_caseload, check_state, plausibility_problems
 
     console = make_console()
     states = sorted(FIPS_CODES) if state.lower() == "all" else [state.upper()]
     if states[0] not in FIPS_CODES:
         console.print(f"[red]Error:[/red] Unknown state '{state}'. Use a two-letter code or 'all'.")
         raise typer.Exit(2)
+    if population not in ("general", "caseload"):
+        console.print(f"[red]Error:[/red] --population must be 'general' or 'caseload', got '{population}'.")
+        raise typer.Exit(2)
+    if population == "caseload" and census_year is not None:
+        console.print("[red]Error:[/red] --census-year does not apply to --population caseload (SNAP QC FY2024).")
+        raise typer.Exit(2)
 
     report: list[dict[str, Any]] = []
     failed = 0
     for code in states:
         try:
-            checks = check_state(code, vintage=census_year, n=n, seed=seed)
+            checks = (
+                check_caseload(code, n=n, seed=seed)
+                if population == "caseload"
+                else check_state(code, vintage=census_year, n=n, seed=seed)
+            )
         except ValueError as exc:
             console.print(f"[red]Error:[/red] {exc}")
             raise typer.Exit(2) from exc
         bad = [c for c in checks if not c.ok]
-        implausible = plausibility_problems(code, census_year)
+        implausible = plausibility_problems(code, census_year) if population == "general" else []
         failed += len(bad) + len(implausible)
         report.append(
             {"state": code, "ok": not bad and not implausible, "checks": [c.as_dict() for c in checks],
