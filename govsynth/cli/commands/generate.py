@@ -41,6 +41,14 @@ def generate(
             f"{DEFAULT_CENSUS_VINTAGE.label}",
         ),
     ] = None,
+    fixed_policy_year: Annotated[
+        bool,
+        typer.Option(
+            "--fixed-policy-year",
+            help="With --profile-strategy realistic, apply the preset's fiscal-year rules to every case "
+            "instead of the rules of each profile's census year (SNAP).",
+        ),
+    ] = False,
     quiet: Annotated[bool, typer.Option("--quiet", "-q")] = False,
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
@@ -52,7 +60,11 @@ def generate(
     try:
         census_years = normalize_census_years(census_year) if census_year else None
         pipeline = Pipeline.from_preset(
-            preset, profile_strategy=profile_strategy, console=console, census_years=census_years
+            preset,
+            profile_strategy=profile_strategy,
+            console=console,
+            census_years=census_years,
+            match_census_year=not fixed_policy_year,
         )
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")

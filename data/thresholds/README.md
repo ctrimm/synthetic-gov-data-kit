@@ -19,8 +19,11 @@ us_fpl_{year}.json         — HHS Poverty Guidelines (calendar year, published 
 | File | Period | In Effect |
 |---|---|---|
 | `snap_fy2026.json` | FY2026 | Oct 1, 2025 – Sep 30, 2026 |
+| `snap_fy2021.json` … `snap_fy2025.json` | FY2021–FY2025 | Oct 1, 2020 – Sep 30, 2025 |
+| `snap_bbce_fy2021.json` … `snap_bbce_fy2025.json` | FY2021–FY2025 | per-state BBCE (estimated percentages) |
 | `wic_fy2026.json` | FY2026 | Oct 1, 2025 – Sep 30, 2026 |
 | `medicaid_cy2026.json` | CY2026 | Jan 1, 2026 – Dec 31, 2026 |
+| `us_fpl_2020.json` … `us_fpl_2024.json` | CY2020–CY2024 | basis for SNAP FY2021–FY2025 |
 | `us_fpl_2025.json` | CY2025 | ~Jan 15, 2025 onward |
 | `us_fpl_2026.json` | CY2026 | ~Jan 15, 2026 onward |
 
@@ -104,13 +107,12 @@ production evaluations. Incorrect thresholds produce incorrect ground-truth labe
 When a new fiscal year begins (October 1) or new FPL guidelines are published (January):
 
 ```bash
-# Copy the prior year file as starting point
-cp snap_fy2026.json snap_fy2027.json
+# SNAP: add the year's FNS PDF URLs to SOURCES in scripts/import_snap_cola.py, then
+python scripts/import_snap_cola.py 2027     # downloads, parses, verifies against us_fpl_2026.json
 
-# Update _metadata, fiscal_year, federal_fy_start/end, fpl_basis_year
-# Update all household dollar amounts from official published tables
+# Other programs: copy the prior year file and update every value from official tables
+cp wic_fy2026.json wic_fy2027.json
 # Set verification_status to "verified" once confirmed
-# Run: pytest tests/unit/test_thresholds.py
 ```
 
 The `govsynth.fiscal_year` module's `FEDERAL_FY_TO_FPL_YEAR` dict must also be updated

@@ -59,6 +59,9 @@ PROGRAM_FISCAL_CALENDARS: dict[str, FiscalCalendar] = {
 #   FY2026 (Oct 2025–Sep 2026) → built from 2025 HHS poverty guidelines
 #   FY2025 (Oct 2024–Sep 2025) → built from 2024 HHS poverty guidelines
 FEDERAL_FY_TO_FPL_YEAR: dict[int, int] = {
+    2021: 2020,
+    2022: 2021,
+    2023: 2022,
     2024: 2023,
     2025: 2024,
     2026: 2025,

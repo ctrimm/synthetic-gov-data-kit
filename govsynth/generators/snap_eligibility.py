@@ -154,6 +154,8 @@ class SNAPEligibilityGenerator(Generator):
         # invariant that would have caught it: every generated case's
         # `expected_outcome` must agree with `SNAPBBCESource.is_eligible`.
         self.bbce_source = SNAPBBCESource(fiscal_year=fiscal_year, state=state)
+        # Per-fiscal-year siblings used when realistic profiles follow their census year.
+        self._fy_generators: dict[int, SNAPEligibilityGenerator] = {}
 
     @property
     def program(self) -> str:
@@ -169,6 +171,7 @@ class SNAPEligibilityGenerator(Generator):
         scenario_phrasing_style: str | None = None,
         builder_weights: dict[str, float] | None = None,
         census_years: Sequence[CensusVintage | int | str] | CensusVintage | int | str | None = None,
+        match_census_year: bool = True,
     ) -> list[TestCase]:
         """Generate n SNAP eligibility test cases.
 
@@ -210,6 +213,13 @@ class SNAPEligibilityGenerator(Generator):
             each case records its vintage in metadata["census_vintage"]. None
             uses DEFAULT_CENSUS_VINTAGE. Only valid with 'realistic'.
 
+        match_census_year: With 'realistic' profiles, apply the SNAP rules of the
+            fiscal year matching each profile's census year (ACS 2022 data ->
+            FY2022 limits, deductions, allotments and BBCE parameters), so a
+            household is never judged by rules from a different year than the
+            population it was drawn from. Set False to apply this generator's
+            own `fiscal_year` to every case instead. Ignored by other strategies.
+
         When profile_strategy is 'edge_saturated', 20% of cases (minimum 1 per special
         type if n >= 6) are special-population edge cases. The remainder use threshold-boundary
         profiles.
@@ -247,8 +257,9 @@ class SNAPEligibilityGenerator(Generator):
                     strategy=profile_strategy,
                     census_vintage=years[i % len(years)] if years else None,
                 )
+                builder = self._generator_for_profile(profile) if match_census_year else self
                 try:
-                    case = self._build_case(
+                    case = builder._build_case(
                         profile,
                         case_seed,
                         i,
@@ -319,6 +330,60 @@ class SNAPEligibilityGenerator(Generator):
             ("_build_bbce_expanded_income_case", self._build_bbce_expanded_income_case),
         ]
 
+    def _generator_for_profile(self, profile: USHouseholdProfile) -> SNAPEligibilityGenerator:
+        """The generator whose fiscal year matches a realistic profile's census year.
+
+        ACS year Y maps to SNAP FY Y: FY Y runs October Y-1 to September Y, so it
+        covers nine of the twelve months the ACS year measures. Profiles without a
+        census vintage (non-realistic strategies, or built-in fallback numbers) use
+        this generator unchanged.
+
+        Raises:
+            ValueError: If the census year has no bundled SNAP threshold data.
+        """
+        if profile.census_vintage is None:
+            return self
+        fiscal_year = CensusVintage.parse(profile.census_vintage).year
+        if fiscal_year == self.fiscal_year:
+            return self
+        cached = self._fy_generators.get(fiscal_year)
+        if cached is None:
+            try:
+                cached = SNAPEligibilityGenerator(fiscal_year=fiscal_year, state=self.state)
+            except FileNotFoundError as exc:
+                raise ValueError(
+                    f"Census vintage {profile.census_vintage} maps to SNAP FY{fiscal_year}, which has no bundled "
+                    f"threshold data ({exc}). Pass match_census_year=False to apply FY{self.fiscal_year} rules."
+                ) from exc
+            self._fy_generators[fiscal_year] = cached
+        return cached
+
+    @property
+    def _cfr_edition_year(self) -> int:
+        """eCFR edition cited for this fiscal year: the calendar year the FY starts in.
+
+        FY2026 (Oct 2025 - Sep 2026) cites the 2025 edition, which is what every
+        citation said when FY2026 was the only year supported.
+        """
+        return self.fiscal_year - 1
+
+    @property
+    def _bbce_chart_label(self) -> str:
+        """Which BBCE source backs this fiscal year's state parameters."""
+        if self.fiscal_year == 2026:
+            return "State BBCE options (August 2025)"
+        return f"State BBCE options, FY{self.fiscal_year} (adoption per SNAP State Options Report; limits estimated)"
+
+    @property
+    def _bbce_chart_citation(self) -> str:
+        """Source citation for the BBCE parameters used in this fiscal year."""
+        if self.fiscal_year == 2026:
+            return "USDA FNS SNAP BBCE States Chart (August 2025)"
+        return (
+            f"USDA FNS SNAP State Options Report (BBCE adoption, FY{self.fiscal_year}); "
+            "BBCE limits carried back from the August 2025 BBCE States Chart (estimated)"
+        )
+
     @property
     def supports_bbce_expanded_income(self) -> bool:
         """Whether this jurisdiction can support a BBCE expanded-gross-limit case.
@@ -349,16 +414,39 @@ class SNAPEligibilityGenerator(Generator):
     ) -> list[tuple[str, Callable[[random.Random], TestCase]]]:
         """`_special_population_builders`, minus any this jurisdiction cannot honour.
 
-        Only `_build_bbce_expanded_income_case` is ever filtered out, and only for
-        a jurisdiction with no gross-income band above the federal limit (see
-        `supports_bbce_expanded_income`). `_special_population_builders` itself
-        stays the full canonical list so a rename is still caught by
-        `test_builder_names_match_their_callables`.
+        `_build_bbce_expanded_income_case` is filtered out for a jurisdiction with
+                no gross-income band above the federal limit (see
+                `supports_bbce_expanded_income`), and builders whose rule was not in force
+                in this fiscal year are filtered out by `_builders_not_in_force`. `_special_population_builders` itself
+                stays the full canonical list so a rename is still caught by
+                `test_builder_names_match_their_callables`.
         """
         builders = self._special_population_builders()
-        if self.supports_bbce_expanded_income:
-            return builders
-        return [(name, fn) for name, fn in builders if name != "_build_bbce_expanded_income_case"]
+        excluded = set(self._builders_not_in_force())
+        if not self.supports_bbce_expanded_income:
+            excluded.add("_build_bbce_expanded_income_case")
+        return [(name, fn) for name, fn in builders if name not in excluded]
+
+    def _builders_not_in_force(self) -> dict[str, str]:
+        """Special-population builders whose rule did not apply in this fiscal year.
+
+        Each builder encodes the law as it stands in FY2026. Where that rule is
+        different in an earlier fiscal year, generating the case for that year
+        would put a wrong label in front of the model, so the builder is skipped
+        instead (name -> reason).
+        """
+        out: dict[str, str] = {}
+        if self.fiscal_year < 2026:
+            out["_build_noncitizen_status_case"] = (
+                "encodes P.L. 119-21 sec. 10108 (enacted 2025-07-04), which narrowed noncitizen eligibility; "
+                "earlier fiscal years follow the prior 7 U.S.C. 2015(f) rules"
+            )
+        if self.fiscal_year <= 2023:
+            out["_build_student_case"] = (
+                "temporary student exemptions (Consolidated Appropriations Act, 2021, sec. 702(e)) applied "
+                "from January 2021 until the COVID-19 public health emergency ended in 2023"
+            )
+        return out
 
     def _gross_limit(self, household_size: int) -> float:
         """The monthly gross income limit that actually governs in this jurisdiction.
@@ -540,7 +628,7 @@ class SNAPEligibilityGenerator(Generator):
         outcome = "eligible" if is_eligible else "ineligible"
         case_id = f"snap.{self.state.lower()}.eligibility.homeless_shelter_deduction.{outcome}.hh{hh_size}.{uid}"
 
-        std_ded = get_standard_deduction(hh_size)
+        std_ded = get_standard_deduction(hh_size, fiscal_year=self.fiscal_year)
         earned_ded = gross * 0.20
         after_earned = gross - earned_ded
         after_standard = after_earned - std_ded
@@ -576,7 +664,7 @@ class SNAPEligibilityGenerator(Generator):
             ),
             ReasoningStep(
                 step_number=3,
-                title="Apply homeless shelter deduction (flat $198.99)",
+                title=f"Apply homeless shelter deduction (flat ${homeless_ded:,.2f})",
                 rule_applied="7 CFR 273.9(c)(6)",
                 inputs={"homeless_shelter_deduction": homeless_ded},
                 computation=(
@@ -628,7 +716,8 @@ class SNAPEligibilityGenerator(Generator):
             expected_outcome=outcome,
             expected_answer=(
                 f"This household is {'ELIGIBLE' if is_eligible else 'INELIGIBLE'} for SNAP. "
-                f"As a homeless household, the flat $198.99 homeless shelter deduction (7 CFR 273.9(c)(6)) "
+                f"As a homeless household, the flat ${homeless_ded:,.2f} homeless shelter deduction "
+                "(7 CFR 273.9(c)(6)) "
                 f"is applied INSTEAD OF the excess shelter deduction — these are mutually exclusive. "
                 f"Net income after deductions: ${net_income:,.2f}."
             ),
@@ -646,7 +735,7 @@ class SNAPEligibilityGenerator(Generator):
             ),
             variation_tags=["homeless_shelter_deduction"],
             source_citations=[
-                "7 CFR Part 273 (2025)",
+                f"7 CFR Part 273 ({self._cfr_edition_year})",
                 f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}",
             ],
             seed=None,
@@ -780,7 +869,7 @@ class SNAPEligibilityGenerator(Generator):
             ),
             variation_tags=["student_exclusion"],
             source_citations=[
-                "7 CFR Part 273 (2025)",
+                f"7 CFR Part 273 ({self._cfr_edition_year})",
                 f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}",
             ],
             seed=None,
@@ -932,7 +1021,7 @@ class SNAPEligibilityGenerator(Generator):
             ),
             variation_tags=["boarder_income_proration"],
             source_citations=[
-                "7 CFR Part 273 (2025)",
+                f"7 CFR Part 273 ({self._cfr_edition_year})",
                 f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}",
             ],
             seed=None,
@@ -1236,7 +1325,7 @@ class SNAPEligibilityGenerator(Generator):
             ),
             variation_tags=["self_employment_cost_of_doing_business"],
             source_citations=[
-                "7 CFR Part 273 (2025)",
+                f"7 CFR Part 273 ({self._cfr_edition_year})",
                 f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}",
             ],
             seed=None,
@@ -1982,7 +2071,7 @@ class SNAPEligibilityGenerator(Generator):
             ),
             variation_tags=["migrant_income_averaging"],
             source_citations=[
-                "7 CFR Part 273 (2025)",
+                f"7 CFR Part 273 ({self._cfr_edition_year})",
                 f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}",
             ],
             seed=None,
@@ -2201,7 +2290,7 @@ class SNAPEligibilityGenerator(Generator):
             ),
             variation_tags=["mixed_immigration_status_hh_size_reduction"],
             source_citations=[
-                "7 CFR Part 273 (2025)",
+                f"7 CFR Part 273 ({self._cfr_edition_year})",
                 f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}",
             ],
             seed=None,
@@ -2340,7 +2429,7 @@ class SNAPEligibilityGenerator(Generator):
             ),
             variation_tags=["categorical_eligibility_tanf_ssi"],
             source_citations=[
-                "7 CFR Part 273 (2025)",
+                f"7 CFR Part 273 ({self._cfr_edition_year})",
                 f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}",
             ],
             seed=None,
@@ -2583,7 +2672,7 @@ class SNAPEligibilityGenerator(Generator):
                     ),
                     PolicyCitation(
                         document="USDA FNS SNAP Broad-Based Categorical Eligibility States Chart",
-                        section="State BBCE options (August 2025)",
+                        section=self._bbce_chart_label,
                         year=self.fiscal_year,
                         url="https://www.fns.usda.gov/snap/broad-based-categorical-eligibility",
                     ),
@@ -2591,8 +2680,8 @@ class SNAPEligibilityGenerator(Generator):
             ),
             variation_tags=["bbce_expanded_gross_limit", "bbce_state"],
             source_citations=[
-                "7 CFR Part 273 (2025)",
-                "USDA FNS SNAP BBCE States Chart (August 2025)",
+                f"7 CFR Part 273 ({self._cfr_edition_year})",
+                self._bbce_chart_citation,
                 f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}",
             ],
             seed=None,
@@ -2773,7 +2862,7 @@ class SNAPEligibilityGenerator(Generator):
             rationale_trace=trace,
             variation_tags=self._build_variation_tags(profile),
             source_citations=[
-                "7 CFR Part 273 (2025)",
+                f"7 CFR Part 273 ({self._cfr_edition_year})",
                 f"USDA FNS SNAP Income and Resource Limits {fy_config.period_label}",
             ],
             seed=seed,
@@ -2797,7 +2886,7 @@ class SNAPEligibilityGenerator(Generator):
     ) -> RationaleTrace:
         """Construct the step-by-step reasoning chain for SNAP eligibility."""
         steps: list[ReasoningStep] = []
-        std_ded = get_standard_deduction(profile.household_size)
+        std_ded = get_standard_deduction(profile.household_size, fiscal_year=self.fiscal_year)
         t = self.bbce_source.thresholds()
         bbce = self.bbce_source.is_bbce
         gross_pct = self.bbce_source.bbce_params.gross_income_limit_pct_fpl
@@ -3051,7 +3140,7 @@ class SNAPEligibilityGenerator(Generator):
         benefit: float = 0.0,
     ) -> str:
         t = self.bbce_source.thresholds()
-        std_ded = get_standard_deduction(profile.household_size)
+        std_ded = get_standard_deduction(profile.household_size, fiscal_year=self.fiscal_year)
         earned = profile.earned_income or profile.monthly_gross_income
         earned_ded = earned * 0.20
         gross_pct = self.bbce_source.bbce_params.gross_income_limit_pct_fpl

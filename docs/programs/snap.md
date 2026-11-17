@@ -64,8 +64,7 @@ Pipeline.from_preset("snap.va", profile_strategy="edge_saturated")
 # Recommended for stress-testing LLM reasoning
 
 Pipeline.from_preset("snap.va", profile_strategy="realistic")
-# Census ACS distributions — representative of real applicants
-# Requires: govsynth refresh-census-data --state VA
+# Census ACS distributions; SNAP rules follow each profile's census year
 
 Pipeline.from_preset("snap.va", profile_strategy="uniform")
 # National approximations, no census data required
@@ -147,12 +146,45 @@ govsynth generate snap.va --n 100 --seed 42 --format jsonl | \
 
 ---
 
+## Fiscal Years
+
+SNAP rules are bundled for **FY2021–FY2026** (`data/thresholds/snap_fy20XX.json`), each
+transcribed from FNS's COLA tables by `scripts/import_snap_cola.py`, with every income
+limit checked against the prior year's HHS poverty guidelines (`us_fpl_20XX.json`).
+
+```python
+SNAPEligibilityGenerator(fiscal_year=2022, state="VA").generate(n=100, seed=42)
+```
+
+With `profile_strategy="realistic"`, each case uses the fiscal year matching its census
+year (ACS year Y → FY Y, which covers October Y-1 to September Y, nine of the twelve
+months ACS year Y measures). `match_census_year=False` / `--fixed-policy-year` turns
+that off.
+
+| | FY2021–FY2025 | FY2026 |
+|---|---|---|
+| Income limits, allotments, deductions, asset limits | ✅ verified, FNS tables | ✅ verified |
+| Which states had BBCE | ✅ FY2023–25 per State Options Reports; FY2021–22 carried back | ✅ BBCE chart |
+| Each BBCE state's gross % and asset rule | ⚠️ estimated: carried back from the FY2026 chart | ✅ |
+| Noncitizen builder (P.L. 119-21) | skipped: law not yet enacted | ✅ |
+| Student builder | skipped FY2021–23 (pandemic exemptions); ✅ FY2024–25 | ✅ |
+
+**Not modeled** (recorded in each file's `_metadata.not_modeled`): the temporary 15%
+allotment increase (Jan–Sep 2021) and COVID-19 emergency allotments (through Feb 2023).
+These raised benefit *amounts*; eligibility determinations are unaffected, but the
+`monthly_allotment` in FY2021–FY2023 cases is the regular COLA amount.
+
+**Check:** the FNS State Options Reports list Alaska and Arkansas as "No BBCE" as of
+October 2022, 2023 and 2024, while `snap_bbce_fy2026.json` (August 2025 chart) has both
+as BBCE. Either they adopted it in 2025 or the FY2026 rows need re-checking.
+
 ## Policy Data Sources
 
 | Source | What it covers |
 |---|---|
 | [7 CFR Part 273](https://www.ecfr.gov/current/title-7/part-273) | Full eligibility rules, deductions, income definitions |
 | [FNS SNAP COLA FY2026 Memo](https://www.fns.usda.gov/snap/allotment/COLA) | FY2026 income limits and allotment tables |
+| FNS FY2021–FY2025 COLA tables | Per-year PDFs listed in `scripts/import_snap_cola.py` and each file's `_metadata` |
 | [FNS State Options Report](https://www.fns.usda.gov/snap/state-options-report) | BBCE state list, categorical eligibility options |
 | [FNS BBCE States Chart](https://www.fns.usda.gov/snap/broad-based-categorical-eligibility) | Per-state BBCE gross income limits and asset rules (basis for `snap_bbce_fy2026.json`) |
 | `data/thresholds/snap_fy2026.json` | Bundled threshold table (income limits, asset limits, deductions) |
