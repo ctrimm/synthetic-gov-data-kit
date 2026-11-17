@@ -10,6 +10,7 @@ that apply regardless of expansion status.
 from __future__ import annotations
 
 import random
+from collections.abc import Sequence
 
 from govsynth.fiscal_year import DEFAULT_MEDICAID_CY
 from govsynth.generators.base import Generator
@@ -18,9 +19,12 @@ from govsynth.models.rationale import PolicyCitation, RationaleTrace, ReasoningS
 from govsynth.models.test_case import ScenarioBlock, TaskBlock, TestCase
 from govsynth.profiles.us_household import USHouseholdProfile
 from govsynth.reasoning.rules_engine import build_case_id, build_short_uid, build_threshold_test_step
+from govsynth.sources.us.census import CensusVintage, census_years_for_strategy
 from govsynth.sources.us.medicaid import MedicaidSource
 
 _APPLICANT_TYPES = ["adult", "pregnant", "child_0_18", "parent_caretaker"]
+
+_STRATEGIES = ("edge_saturated", "uniform", "realistic")
 
 _APPLICANT_ROLE_DESC = {
     "adult": "a childless adult",
@@ -60,40 +64,75 @@ class MedicaidEligibilityGenerator(Generator):
         n: int,
         profile_strategy: str = "edge_saturated",
         seed: int | None = None,
+        census_years: Sequence[CensusVintage | int | str] | CensusVintage | int | str | None = None,
     ) -> list[TestCase]:
-        """Generate n Medicaid eligibility test cases."""
+        """Generate n Medicaid eligibility test cases.
+
+        Args:
+            n: Number of cases to generate. Exactly n are returned.
+            profile_strategy: 'edge_saturated' (default) places each household's MAGI on
+                and around its applicant type's income limit, where determinations are
+                hardest. 'uniform' and 'realistic' take household size and income from
+                the sampled profile instead ('realistic' samples from Census ACS data).
+            seed: RNG seed for reproducibility.
+            census_years: ACS release(s) for 'realistic' profiles (see
+                SNAPEligibilityGenerator.generate); spread round-robin across cases.
+                Only valid with 'realistic'. Medicaid limits stay at `calendar_year`.
+
+        Raises:
+            ValueError: On an unknown profile_strategy, or census_years with a
+                strategy other than 'realistic'.
+            RuntimeError: If a case cannot be built. Cases are never silently dropped.
+        """
+        if profile_strategy not in _STRATEGIES:
+            raise ValueError(f"Unknown profile_strategy {profile_strategy!r}; expected one of {_STRATEGIES}")
+        years = census_years_for_strategy(census_years, profile_strategy)
         rng = random.Random(seed)
         cases: list[TestCase] = []
 
         for i in range(n):
             case_seed = rng.randint(0, 2**31) if seed is not None else None
+            vintage = years[i % len(years)] if years else None
             try:
-                case = self._build_case(rng, case_seed)
-                cases.append(case)
+                cases.append(self._build_case(rng, case_seed, profile_strategy, vintage))
             except Exception as exc:
-                print(f"  Warning: skipped Medicaid case {i}: {exc}")
+                raise RuntimeError(f"Medicaid case {i} of {n} failed to build: {exc}") from exc
 
         return cases
 
-    def _build_case(self, rng: random.Random, seed: int | None) -> TestCase:
+    def _build_case(
+        self,
+        rng: random.Random,
+        seed: int | None,
+        profile_strategy: str = "edge_saturated",
+        census_vintage: CensusVintage | int | str | None = None,
+    ) -> TestCase:
         applicant_type = rng.choice(_APPLICANT_TYPES)
-        hh_size = rng.choices([1, 2, 3, 4], weights=[0.40, 0.30, 0.20, 0.10])[0]
-
         income_limit = self.source.get_income_limit(applicant_type)
         expansion = self.source.is_expansion_state()
 
-        if income_limit is None:
-            # Adult in a non-expansion state: no MAGI Medicaid path at any
-            # income — the coverage gap itself. Sample a plausible low income.
-            magi = round(rng.uniform(200, 2000), 2)
+        if profile_strategy == "edge_saturated":
+            # Draw order is unchanged from before strategies were honoured, so
+            # edge-saturated output for a given seed is identical.
+            hh_size = rng.choices([1, 2, 3, 4], weights=[0.40, 0.30, 0.20, 0.10])[0]
+            if income_limit is None:
+                # Adult in a non-expansion state: no MAGI Medicaid path at any
+                # income — the coverage gap itself. Sample a plausible low income.
+                magi = round(rng.uniform(200, 2000), 2)
+            else:
+                # Place income near the limit so PASS/FAIL outcomes vary.
+                offset = rng.choice([-0.15, -0.05, 0.0, 0.05, 0.15])
+                magi = round(max(0.0, income_limit * (1 + offset)), 2)
+            profile = USHouseholdProfile.random(state=self.state, seed=seed, strategy="uniform")
+            profile.household_size = hh_size
+            profile.monthly_gross_income = magi
         else:
-            # Place income near the limit so PASS/FAIL outcomes vary.
-            offset = rng.choice([-0.15, -0.05, 0.0, 0.05, 0.15])
-            magi = round(max(0.0, income_limit * (1 + offset)), 2)
-
-        profile = USHouseholdProfile.random(state=self.state, seed=seed, strategy="uniform")
-        profile.household_size = hh_size
-        profile.monthly_gross_income = magi
+            # Household size and income come from the sampled profile itself.
+            profile = USHouseholdProfile.random(
+                state=self.state, seed=seed, strategy=profile_strategy, census_vintage=census_vintage
+            )
+            hh_size = profile.household_size
+            magi = round(profile.monthly_gross_income, 2)
         profile.monthly_net_income = magi  # MAGI has no SNAP-style deductions
 
         is_eligible, reason = self.source.is_eligible(hh_size, magi, applicant_type)
@@ -159,6 +198,8 @@ class MedicaidEligibilityGenerator(Generator):
                 "state": self.state,
                 "calendar_year": self.calendar_year,
                 "applicant_type": applicant_type,
+                "profile_strategy": profile_strategy,
+                **({"census_vintage": profile.census_vintage} if profile.census_vintage else {}),
             },
         )
 

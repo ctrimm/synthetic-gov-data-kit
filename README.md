@@ -165,13 +165,13 @@ the 1-year estimates. Each case records its vintage in `metadata["census_vintage
 YAML, JSONL and CSV outputs carry it too. Requesting a year with no data fails up front
 rather than silently falling back.
 
-Bundled: Virginia and national, for `acs5` 2021-2024 and `acs1` 2021-2025. States without
-their own file use the same year's national file (with a warning). Fetch more with:
+Bundled: all 50 states, DC and national, for `acs5` 2021-2024 and `acs1` 2021-2025
+(468 files, ~4 MB). A jurisdiction without its own file (Guam, the Virgin Islands) uses the
+same year's national file, with a warning. Refresh or add a year with:
 
 ```bash
-govsynth refresh-census-data --state TX --year 2024              # one state, 5-year
-govsynth refresh-census-data --state TX --year 2025 --survey acs1  # one state, 1-year
 govsynth refresh-census-data --year 2024                          # all states + DC + national
+govsynth refresh-census-data --state TX --year 2025 --survey acs1  # one state, 1-year
 ```
 
 No API key is needed for ACS 2021 onward: without `CENSUS_API_KEY` the command streams the
