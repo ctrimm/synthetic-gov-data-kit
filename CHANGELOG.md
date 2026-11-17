@@ -10,6 +10,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- LIHEAP (#18): `LIHEAPSource` and `LIHEAPEligibilityGenerator` for heating/cooling/crisis/
+  weatherization income eligibility in VA, CA, TX and MD, FY2026 (presets `liheap.va|ca|tx|md`).
+  Uses the HHS IM2025-02 state median income table (all 51 jurisdictions, every cell checked
+  against the 45 CFR 96.85 formula) and each state's FY2026 plan, including Maryland's
+  household-size %SMI rate and SNAP/TANF/SSI categorical eligibility.
 - Census data for all 50 states + DC + national, for every bundled vintage (ACS 5-year
   2021–2024, 1-year 2021–2025), fetched with the keyless `refresh-census-data` (#10).
   `realistic` profiles no longer fall back to national averages outside Virginia.
