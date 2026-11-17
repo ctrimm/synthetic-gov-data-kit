@@ -1,0 +1,264 @@
+{
+  "_metadata": {
+    "state": "NJ",
+    "acs_vintage": 2024,
+    "acs_survey": "acs5",
+    "dollar_year": 2024,
+    "fetch_date": "2026-11-17",
+    "tables": [
+      "B19001",
+      "C17002",
+      "B25064",
+      "B25070",
+      "B25003",
+      "B25007",
+      "B11016",
+      "B11005",
+      "B11006",
+      "B22010",
+      "B05001",
+      "B22003",
+      "B23025",
+      "B19051",
+      "B19055",
+      "B19056",
+      "B19057",
+      "C27007"
+    ],
+    "notes": {
+      "income": "Household income in dollar_year dollars; not inflated to the program year.",
+      "fpl_buckets": "Persons (C17002), not households. fpl_pct = bin upper bound; null = open-ended.",
+      "pct_elderly_or_disabled": "B11006 (60+) union B22010 (disability), independence assumed; upper bound.",
+      "pct_noncitizen_eligible": "Non-citizen share x 0.54 (DHS LPR share).",
+      "medicaid_coverage_rate": "Persons with Medicaid/means-tested public coverage (C27007)."
+    },
+    "source": "ACS table-based summary file (www2.census.gov)"
+  },
+  "income": {
+    "monthly_lognormal": {
+      "mu": 8.9646,
+      "sigma": 1.1022
+    },
+    "fpl_buckets": [
+      {
+        "fpl_pct": 0.5,
+        "weight": 0.0461
+      },
+      {
+        "fpl_pct": 1.0,
+        "weight": 0.051
+      },
+      {
+        "fpl_pct": 1.25,
+        "weight": 0.0269
+      },
+      {
+        "fpl_pct": 1.5,
+        "weight": 0.0302
+      },
+      {
+        "fpl_pct": 1.85,
+        "weight": 0.0433
+      },
+      {
+        "fpl_pct": 2.0,
+        "weight": 0.0193
+      },
+      {
+        "fpl_pct": null,
+        "weight": 0.7832
+      }
+    ],
+    "buckets_raw": [
+      {
+        "label": "Less than $10,000",
+        "annual_lower": 0,
+        "annual_upper": 10000,
+        "annual_midpoint": 5000.0,
+        "weight": 0.0412
+      },
+      {
+        "label": "$10,000 to $14,999",
+        "annual_lower": 10000,
+        "annual_upper": 15000,
+        "annual_midpoint": 12500.0,
+        "weight": 0.0271
+      },
+      {
+        "label": "$15,000 to $19,999",
+        "annual_lower": 15000,
+        "annual_upper": 20000,
+        "annual_midpoint": 17500.0,
+        "weight": 0.0222
+      },
+      {
+        "label": "$20,000 to $24,999",
+        "annual_lower": 20000,
+        "annual_upper": 25000,
+        "annual_midpoint": 22500.0,
+        "weight": 0.0258
+      },
+      {
+        "label": "$25,000 to $29,999",
+        "annual_lower": 25000,
+        "annual_upper": 30000,
+        "annual_midpoint": 27500.0,
+        "weight": 0.0246
+      },
+      {
+        "label": "$30,000 to $34,999",
+        "annual_lower": 30000,
+        "annual_upper": 35000,
+        "annual_midpoint": 32500.0,
+        "weight": 0.0267
+      },
+      {
+        "label": "$35,000 to $39,999",
+        "annual_lower": 35000,
+        "annual_upper": 40000,
+        "annual_midpoint": 37500.0,
+        "weight": 0.0248
+      },
+      {
+        "label": "$40,000 to $44,999",
+        "annual_lower": 40000,
+        "annual_upper": 45000,
+        "annual_midpoint": 42500.0,
+        "weight": 0.0263
+      },
+      {
+        "label": "$45,000 to $49,999",
+        "annual_lower": 45000,
+        "annual_upper": 50000,
+        "annual_midpoint": 47500.0,
+        "weight": 0.0254
+      },
+      {
+        "label": "$50,000 to $59,999",
+        "annual_lower": 50000,
+        "annual_upper": 60000,
+        "annual_midpoint": 55000.0,
+        "weight": 0.0503
+      },
+      {
+        "label": "$60,000 to $74,999",
+        "annual_lower": 60000,
+        "annual_upper": 75000,
+        "annual_midpoint": 67500.0,
+        "weight": 0.0773
+      },
+      {
+        "label": "$75,000 to $99,999",
+        "annual_lower": 75000,
+        "annual_upper": 100000,
+        "annual_midpoint": 87500.0,
+        "weight": 0.1131
+      },
+      {
+        "label": "$100,000 to $124,999",
+        "annual_lower": 100000,
+        "annual_upper": 125000,
+        "annual_midpoint": 112500.0,
+        "weight": 0.1001
+      },
+      {
+        "label": "$125,000 to $149,999",
+        "annual_lower": 125000,
+        "annual_upper": 150000,
+        "annual_midpoint": 137500.0,
+        "weight": 0.0807
+      },
+      {
+        "label": "$150,000 to $199,999",
+        "annual_lower": 150000,
+        "annual_upper": 200000,
+        "annual_midpoint": 175000.0,
+        "weight": 0.1181
+      },
+      {
+        "label": "$200,000 or more",
+        "annual_lower": 200000,
+        "annual_upper": null,
+        "annual_midpoint": 387278,
+        "weight": 0.2164
+      }
+    ]
+  },
+  "housing": {
+    "median_gross_rent_monthly": 1720,
+    "pct_renter": 0.3617,
+    "rent_burden_pct": 0.5156
+  },
+  "household_size": {
+    "weights": [
+      0.2644,
+      0.3114,
+      0.1708,
+      0.1516,
+      0.0632,
+      0.0386
+    ]
+  },
+  "demographics": {
+    "pct_with_children": 0.3118,
+    "pct_elderly_or_disabled": 0.57,
+    "pct_households_60_plus": 0.4387,
+    "pct_households_with_disability": 0.2339,
+    "pct_citizen": 0.8952,
+    "pct_noncitizen": 0.1048,
+    "pct_noncitizen_eligible": 0.0566,
+    "age": {
+      "mu": 54.21,
+      "sigma": 16.95,
+      "householder_buckets": [
+        {
+          "label": "15 to 24",
+          "weight": 0.018
+        },
+        {
+          "label": "25 to 34",
+          "weight": 0.1318
+        },
+        {
+          "label": "35 to 44",
+          "weight": 0.1801
+        },
+        {
+          "label": "45 to 54",
+          "weight": 0.1866
+        },
+        {
+          "label": "55 to 59",
+          "weight": 0.1019
+        },
+        {
+          "label": "60 to 64",
+          "weight": 0.1019
+        },
+        {
+          "label": "65 to 74",
+          "weight": 0.1591
+        },
+        {
+          "label": "75 to 84",
+          "weight": 0.0855
+        },
+        {
+          "label": "85 and over",
+          "weight": 0.035
+        }
+      ]
+    }
+  },
+  "income_sources": {
+    "labor_force_participation_rate": 0.6641,
+    "pct_households_with_earnings": 0.8004,
+    "pct_social_security": 0.3142,
+    "pct_ssi": 0.0457,
+    "pct_public_assistance": 0.0239
+  },
+  "program_participation": {
+    "snap_receipt_rate": 0.0915,
+    "medicaid_coverage_rate": 0.1808
+  }
+}

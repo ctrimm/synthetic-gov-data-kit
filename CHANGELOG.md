@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- Census data for all 50 states + DC + national, for every bundled vintage (ACS 5-year
+  2021–2024, 1-year 2021–2025), fetched with the keyless `refresh-census-data` (#10).
+  `realistic` profiles no longer fall back to national averages outside Virginia.
 - Medicare low-income help (#15): `MedicareSource` and `MedicareSavingsGenerator` for
   QMB/SLMB/QI tier determinations and Extra Help (Part D LIS), CY2026, preset
   `medicare.national`. Income limits are derived from the poverty guidelines and match every
@@ -68,6 +71,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `is_homeless` parameter on `SNAPSource.calculate_net_income()` for homeless shelter deduction
 
 ### Fixed
+- `MedicaidEligibilityGenerator` ignored `profile_strategy` (always uniform) and silently
+  skipped cases that failed to build (#13). `uniform`/`realistic` now take household size
+  and income from the sampled profile, `realistic` accepts `census_years`, unknown
+  strategies raise, and a failing case raises instead of being dropped. Edge-saturated
+  output for a given seed is unchanged.
 - `get_standard_deduction`, the SNAP policy summary, the homeless shelter deduction text and
   CFR citations hard-coded FY2026 values, so any other `fiscal_year` silently used FY2026
   deductions. They now come from the fiscal year's data file.

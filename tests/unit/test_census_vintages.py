@@ -214,7 +214,7 @@ class TestPipeline:
 
     def test_generator_without_census_support_is_rejected(self) -> None:
         with pytest.raises(ValueError, match="does not support census_years"):
-            Pipeline.from_preset("medicaid.va", profile_strategy="realistic", census_years=2023)
+            Pipeline.from_preset("wic.national", profile_strategy="realistic", census_years=2023)
 
     def test_years_require_realistic(self) -> None:
         with pytest.raises(ValueError, match="realistic"):
@@ -309,3 +309,25 @@ class TestFormatters:
         assert "census_vintage" not in yaml.safe_load(YAMLFormatter().format_one(edge))
         assert "census_vintage" not in JSONLFormatter().format_one(edge)["metadata"]
         assert CSVFormatter().format_row(edge)["census_vintage"] == ""
+
+
+class TestAllStatesBundled:
+    """#10: every state + DC has its own file for every bundled vintage."""
+
+    @pytest.mark.parametrize("vintage", available_vintages())
+    def test_every_state_and_national_present(self, vintage: CensusVintage) -> None:
+        present = {p.stem.upper() for p in vintage_dir(vintage).glob("*.json")}
+        assert set(cf.FIPS_CODES) | {"NATIONAL"} <= present
+
+    @pytest.mark.parametrize("state", sorted(cf.FIPS_CODES))
+    def test_default_vintage_loads_each_state_without_fallback(self, state: str) -> None:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            dist = CensusDataSource(state).load()
+        assert dist is not None and dist.state == state
+
+    def test_states_differ(self) -> None:
+        ms = CensusDataSource("MS").load()
+        nj = CensusDataSource("NJ").load()
+        assert ms is not None and nj is not None
+        assert ms.income_mu < nj.income_mu  # Mississippi's incomes are lower than New Jersey's
