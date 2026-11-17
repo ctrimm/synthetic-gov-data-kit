@@ -1,0 +1,140 @@
+{
+  "_metadata": {
+    "type": "hhs_poverty_guidelines",
+    "year": 2020,
+    "federal_register_citation": "2020 Vol. 85, No. 12, January 17, 2020, pp. 3060-3061",
+    "federal_register_pdf": "https://www.govinfo.gov/content/pkg/FR-2020-01-17/pdf/2020-00858.pdf",
+    "source": "HHS Office of the Assistant Secretary for Planning and Evaluation — 2020 HHS Poverty Guidelines",
+    "source_url": "https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines/prior-hhs-poverty-guidelines-federal-register-references",
+    "source_file": "https://aspe.hhs.gov/sites/default/files/documents/ca4d59081203b81022bdb86b64ae36cc/Historical%20Poverty%20Guidelines%20Through%202026.xlsx",
+    "used_by": [
+      "SNAP FY2021 (Oct 1 2020 – Sep 30 2021): gross=130%, net=100%, BBCE gross limits",
+      "WIC 2020-2021 (Jul 1 2020 – Jun 30 2021): 185%"
+    ],
+    "verification_status": "verified",
+    "verification_note": "Annual values from ASPE's 'Historical Poverty Guidelines Through 2026' workbook (nonfarm sheets). Monthly values = ceil(annual/12); each equals the 100% FPL net income limit in the FNS SNAP FY2021 Income Eligibility Standards table (checked by scripts/import_snap_cola.py)."
+  },
+  "regions": {
+    "contiguous_48_dc": {
+      "base_annual": 12760,
+      "per_additional_person_annual": 4480,
+      "per_additional_person_monthly": 374,
+      "by_household_size": {
+        "1": {
+          "annual": 12760,
+          "monthly": 1064
+        },
+        "2": {
+          "annual": 17240,
+          "monthly": 1437
+        },
+        "3": {
+          "annual": 21720,
+          "monthly": 1810
+        },
+        "4": {
+          "annual": 26200,
+          "monthly": 2184
+        },
+        "5": {
+          "annual": 30680,
+          "monthly": 2557
+        },
+        "6": {
+          "annual": 35160,
+          "monthly": 2930
+        },
+        "7": {
+          "annual": 39640,
+          "monthly": 3304
+        },
+        "8": {
+          "annual": 44120,
+          "monthly": 3677
+        }
+      }
+    },
+    "alaska": {
+      "base_annual": 15950,
+      "per_additional_person_annual": 5600,
+      "per_additional_person_monthly": 467,
+      "by_household_size": {
+        "1": {
+          "annual": 15950,
+          "monthly": 1330
+        },
+        "2": {
+          "annual": 21550,
+          "monthly": 1796
+        },
+        "3": {
+          "annual": 27150,
+          "monthly": 2263
+        },
+        "4": {
+          "annual": 32750,
+          "monthly": 2730
+        },
+        "5": {
+          "annual": 38350,
+          "monthly": 3196
+        },
+        "6": {
+          "annual": 43950,
+          "monthly": 3663
+        },
+        "7": {
+          "annual": 49550,
+          "monthly": 4130
+        },
+        "8": {
+          "annual": 55150,
+          "monthly": 4596
+        }
+      }
+    },
+    "hawaii": {
+      "base_annual": 14680,
+      "per_additional_person_annual": 5150,
+      "per_additional_person_monthly": 430,
+      "by_household_size": {
+        "1": {
+          "annual": 14680,
+          "monthly": 1224
+        },
+        "2": {
+          "annual": 19830,
+          "monthly": 1653
+        },
+        "3": {
+          "annual": 24980,
+          "monthly": 2082
+        },
+        "4": {
+          "annual": 30130,
+          "monthly": 2511
+        },
+        "5": {
+          "annual": 35280,
+          "monthly": 2940
+        },
+        "6": {
+          "annual": 40430,
+          "monthly": 3370
+        },
+        "7": {
+          "annual": 45580,
+          "monthly": 3799
+        },
+        "8": {
+          "annual": 50730,
+          "monthly": 4228
+        }
+      }
+    }
+  },
+  "notes": [
+    "Per-additional-person: 48 states=$4,480/yr, Alaska=$5,600/yr, Hawaii=$5,150/yr.",
+    "These are GUIDELINES (used for program eligibility), not the Census poverty THRESHOLDS (used for statistics)."
+  ]
+}

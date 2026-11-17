@@ -1,0 +1,344 @@
+{
+  "_metadata": {
+    "program": "snap",
+    "period": "FY2025",
+    "fiscal_year": 2025,
+    "federal_fy_start": "2024-10-01",
+    "federal_fy_end": "2025-09-30",
+    "fpl_basis_year": 2024,
+    "source": "USDA FNS SNAP FY2025 Cost-of-Living Adjustments: Income Eligibility Standards, Maximum Allotments and Deductions, and Minimum Allotments tables",
+    "source_url": "https://fns-prod.azureedge.us/sites/default/files/media/file/FY2025-Maximum-Allotments-Deductions.pdf",
+    "source_url_income_standards": "https://fns-prod.azureedge.us/sites/default/files/media/file/FY2025-Income-Eligibility-Standards.pdf",
+    "source_url_minimum_allotments": "https://fns-prod.azureedge.us/sites/default/files/media/file/FY2025-Minimum-Allotments.pdf",
+    "cfr_reference": "7 CFR 273.9",
+    "verification_status": "verified",
+    "verification_note": "Transcribed by scripts/import_snap_cola.py from the official FNS tables (pdftotext). Every gross (130%), net (100%) and 165% income limit was checked against ceil(annual FPL x pct / 12) using us_fpl_2024.json.",
+    "not_modeled": []
+  },
+  "gross_income_pct_fpl": 130,
+  "net_income_pct_fpl": 100,
+  "earned_income_deduction_pct": 20,
+  "asset_limit_general": 3000,
+  "asset_limit_elderly_disabled": 4500,
+  "households_48_states_dc": {
+    "1": {
+      "gross_monthly": 1632,
+      "net_monthly": 1255,
+      "max_benefit": 292
+    },
+    "2": {
+      "gross_monthly": 2215,
+      "net_monthly": 1704,
+      "max_benefit": 536
+    },
+    "3": {
+      "gross_monthly": 2798,
+      "net_monthly": 2152,
+      "max_benefit": 768
+    },
+    "4": {
+      "gross_monthly": 3380,
+      "net_monthly": 2600,
+      "max_benefit": 975
+    },
+    "5": {
+      "gross_monthly": 3963,
+      "net_monthly": 3049,
+      "max_benefit": 1158
+    },
+    "6": {
+      "gross_monthly": 4546,
+      "net_monthly": 3497,
+      "max_benefit": 1390
+    },
+    "7": {
+      "gross_monthly": 5129,
+      "net_monthly": 3945,
+      "max_benefit": 1536
+    },
+    "8": {
+      "gross_monthly": 5712,
+      "net_monthly": 4394,
+      "max_benefit": 1756
+    },
+    "each_additional": {
+      "gross_monthly": 583,
+      "net_monthly": 449,
+      "max_benefit": 220
+    }
+  },
+  "households_alaska": {
+    "1": {
+      "gross_monthly": 2038,
+      "net_monthly": 1568,
+      "max_benefit_urban": 377,
+      "max_benefit_rural1": 481,
+      "max_benefit_rural2": 586
+    },
+    "2": {
+      "gross_monthly": 2767,
+      "net_monthly": 2129,
+      "max_benefit_urban": 692,
+      "max_benefit_rural1": 882,
+      "max_benefit_rural2": 1074
+    },
+    "3": {
+      "gross_monthly": 3496,
+      "net_monthly": 2690,
+      "max_benefit_urban": 991,
+      "max_benefit_rural1": 1263,
+      "max_benefit_rural2": 1538
+    },
+    "4": {
+      "gross_monthly": 4225,
+      "net_monthly": 3250,
+      "max_benefit_urban": 1258,
+      "max_benefit_rural1": 1604,
+      "max_benefit_rural2": 1953
+    },
+    "5": {
+      "gross_monthly": 4955,
+      "net_monthly": 3811,
+      "max_benefit_urban": 1494,
+      "max_benefit_rural1": 1905,
+      "max_benefit_rural2": 2319
+    },
+    "6": {
+      "gross_monthly": 5684,
+      "net_monthly": 4372,
+      "max_benefit_urban": 1793,
+      "max_benefit_rural1": 2287,
+      "max_benefit_rural2": 2783
+    },
+    "7": {
+      "gross_monthly": 6413,
+      "net_monthly": 4933,
+      "max_benefit_urban": 1982,
+      "max_benefit_rural1": 2527,
+      "max_benefit_rural2": 3076
+    },
+    "8": {
+      "gross_monthly": 7142,
+      "net_monthly": 5494,
+      "max_benefit_urban": 2265,
+      "max_benefit_rural1": 2888,
+      "max_benefit_rural2": 3516
+    },
+    "each_additional": {
+      "gross_monthly": 730,
+      "net_monthly": 561,
+      "max_benefit_urban": 283,
+      "max_benefit_rural1": 361,
+      "max_benefit_rural2": 440
+    }
+  },
+  "households_hawaii": {
+    "1": {
+      "gross_monthly": 1876,
+      "net_monthly": 1443,
+      "max_benefit": 517
+    },
+    "2": {
+      "gross_monthly": 2546,
+      "net_monthly": 1959,
+      "max_benefit": 948
+    },
+    "3": {
+      "gross_monthly": 3217,
+      "net_monthly": 2475,
+      "max_benefit": 1357
+    },
+    "4": {
+      "gross_monthly": 3887,
+      "net_monthly": 2990,
+      "max_benefit": 1723
+    },
+    "5": {
+      "gross_monthly": 4558,
+      "net_monthly": 3506,
+      "max_benefit": 2046
+    },
+    "6": {
+      "gross_monthly": 5229,
+      "net_monthly": 4022,
+      "max_benefit": 2456
+    },
+    "7": {
+      "gross_monthly": 5899,
+      "net_monthly": 4538,
+      "max_benefit": 2714
+    },
+    "8": {
+      "gross_monthly": 6570,
+      "net_monthly": 5054,
+      "max_benefit": 3102
+    },
+    "each_additional": {
+      "gross_monthly": 671,
+      "net_monthly": 516,
+      "max_benefit": 388
+    }
+  },
+  "households_guam": {
+    "1": {
+      "gross_monthly": 1632,
+      "net_monthly": 1255,
+      "max_benefit": 431
+    },
+    "2": {
+      "gross_monthly": 2215,
+      "net_monthly": 1704,
+      "max_benefit": 790
+    },
+    "3": {
+      "gross_monthly": 2798,
+      "net_monthly": 2152,
+      "max_benefit": 1132
+    },
+    "4": {
+      "gross_monthly": 3380,
+      "net_monthly": 2600,
+      "max_benefit": 1437
+    },
+    "5": {
+      "gross_monthly": 3963,
+      "net_monthly": 3049,
+      "max_benefit": 1707
+    },
+    "6": {
+      "gross_monthly": 4546,
+      "net_monthly": 3497,
+      "max_benefit": 2049
+    },
+    "7": {
+      "gross_monthly": 5129,
+      "net_monthly": 3945,
+      "max_benefit": 2264
+    },
+    "8": {
+      "gross_monthly": 5712,
+      "net_monthly": 4394,
+      "max_benefit": 2588
+    },
+    "each_additional": {
+      "gross_monthly": 583,
+      "net_monthly": 449,
+      "max_benefit": 324
+    }
+  },
+  "households_virgin_islands": {
+    "1": {
+      "gross_monthly": 1632,
+      "net_monthly": 1255,
+      "max_benefit": 376
+    },
+    "2": {
+      "gross_monthly": 2215,
+      "net_monthly": 1704,
+      "max_benefit": 689
+    },
+    "3": {
+      "gross_monthly": 2798,
+      "net_monthly": 2152,
+      "max_benefit": 987
+    },
+    "4": {
+      "gross_monthly": 3380,
+      "net_monthly": 2600,
+      "max_benefit": 1254
+    },
+    "5": {
+      "gross_monthly": 3963,
+      "net_monthly": 3049,
+      "max_benefit": 1489
+    },
+    "6": {
+      "gross_monthly": 4546,
+      "net_monthly": 3497,
+      "max_benefit": 1787
+    },
+    "7": {
+      "gross_monthly": 5129,
+      "net_monthly": 3945,
+      "max_benefit": 1975
+    },
+    "8": {
+      "gross_monthly": 5712,
+      "net_monthly": 4394,
+      "max_benefit": 2257
+    },
+    "each_additional": {
+      "gross_monthly": 583,
+      "net_monthly": 449,
+      "max_benefit": 282
+    }
+  },
+  "standard_deductions_48_states_dc": {
+    "1": 204,
+    "2": 204,
+    "3": 204,
+    "4": 217,
+    "5": 254,
+    "6+": 291
+  },
+  "standard_deductions_alaska": {
+    "1": 348,
+    "2": 348,
+    "3": 348,
+    "4": 348,
+    "5": 348,
+    "6+": 364
+  },
+  "standard_deductions_hawaii": {
+    "1": 287,
+    "2": 287,
+    "3": 287,
+    "4": 287,
+    "5": 292,
+    "6+": 335
+  },
+  "standard_deductions_guam": {
+    "1": 409,
+    "2": 409,
+    "3": 409,
+    "4": 432,
+    "5": 507,
+    "6+": 581
+  },
+  "standard_deductions_virgin_islands": {
+    "1": 180,
+    "2": 180,
+    "3": 180,
+    "4": 217,
+    "5": 254,
+    "6+": 291
+  },
+  "excess_shelter_deduction_cap_48_states_dc": 712,
+  "excess_shelter_deduction_cap_alaska": 1137,
+  "excess_shelter_deduction_cap_hawaii": 959,
+  "excess_shelter_deduction_cap_guam": 835,
+  "excess_shelter_deduction_cap_virgin_islands": 561,
+  "homeless_shelter_deduction": 190.3,
+  "minimum_benefit_48_states_dc": 23,
+  "minimum_benefit_alaska": 30,
+  "minimum_benefit_hawaii": 41,
+  "minimum_benefit_guam": 35,
+  "minimum_benefit_virgin_islands": 30,
+  "gross_income_165pct_households_48_states_dc": {
+    "1": 2071,
+    "2": 2811,
+    "3": 3551,
+    "4": 4290,
+    "5": 5030,
+    "6": 5770,
+    "7": 6510,
+    "8": 7249,
+    "each_additional": 740
+  },
+  "notes": [
+    "Effective October 1, 2024 through September 30, 2025.",
+    "Asset limits: $3,000 general, $4,500 with a member 60+ or disabled.",
+    "Guam and the Virgin Islands share the 48-states income limits (FNS prints one column for '48 States, D.C., Guam, Virgin Islands'); only their allotments and deductions differ.",
+    "minimum_benefit_alaska is the Urban tier, matching the Urban default for Alaska's max allotment."
+  ]
+}

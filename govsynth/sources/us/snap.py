@@ -1,7 +1,7 @@
 """SNAP (Supplemental Nutrition Assistance Program) data source connector.
 
 Data sourced from:
-  - USDA FNS SNAP FY2026 COLA Memo (August 13, 2025) — VERIFIED
+  - USDA FNS SNAP COLA tables, one verified file per fiscal year (FY2021-FY2026)
   - data/thresholds/snap_fy{fiscal_year}.json
 
 FISCAL YEAR:
@@ -15,7 +15,7 @@ from __future__ import annotations
 from functools import lru_cache
 
 from govsynth.fiscal_year import DEFAULT_SNAP_FY, FiscalYearConfig
-from govsynth.sources.base import DataSource, HouseholdThreshold, ProgramThresholds
+from govsynth.sources.base import THRESHOLD_DIR, DataSource, HouseholdThreshold, ProgramThresholds, _load_json_file
 
 # Broad-based categorical eligibility (BBCE) is modeled by SNAPBBCESource
 # (govsynth/sources/us/snap_bbce.py), driven by the per-state data table in
@@ -36,13 +36,19 @@ ALASKA_RURAL1 = {
 }
 
 
-@lru_cache(maxsize=128)
-def get_standard_deduction(household_size: int, region: str = "48_states_dc") -> float:
-    """Return the FY2026 standard deduction for a given household size and region.
+_DEDUCTION_REGIONS = ("48_states_dc", "alaska", "hawaii", "guam", "virgin_islands")
 
-    Source: USDA FNS SNAP COLA FY2026 Memo, p.6.
 
-    Raises ValueError for a region not in `tables` and KeyError for a household
+@lru_cache(maxsize=512)
+def get_standard_deduction(
+    household_size: int, region: str = "48_states_dc", fiscal_year: int = DEFAULT_SNAP_FY
+) -> float:
+    """Return the SNAP standard deduction for a household size, region and fiscal year.
+
+    Read from ``standard_deductions_<region>`` in ``data/thresholds/snap_fy<YEAR>.json``,
+    which carries the FNS COLA table for that fiscal year (keys "1".."5" and "6+").
+
+    Raises ValueError for a region not in `_DEDUCTION_REGIONS` and KeyError for a household
     size the region's table has no entry for. This function used to silently
     fall back to the 48-states-and-DC table for any unrecognized region (via
     `tables.get(region, tables["48_states_dc"])`) and to 209 for any unrecognized
@@ -51,24 +57,19 @@ def get_standard_deduction(household_size: int, region: str = "48_states_dc") ->
     silently receive the wrong standard deduction with no test able to catch
     it. If a future region is added to `_region_for_state` without a matching
     entry here, it must fail loudly instead of quietly regressing the same way.
+    It also used to hard-code the FY2026 amounts, so any other fiscal year silently
+    got FY2026 deductions; they now come from that year's data file.
     """
-    tables = {
-        "48_states_dc": {1: 209, 2: 209, 3: 209, 4: 223, 5: 261},
-        "alaska": {1: 358, 2: 358, 3: 358, 4: 358, 5: 358},
-        "hawaii": {1: 295, 2: 295, 3: 295, 4: 295, 5: 300},
-        "guam": {1: 420, 2: 420, 3: 420, 4: 445, 5: 522},
-        "virgin_islands": {1: 184, 2: 184, 3: 185, 4: 223, 5: 261},
-    }
-    six_plus = {"48_states_dc": 299, "alaska": 374, "hawaii": 344, "guam": 598, "virgin_islands": 299}
-    if region not in tables:
-        raise ValueError(f"get_standard_deduction: unrecognized region {region!r}; known regions: {sorted(tables)}")
-    if household_size >= 6:
-        return float(six_plus[region])
-    key = min(household_size, 5)
-    t = tables[region]
-    if key not in t:
+    if region not in _DEDUCTION_REGIONS:
+        raise ValueError(
+            f"get_standard_deduction: unrecognized region {region!r}; known regions: {sorted(_DEDUCTION_REGIONS)}"
+        )
+    path = THRESHOLD_DIR / FiscalYearConfig.for_program("snap", fiscal_year).threshold_filename
+    table = _load_json_file(str(path))[f"standard_deductions_{region}"]
+    key = "6+" if household_size >= 6 else str(household_size)
+    if key not in table:
         raise KeyError(f"get_standard_deduction: region {region!r} has no entry for household size {key}")
-    return float(t[key])
+    return float(table[key])
 
 
 def _region_for_state(state: str) -> str:
@@ -123,7 +124,7 @@ class SNAPSource(DataSource):
         # Federal baseline asset limit. BBCE waivers/caps are applied by SNAPBBCESource.
         asset_limit: float | None = float(raw["asset_limit_general"])
 
-        std_deductions = {size: get_standard_deduction(size, self._region) for size in range(1, 9)}
+        std_deductions = {size: get_standard_deduction(size, self._region, self.year) for size in range(1, 9)}
 
         shelter_key = f"excess_shelter_deduction_cap_{self._region}"
         shelter_cap = float(raw.get(shelter_key, raw.get("excess_shelter_deduction_cap_48_states_dc", 744)))
@@ -160,6 +161,7 @@ class SNAPSource(DataSource):
     def fetch_policy_summary(self) -> str:
         t = self.thresholds()
         assert t.extra is not None, "SNAP thresholds always populate `extra`"
+        sd = {size: get_standard_deduction(size, self._region, self.year) for size in (1, 4, 5, 6)}
         asset_note = (
             f"Asset limits: ${t.asset_limit_general:,.0f} general, "
             f"${t.asset_limit_elderly_disabled:,.0f} elderly/disabled (60+ or disabled)."
@@ -171,8 +173,10 @@ class SNAPSource(DataSource):
             f"- Net income test: ≤100% FPL (7 CFR 273.9(a)(2))\n"
             f"- Deductions: 20% earned income + standard deduction + allowable shelter/utility (7 CFR 273.9(c))\n"
             f"- {asset_note}\n"
-            f"- Elderly/disabled: exempt from gross income test; $4,500 asset limit.\n"
-            f"- Standard deduction (HH 1-3): $209/month; HH4: $223; HH5: $261; HH6+: $299.\n"
+            f"- Elderly/disabled: exempt from gross income test; "
+            f"${t.asset_limit_elderly_disabled:,.0f} asset limit.\n"
+            f"- Standard deduction (HH 1-3): ${sd[1]:,.0f}/month; HH4: ${sd[4]:,.0f}; "
+            f"HH5: ${sd[5]:,.0f}; HH6+: ${sd[6]:,.0f}.\n"
             f"- Excess shelter cap: ${t.extra['excess_shelter_cap']:,.0f}/month.\n"
             f"Source: {t.source}"
         )
@@ -201,7 +205,7 @@ class SNAPSource(DataSource):
         after_earned = gross_income - earned_ded
 
         # (c)(2) Standard deduction
-        std_ded = get_standard_deduction(household_size, self._region)
+        std_ded = get_standard_deduction(household_size, self._region, self.year)
         after_standard = after_earned - std_ded
 
         # (c)(3) Dependent care deduction

@@ -10,6 +10,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- SNAP rules for FY2021–FY2025 (`snap_fy2021.json`…`snap_fy2025.json`), transcribed from the
+  FNS COLA tables by the new `scripts/import_snap_cola.py` and checked against new
+  `us_fpl_2020.json`…`us_fpl_2024.json` (ASPE). Per-year BBCE tables
+  (`snap_bbce_fy2021.json`…`snap_bbce_fy2025.json`): BBCE adoption from the FNS State Options
+  Reports, per-state percentages carried back from FY2026 and marked `estimated`.
+- `realistic` SNAP cases follow their census year's rules (`match_census_year`, default on;
+  CLI `--fixed-policy-year` to opt out).
 - Census year selection for `realistic` profiles: `census_years=` on `Pipeline`,
   `SNAPEligibilityGenerator.generate` and `CatalaEligibilityGenerator.generate`, plus
   `govsynth generate --census-year` (years, ranges, `acs1-YYYY`). Census data now lives in
@@ -54,6 +61,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `is_homeless` parameter on `SNAPSource.calculate_net_income()` for homeless shelter deduction
 
 ### Fixed
+- `get_standard_deduction`, the SNAP policy summary, the homeless shelter deduction text and
+  CFR citations hard-coded FY2026 values, so any other `fiscal_year` silently used FY2026
+  deductions. They now come from the fiscal year's data file.
 - Census fetcher read the wrong ACS variables for most fields: mislabeled income brackets
   above $50k, poverty buckets from the under-6 rows of B17024, "% with children" from
   married-couple rows, naturalized citizens sampled as non-qualified aliens, Medicaid rate

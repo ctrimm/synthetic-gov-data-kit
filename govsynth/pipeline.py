@@ -53,6 +53,7 @@ class Pipeline:
         profile_strategy: str = "edge_saturated",
         console: Console | None = None,
         census_years: CensusYearsArg = None,
+        match_census_year: bool = True,
     ) -> None:
         """Create a Pipeline.
 
@@ -63,6 +64,9 @@ class Pipeline:
             census_years: ACS release(s) for 'realistic' profiles -- a year, a
                 spec such as "2021-2024" or "acs1-2025", a CensusVintage, or a
                 list of these. Spread evenly across all generated cases.
+            match_census_year: For generators that support it (SNAP), judge each
+                realistic profile by the program rules of its census year. False
+                applies the preset's fiscal year to every case.
 
         Raises:
             ValueError: If census_years is set with a non-'realistic' strategy,
@@ -71,6 +75,13 @@ class Pipeline:
         self.generator = generator
         self.profile_strategy = profile_strategy
         self.census_years = census_years_for_strategy(census_years, profile_strategy)
+        self.match_census_year = match_census_year
+        if (
+            not match_census_year
+            and generator is not None
+            and "match_census_year" not in inspect.signature(generator.generate).parameters
+        ):
+            raise ValueError(f"{type(generator).__name__} does not support match_census_year.")
         if (
             self.census_years is not None
             and generator is not None
@@ -91,6 +102,7 @@ class Pipeline:
         profile_strategy: str | None = None,
         console: Console | None = None,
         census_years: CensusYearsArg = None,
+        match_census_year: bool = True,
         **generator_kwargs: object,
     ) -> Pipeline:
         """Create a Pipeline from a named preset.
@@ -101,6 +113,7 @@ class Pipeline:
             profile_strategy: Override the preset's default strategy.
             console: Optional Rich Console instance. Defaults to a stderr console.
             census_years: ACS release(s) for 'realistic' profiles; see __init__.
+            match_census_year: See __init__.
             **generator_kwargs: Override specific generator constructor args.
         """
         if preset_name not in PRESETS:
@@ -113,7 +126,13 @@ class Pipeline:
         generator = gen_class(**kwargs)
 
         strategy = profile_strategy or config.profile_strategy
-        return cls(generator=generator, profile_strategy=strategy, console=console, census_years=census_years)
+        return cls(
+            generator=generator,
+            profile_strategy=strategy,
+            console=console,
+            census_years=census_years,
+            match_census_year=match_census_year,
+        )
 
     def generate(self, n: int, seed: int | None = None) -> list[TestCase]:
         """Generate n test cases.
@@ -149,7 +168,7 @@ class Pipeline:
 
             while remaining > 0:
                 batch_n = min(batch_size, remaining)
-                extra: dict[str, Any] = {}
+                extra: dict[str, Any] = {} if self.match_census_year else {"match_census_year": False}
                 if self.census_years:
                     # Generators assign years round-robin from index 0 of each
                     # call; rotate by cases done so far so the spread stays even

@@ -175,9 +175,13 @@ govsynth refresh-census-data --year 2024                          # all states +
 No API key is needed for ACS 2021 onward: without `CENSUS_API_KEY` the command streams the
 Census Bureau's bulk summary files. Older years need the API (`--source api` plus a key).
 
-> Census years change the *population*, not the *policy*: SNAP thresholds are still FY2026 and
-> income is in each vintage's own dollars (not inflated to 2026), so older vintages look
-> somewhat poorer relative to the limits.
+**Rules follow the census year.** SNAP cases built from ACS year *Y* data are judged by the
+FY*Y* rules: that year's income limits, deductions, allotments, asset limits and BBCE
+parameters (FY2021–FY2026 are bundled). Pass `match_census_year=False` (CLI:
+`--fixed-policy-year`) to apply the preset's fiscal year to every case instead. Special-population
+cases whose rule wasn't in force that year are skipped (the 2025 noncitizen changes before
+FY2026; student rules during the 2021–2023 pandemic exemptions). See
+[docs/programs/snap.md](docs/programs/snap.md#fiscal-years).
 
 ### Batch Generation
 
