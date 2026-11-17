@@ -286,13 +286,16 @@ def caseload_table(state: str, fiscal_year: int = DEFAULT_QC_FY) -> CaseloadTabl
 
 def poverty_guideline_annual(size: int, state: str, fpl_year: int) -> float:
     """HHS poverty guideline (annual dollars) for a household size, state region and year."""
-    base, step = _fpl_region(state.upper(), fpl_year)
-    return base + step * (size - 1)
+    by_size, step = _fpl_region(state.upper(), fpl_year)
+    if size <= 8:
+        return by_size[size - 1]
+    return by_size[7] + step * (size - 8)
 
 
 @lru_cache(maxsize=64)
-def _fpl_region(state: str, fpl_year: int) -> tuple[float, float]:
+def _fpl_region(state: str, fpl_year: int) -> tuple[tuple[float, ...], float]:
     fpl = _load_json_file(str(THRESHOLD_DIR / f"us_fpl_{fpl_year}.json"))
     region = {"AK": "alaska", "HI": "hawaii"}.get(state, "contiguous_48_dc")
     r = fpl["regions"][region]
-    return float(r["base_annual"]), float(r["per_additional_person_annual"])
+    by_size = tuple(float(r["by_household_size"][str(n)]["annual"]) for n in range(1, 9))
+    return by_size, float(r["per_additional_person_annual"])

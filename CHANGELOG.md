@@ -30,12 +30,19 @@ First PyPI pre-release: `pip install --pre synthetic-gov-data-kit`.
 
 ### Known limitations
 - TANF (#17) and the ACA marketplace (#18) are not modeled yet; both wait on source documents.
-- The Medicaid limits (from KFF State Health Facts, bundled with citation; see `DATA_SOURCES.md`)
-  are marked `verification_status: "estimated"`.
 - Joint household types cover acs5-2024 only; other census vintages use independent per-trait rates.
 - The caseload population (`population="caseload"`) covers SNAP only, from FY2024 data.
 
 ### Fixed
+- **Medicaid eligibility labels** (#24). `medicaid_cy2026.json` was an unverified estimate that
+  listed Kansas and Wisconsin as expansion states, and `MedicaidSource` compared a household's
+  MAGI to the *one-person* poverty line at every household size, invented 200%/317% pregnant and
+  child limits for all expansion states, and put Georgia and Wisconsin adults in the coverage
+  gap. The file is rebuilt from KFF's January 2026 tables for all 51 jurisdictions
+  (`scripts/build_medicaid_limits.py`, verified), limits scale with the MAGI household size and
+  region, each applicant type uses its own coverage group (42 CFR 435.110/.116/.118/.119), and
+  the coverage-gap note now depends on income. `get_income_limit` takes `household_size` and
+  `child_age`; `child_0_18` is now `child`. Medicaid output changes for every seed.
 - **SNAP rationale traces now reach the net income each case is judged on** (#33). The general
   trace builder took the 20% earned-income deduction from unearned income (`earned_income or
   gross` treated `0.0` as missing), skipped the excess shelter, dependent-care and medical steps,
