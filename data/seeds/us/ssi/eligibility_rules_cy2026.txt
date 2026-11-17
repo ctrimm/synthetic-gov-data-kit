@@ -1,0 +1,22 @@
+SUPPLEMENTAL SECURITY INCOME (SSI) — POLICY SEED
+Source: 20 CFR Part 416; SSA "Cost-of-Living Increase and Other Determinations for 2026" (90 FR 49047)
+For use in rationale trace generation. Not a complete regulatory text.
+
+=== CATEGORICAL ELIGIBILITY (20 CFR 416.202) ===
+Aged (65 or older), blind, or disabled; plus citizenship/residence and other non-financial rules.
+A non-blind disabled applicant working at substantial gainful activity is not disabled
+(20 CFR 416.920(b)). SGA 2026: $1,690/month (non-blind).
+
+=== FEDERAL BENEFIT RATE, 2026 ===
+$994/month eligible individual; $1,491/month eligible couple; $498 essential person.
+
+=== COUNTABLE INCOME ===
+1. $20 general exclusion, applied to unearned income first, any remainder to earned income
+   (20 CFR 416.1124(c)(12)).
+2. Earned income: exclude $65, then one-half of the rest (20 CFR 416.1112(c)(5), (c)(7)).
+Payment = FBR - countable income. No payment if countable income >= FBR.
+
+=== RESOURCES (20 CFR 416.1205) ===
+$2,000 individual; $3,000 couple.
+
+Not covered here: state supplementary payments, in-kind support and maintenance, deeming.

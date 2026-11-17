@@ -44,7 +44,9 @@ with Claude Code.
 |---|---|---|---|
 | [SNAP (Food Stamps)](docs/programs/snap.md) | USDA/FNS | `snap.va`, `snap.ca`, `snap.tx`, `snap.md` | Stable |
 | WIC | USDA/FNS | `wic.national` | Stable |
-| Medicaid | CMS/HHS | — | In progress |
+| Medicaid | CMS/HHS | `medicaid.va`, `medicaid.tx` | Stable |
+| [Medicare Savings Programs + Extra Help](docs/programs/medicare.md) | CMS / SSA | `medicare.national` | Stable |
+| [SSI](docs/programs/ssi.md) | SSA | `ssi.national` | Stable |
 
 ## Quickstart
 
@@ -337,7 +339,7 @@ All generated profiles are entirely synthetic. No real applicant data is used or
 ## Roadmap
 
 - **Policy document parser** — `govsynth parse-policy` stub is available; full PDF/DOCX ingestion coming soon
-- **Additional programs** — LIHEAP, CHIP, Section 8/HCV, TANF, SSI/SSDI
+- **Additional programs** — LIHEAP, CHIP/ACA, Section 8/HCV, TANF, SSDI
 - **More task types** — policy Q&A, form completion, agentic multi-step, comparative cross-program
 - **More state presets** — currently VA, CA, TX, MD for SNAP; WIC national only
 - **Schema validation** — formal JSON schema (`test_case_v1.schema.yaml`) + `validate_against_schema()` utility

@@ -52,6 +52,8 @@ PROGRAM_FISCAL_CALENDARS: dict[str, FiscalCalendar] = {
     "liheap": FiscalCalendar.FEDERAL_FY,
     "tanf": FiscalCalendar.FEDERAL_FY,
     "medicaid": FiscalCalendar.HHS_CALENDAR,
+    "medicare": FiscalCalendar.HHS_CALENDAR,  # MSP/Extra Help use the current year's FPL
+    "ssi": FiscalCalendar.HHS_CALENDAR,  # calendar-year COLA; files labeled CY
 }
 
 # Which HHS poverty guideline year each federal FY uses as its basis.

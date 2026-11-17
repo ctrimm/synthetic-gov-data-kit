@@ -10,6 +10,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- Medicare low-income help (#15): `MedicareSource` and `MedicareSavingsGenerator` for
+  QMB/SLMB/QI tier determinations and Extra Help (Part D LIS), CY2026, preset
+  `medicare.national`. Income limits are derived from the poverty guidelines and match every
+  figure Medicare.gov publishes for 2026.
+- SSI (#16): `SSISource` and `SSIEligibilityGenerator` (category, SGA, resources, $20 and
+  $65 + 1/2 exclusions, payment = FBR - countable income), CY2026 (90 FR 49047), preset
+  `ssi.national`.
 - SNAP rules for FY2021–FY2025 (`snap_fy2021.json`…`snap_fy2025.json`), transcribed from the
   FNS COLA tables by the new `scripts/import_snap_cola.py` and checked against new
   `us_fpl_2020.json`…`us_fpl_2024.json` (ASPE). Per-year BBCE tables

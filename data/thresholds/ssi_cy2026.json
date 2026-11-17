@@ -1,0 +1,29 @@
+{
+  "_metadata": {
+    "program": "ssi",
+    "period": "CY2026",
+    "calendar_year": 2026,
+    "source": "SSA, 'Cost-of-Living Increase and Other Determinations for 2026', 90 FR 49047 (November 3, 2025); resource limits per 20 CFR 416.1205 and POMS SI 01110.003",
+    "source_url": "https://www.govinfo.gov/content/pkg/FR-2025-11-03/pdf/2025-19763.pdf",
+    "source_url_resources": "https://secure.ssa.gov/poms.nsf/lnx/0501110003",
+    "cfr_reference": "20 CFR Part 416",
+    "verification_status": "verified",
+    "verification_note": "Federal benefit rates ($994 / $1,491 / $498), the student earned income exclusion and SGA are transcribed from 90 FR 49047. Resource limits and income exclusions are statutory (20 CFR 416.1205, 416.1112, 416.1124)."
+  },
+  "federal_benefit_rate_individual": 994,
+  "federal_benefit_rate_couple": 1491,
+  "federal_benefit_rate_essential_person": 498,
+  "resource_limit_individual": 2000,
+  "resource_limit_couple": 3000,
+  "general_income_exclusion": 20,
+  "earned_income_exclusion": 65,
+  "earned_income_remainder_excluded_fraction": 0.5,
+  "substantial_gainful_activity_nonblind": 1690,
+  "student_earned_income_exclusion_monthly": 2410,
+  "student_earned_income_exclusion_annual": 9730,
+  "notes": [
+    "Federal SSI only: state supplementary payments are not modeled.",
+    "In-kind support and maintenance and deeming from an ineligible spouse or parent are not modeled.",
+    "The $20 general exclusion applies to unearned income first; any unused part applies to earned income (20 CFR 416.1124(c)(12), 416.1112(c)(4))."
+  ]
+}

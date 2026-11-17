@@ -81,6 +81,8 @@ class Program(str, Enum):
     SECTION_8 = "section_8"
     LIHEAP = "liheap"
     TANF = "tanf"
+    MEDICARE = "medicare"
+    SSI = "ssi"
 
 
 # Known states + DC for validation

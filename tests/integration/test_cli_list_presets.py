@@ -3,6 +3,7 @@
 import json
 
 from govsynth.cli.main import app
+from govsynth.presets import PRESETS
 from typer.testing import CliRunner
 
 runner = CliRunner()
@@ -32,7 +33,7 @@ def test_list_presets_json_is_valid_list() -> None:
     assert result.exit_code == 0
     data = json.loads(result.output)
     assert isinstance(data, list)
-    assert len(data) == 7
+    assert len(data) == len(PRESETS)
 
 
 def test_list_presets_json_has_required_fields() -> None:
