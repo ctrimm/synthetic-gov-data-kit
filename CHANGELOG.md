@@ -71,6 +71,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `is_homeless` parameter on `SNAPSource.calculate_net_income()` for homeless shelter deduction
 
 ### Fixed
+- SNAP BBCE tables for FY2021–FY2025 are now verified row by row against each year's FNS
+  BBCE States Chart (May 2020 – Aug 2024), replacing values carried back from FY2026 (#23).
+  23 rows changed across the five years — e.g. Virginia had no BBCE in FY2021, Louisiana was
+  130% until FY2025, New Mexico 165% until FY2026, Michigan had a $15,000 asset limit through
+  FY2023. Alaska's and Arkansas's FY2026 BBCE rows are confirmed as 2025 adoptions. Each
+  `snap_fy2021`–`2025.json` now cites its signed COLA memo (#24).
 - `MedicaidEligibilityGenerator` ignored `profile_strategy` (always uniform) and silently
   skipped cases that failed to build (#13). `uniform`/`realistic` now take household size
   and income from the sampled profile, `realistic` accepts `census_years`, unknown

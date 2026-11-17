@@ -5,13 +5,15 @@
     "fiscal_year": 2024,
     "effective_date": "2023-10-01",
     "fpl_basis_year": 2023,
-    "source": "BBCE adoption: USDA FNS SNAP State Options Report, 16th Edition (current as of October 1, 2023). Per-state gross income % and asset rules: carried back from the FNS BBCE States Chart (August 2025), see snap_bbce_fy2026.json.",
-    "source_url": "https://fns-prod.azureedge.us/sites/default/files/resource-files/snap-16th-state-options-report-june24.pdf",
+    "source": "USDA FNS SNAP BBCE States Chart (last updated July 2023) — the chart in effect at the start of FY2024",
+    "chart_last_updated": "July 2023",
+    "source_url": "http://web.archive.org/web/20230928153634id_/https://www.fns.usda.gov/sites/default/files/resource-files/BBCE-States-Chart-Jul-2023.pdf",
+    "source_chart_file": "BBCE-States-Chart-Jul-2023.pdf",
+    "source_page": "https://www.fns.usda.gov/snap/broad-based-categorical-eligibility",
     "cfr_reference": "7 CFR 273.2(j)(2)(ii)",
     "statutory_ceiling_pct_fpl": 200,
-    "verification_status": "estimated",
-    "verification_note": "44 BBCE jurisdictions. Which states had BBCE is verified against the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Each BBCE state's gross income percentage and asset rule is carried back from the FY2026 chart and marked 'estimated': FNS's dated BBCE charts for earlier years were not reachable (fns.usda.gov pages 404/403 and web.archive.org is blocked from the environment this was built in). Non-BBCE rows use this fiscal year's federal limits from snap_fy2024.json. Replace a row's values and set it to 'verified' once an FY2024 chart is checked.",
-    "differs_from_fy2026": "AK and AR are 'No BBCE' in every State Options Report edition checked (as of Oct 2022, 2023, 2024) but BBCE in the FY2026 file.",
+    "verification_status": "verified",
+    "verification_note": "44 BBCE jurisdictions, every row transcribed from the FNS SNAP BBCE States Chart (last updated July 2023), retrieved from the Wayback Machine on 2026-11-17 (issue #23). The same transcription process reproduced all 48 rows of the August 2025 chart behind snap_bbce_fy2026.json with zero mismatches. Non-BBCE rows use this fiscal year's federal limits from snap_fy2024.json.",
     "modeling_notes": [
       "net_income_test_applies is true for every jurisdiction. CBPP notes BBCE technically permits states to raise or eliminate the net income limit, but in practice the 100% FPL net test is near-universally applied. Treated here as a modeling assumption. (This modeling assumption traces to the original Aug 2025 authoring; it was not re-derived from CBPP in the 2026-08 re-verification pass, which could not reach the CBPP page — see reverification_2026_08.)",
       "asset_limit: null = asset/resource test fully waived; a number = state-imposed liquid-asset cap; non-BBCE states carry 3000 (the federal general limit, distinct from the 4500 elderly/disabled limit which is not encoded per-row).",
@@ -37,8 +39,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets2; gross 130%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "AK": {
       "bbce": false,
@@ -48,7 +50,7 @@
       "conferring_benefit": null,
       "applies_to": "n/a — no BBCE; federal SNAP rules apply",
       "verification_status": "verified",
-      "source_note": "Listed as 'No BBCE' in the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
+      "source_note": "Not in the FNS SNAP BBCE States Chart (last updated July 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
     },
     "AZ": {
       "bbce": true,
@@ -57,8 +59,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (referral on application); asset: No limit on assets; gross 185%"
     },
     "AR": {
       "bbce": false,
@@ -68,17 +70,17 @@
       "conferring_benefit": null,
       "applies_to": "n/a — no BBCE; federal SNAP rules apply",
       "verification_status": "verified",
-      "source_note": "Listed as 'No BBCE' in the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
+      "source_note": "Not in the FNS SNAP BBCE States Chart (last updated July 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
     },
     "CA": {
       "bbce": true,
       "gross_income_limit_pct_fpl": 200,
       "asset_limit": null,
       "net_income_test_applies": true,
-      "conferring_benefit": "CalFresh non-cash TANF/MOE-funded service/referral",
+      "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (pamphlet); asset: No limit on assets2; gross 200%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "CO": {
       "bbce": true,
@@ -87,8 +89,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (notice on application); asset: No limit on assets2; gross 200%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "CT": {
       "bbce": true,
@@ -97,8 +99,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (Help for People in Need brochure); asset: No limit on assets; gross 200%"
     },
     "DE": {
       "bbce": true,
@@ -107,8 +109,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (application refers to pregnancy prevention hotline); asset: No limit on assets; gross 200%"
     },
     "DC": {
       "bbce": true,
@@ -117,8 +119,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets; gross 200%"
     },
     "FL": {
       "bbce": true,
@@ -127,8 +129,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (notice); asset: No limit on assets2; gross 200%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "GA": {
       "bbce": true,
@@ -137,8 +139,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (TANF Community Outreach Services brochure); asset: No limit on assets2; gross 130%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "HI": {
       "bbce": true,
@@ -147,8 +149,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets; gross 200%"
     },
     "ID": {
       "bbce": true,
@@ -157,8 +159,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (flyer about referral service); asset: $5,000; gross 130%"
     },
     "IL": {
       "bbce": true,
@@ -167,8 +169,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (guide to services brochure); asset: No limit on assets2; gross 165%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "IN": {
       "bbce": true,
@@ -177,8 +179,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: $5,000; gross 130%"
     },
     "IA": {
       "bbce": true,
@@ -187,8 +189,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (notice of eligibility and brochure); asset: No limit on assets; gross 160%"
     },
     "KS": {
       "bbce": false,
@@ -198,7 +200,7 @@
       "conferring_benefit": null,
       "applies_to": "n/a — no BBCE; federal SNAP rules apply",
       "verification_status": "verified",
-      "source_note": "Listed as 'No BBCE' in the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
+      "source_note": "Not in the FNS SNAP BBCE States Chart (last updated July 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
     },
     "KY": {
       "bbce": true,
@@ -207,28 +209,28 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (resource guide); asset: No limit on assets2; gross 200%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "LA": {
       "bbce": true,
-      "gross_income_limit_pct_fpl": 200,
+      "gross_income_limit_pct_fpl": 130,
       "asset_limit": null,
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (notice); asset: No limit on assets; gross 130%"
     },
     "ME": {
       "bbce": true,
-      "gross_income_limit_pct_fpl": 200,
+      "gross_income_limit_pct_fpl": 185,
       "asset_limit": null,
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (resource guide); asset: No limit on assets; gross 185%"
     },
     "MD": {
       "bbce": true,
@@ -237,8 +239,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (referral to services on application); asset: No limit on assets; gross 200%"
     },
     "MA": {
       "bbce": true,
@@ -247,8 +249,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets2; gross 200%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "MI": {
       "bbce": true,
@@ -257,8 +259,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (language on application and notice); asset: No limit on assets; gross 200%"
     },
     "MN": {
       "bbce": true,
@@ -267,8 +269,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (domestic violence brochure); asset: No limit on assets; gross 200%"
     },
     "MS": {
       "bbce": false,
@@ -278,7 +280,7 @@
       "conferring_benefit": null,
       "applies_to": "n/a — no BBCE; federal SNAP rules apply",
       "verification_status": "verified",
-      "source_note": "Listed as 'No BBCE' in the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
+      "source_note": "Not in the FNS SNAP BBCE States Chart (last updated July 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
     },
     "MO": {
       "bbce": false,
@@ -288,7 +290,7 @@
       "conferring_benefit": null,
       "applies_to": "n/a — no BBCE; federal SNAP rules apply",
       "verification_status": "verified",
-      "source_note": "Listed as 'No BBCE' in the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
+      "source_note": "Not in the FNS SNAP BBCE States Chart (last updated July 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
     },
     "MT": {
       "bbce": true,
@@ -297,8 +299,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets; gross 200%"
     },
     "NE": {
       "bbce": true,
@@ -307,8 +309,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (pamphlet, statement on notices and applications); asset: $25,000 for liquid assets; gross 165%"
     },
     "NV": {
       "bbce": true,
@@ -317,8 +319,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (pregnancy prevention information on application); asset: No limit on assets; gross 200%"
     },
     "NH": {
       "bbce": true,
@@ -327,8 +329,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets; gross 200%"
     },
     "NJ": {
       "bbce": true,
@@ -337,18 +339,18 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets; gross 185%"
     },
     "NM": {
       "bbce": true,
-      "gross_income_limit_pct_fpl": 200,
+      "gross_income_limit_pct_fpl": 165,
       "asset_limit": null,
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets; gross 165%"
     },
     "NY": {
       "bbce": true,
@@ -356,13 +358,13 @@
       "asset_limit": null,
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
-      "applies_to": "households with dependent-care expenses (200% FPL)",
+      "applies_to": "households with dependent care expenses (200% FPL)",
       "second_tier": {
         "gross_income_limit_pct_fpl": 150,
         "applies_to": "households with earned income"
       },
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): Households with dependent care expenses are eligible (\"Helping Hands\" brochure mailed yearly); asset: No limit on assets2; gross 200%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "NC": {
       "bbce": true,
@@ -371,8 +373,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (statement on application/recertification forms); asset: No limit on assets; gross 200%"
     },
     "ND": {
       "bbce": true,
@@ -381,8 +383,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (Statement on application/recertification forms and pamphlet); asset: No limit on assets; gross 200%"
     },
     "OH": {
       "bbce": true,
@@ -391,8 +393,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (Ohio Benefit Bank info on approval notice); asset: No limit on assets2; gross 130%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "OK": {
       "bbce": true,
@@ -401,8 +403,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (2-1-1 number for information and referral to community services); asset: No limit on assets; gross 130%"
     },
     "OR": {
       "bbce": true,
@@ -411,8 +413,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (pamphlet); asset: No limit on assets; gross 200%"
     },
     "PA": {
       "bbce": true,
@@ -421,8 +423,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (pamphlet); asset: No limit on assets2; gross 200%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "RI": {
       "bbce": true,
@@ -431,8 +433,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (publication); asset: No limit on assets2; gross 185%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "SC": {
       "bbce": true,
@@ -441,8 +443,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (pamphlet); asset: No limit on assets2; gross 130%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "SD": {
       "bbce": false,
@@ -452,7 +454,7 @@
       "conferring_benefit": null,
       "applies_to": "n/a — no BBCE; federal SNAP rules apply",
       "verification_status": "verified",
-      "source_note": "Listed as 'No BBCE' in the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
+      "source_note": "Not in the FNS SNAP BBCE States Chart (last updated July 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
     },
     "TN": {
       "bbce": false,
@@ -462,7 +464,7 @@
       "conferring_benefit": null,
       "applies_to": "n/a — no BBCE; federal SNAP rules apply",
       "verification_status": "verified",
-      "source_note": "Listed as 'No BBCE' in the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
+      "source_note": "Not in the FNS SNAP BBCE States Chart (last updated July 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
     },
     "TX": {
       "bbce": true,
@@ -471,8 +473,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (Info on various services provided on application); asset: Asset limit of $5,000 (excludes 1 vehicle up to $15,000 & includes excess vehicle value); gross 165%"
     },
     "UT": {
       "bbce": false,
@@ -482,7 +484,7 @@
       "conferring_benefit": null,
       "applies_to": "n/a — no BBCE; federal SNAP rules apply",
       "verification_status": "verified",
-      "source_note": "Listed as 'No BBCE' in the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
+      "source_note": "Not in the FNS SNAP BBCE States Chart (last updated July 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
     },
     "VT": {
       "bbce": true,
@@ -491,8 +493,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (notice with language on website for services); asset: No limit on assets; gross 185%"
     },
     "VA": {
       "bbce": true,
@@ -501,8 +503,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets; gross 200%"
     },
     "WA": {
       "bbce": true,
@@ -511,8 +513,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (Info &amp; Referral Services provided on approval letter); asset: No limit on assets; gross 200%"
     },
     "WV": {
       "bbce": true,
@@ -521,8 +523,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (Information and Referral Services program brochure); asset: No limit on assets2; gross 200%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     },
     "WI": {
       "bbce": true,
@@ -531,8 +533,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (Job Net Services language on approval and change notices); asset: No limit on assets; gross 200%"
     },
     "WY": {
       "bbce": false,
@@ -542,7 +544,7 @@
       "conferring_benefit": null,
       "applies_to": "n/a — no BBCE; federal SNAP rules apply",
       "verification_status": "verified",
-      "source_note": "Listed as 'No BBCE' in the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
+      "source_note": "Not in the FNS SNAP BBCE States Chart (last updated July 2023). Federal limits for FY2024: $2,750 general / $4,250 elderly-disabled."
     },
     "GU": {
       "bbce": true,
@@ -551,8 +553,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets; gross 165%"
     },
     "VI": {
       "bbce": true,
@@ -561,8 +563,8 @@
       "net_income_test_applies": true,
       "conferring_benefit": "Non-cash TANF/MOE-funded benefit or service",
       "applies_to": "all households",
-      "verification_status": "estimated",
-      "source_note": "BBCE adoption verified from the SNAP State Options Report, 16th Edition (current as of October 1, 2023). Gross income % and asset rule carried back from the FNS BBCE chart (Aug 2025) used for FY2026; no FY-specific chart was reachable, so a state that changed its percentage or asset cap since FY2024 is not reflected."
+      "verification_status": "verified",
+      "source_note": "FNS SNAP BBCE States Chart (last updated July 2023): All households are eligible (brochure); asset: No limit on assets2; gross 175%. Chart footnote 2: elderly/disabled households over 200% FPL are not categorically eligible and face a $4,250 asset limit (federal limit at chart date)."
     }
   }
 }

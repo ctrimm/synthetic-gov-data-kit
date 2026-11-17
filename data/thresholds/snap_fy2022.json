@@ -13,6 +13,11 @@
     "cfr_reference": "7 CFR 273.9",
     "verification_status": "verified",
     "verification_note": "Transcribed by scripts/import_snap_cola.py from the official FNS tables (pdftotext). Every gross (130%), net (100%) and 165% income limit was checked against ceil(annual FPL x pct / 12) using us_fpl_2021.json.",
+    "cola_memo": {
+      "date": "August 16, 2021",
+      "signer": "Sasha Gersten-Paal, Director, Program Development Division",
+      "note": "Memo values (maximum allotment for 4, minimum benefit, shelter caps, deductions, asset limits) match these tables; the memo lists no temporary pandemic changes (issue #24)."
+    },
     "not_modeled": [
       "COVID-19 emergency allotments (FFCRA sec. 2302), in effect in most states.",
       "Temporary student eligibility exemptions (CAA 2021 sec. 702(e))."

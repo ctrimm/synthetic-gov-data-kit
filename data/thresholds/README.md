@@ -20,7 +20,7 @@ us_fpl_{year}.json         — HHS Poverty Guidelines (calendar year, published 
 |---|---|---|
 | `snap_fy2026.json` | FY2026 | Oct 1, 2025 – Sep 30, 2026 |
 | `snap_fy2021.json` … `snap_fy2025.json` | FY2021–FY2025 | Oct 1, 2020 – Sep 30, 2025 |
-| `snap_bbce_fy2021.json` … `snap_bbce_fy2025.json` | FY2021–FY2025 | per-state BBCE (estimated percentages) |
+| `snap_bbce_fy2021.json` … `snap_bbce_fy2025.json` | FY2021–FY2025 | per-state BBCE, verified against each year's FNS chart |
 | `wic_fy2026.json` | FY2026 | Oct 1, 2025 – Sep 30, 2026 |
 | `medicaid_cy2026.json` | CY2026 | Jan 1, 2026 – Dec 31, 2026 |
 | `us_fpl_2020.json` … `us_fpl_2024.json` | CY2020–CY2024 | basis for SNAP FY2021–FY2025 |

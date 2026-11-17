@@ -8,25 +8,16 @@ from typer.testing import CliRunner
 runner = CliRunner()
 
 
-# The FY2021-FY2025 BBCE tables are 'estimated': which states had BBCE is verified
-# against the FNS State Options Reports, but each state's gross-income percentage
-# and asset rule is carried back from the FY2026 chart (see their _metadata). Every
-# SNAP COLA table (snap_fy*.json) is verified.
-ESTIMATED_SNAP_FILES = {f"snap_bbce_fy{fy}.json" for fy in range(2021, 2026)}
-
-
 def _snap_report() -> tuple[int, dict]:
     result = runner.invoke(app, ["verify-thresholds", "--program", "snap", "--json"])
     return result.exit_code, json.loads(result.output)
 
 
-def test_verify_thresholds_snap_flags_only_the_estimated_bbce_tables() -> None:
-    """Exit 1 is correct while those files are estimated; nothing else may be unverified."""
+def test_verify_thresholds_snap_all_verified() -> None:
+    """Every SNAP file, including the FY2021-FY2025 BBCE tables (verified in #23), is verified."""
     exit_code, data = _snap_report()
-    assert exit_code == 1
-    flagged = {entry["file"] for entry in data["unverified"]}
-    assert flagged == ESTIMATED_SNAP_FILES
-    assert all(entry["verification_status"] == "estimated" for entry in data["unverified"])
+    assert exit_code == 0
+    assert data["unverified"] == []
 
 
 def test_verify_thresholds_default_exits_one_for_unverified() -> None:

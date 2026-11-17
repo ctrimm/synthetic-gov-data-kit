@@ -91,18 +91,52 @@ def test_historical_files_have_the_fy2026_shape(fy: int) -> None:
     assert set(bbce["states"]) == set(bbce26["states"])
 
 
+# Values read off each fiscal year's FNS BBCE States Chart (issue #23).
+BBCE_COUNT = {2021: 43, 2022: 44, 2023: 44, 2024: 44, 2025: 44, 2026: 46}
+CHART_DATE = {2021: "May 2020", 2022: "July 2021", 2023: "June 2022", 2024: "July 2023", 2025: "August 2024"}
+# (state, fiscal year) -> (bbce, gross % FPL, asset limit), pinned where the charts changed.
+BBCE_PINNED = {
+    ("VA", 2021): (False, 130, 2250),  # not in the May 2020 chart
+    ("VA", 2022): (True, 200, None),  # added in the July 2021 chart
+    ("NE", 2022): (True, 130, 25000),
+    ("NE", 2023): (True, 165, 25000),
+    ("MI", 2023): (True, 200, 15000),
+    ("MI", 2024): (True, 200, None),
+    ("PA", 2023): (True, 160, None),
+    ("PA", 2024): (True, 200, None),
+    ("LA", 2024): (True, 130, None),
+    ("LA", 2025): (True, 200, None),
+    ("NM", 2025): (True, 165, None),
+    ("NM", 2026): (True, 200, None),
+    ("AK", 2025): (False, 130, 3000),
+    ("AK", 2026): (True, 200, None),  # adopted during 2025
+    ("AR", 2026): (True, 165, 5500),
+}
+
+
 @pytest.mark.parametrize("fy", HISTORICAL)
-def test_historical_bbce_adoption_and_federal_rows(fy: int) -> None:
-    """AK and AR were 'No BBCE' in the State Options Reports for Oct 2022-Oct 2024."""
-    assert len(bbce_states(fy)) == 44
-    assert {"AK", "AR"}.isdisjoint(bbce_states(fy))
-    general = _snap(fy)["asset_limit_general"]
+def test_historical_bbce_rows_are_verified_against_that_years_chart(fy: int) -> None:
     bbce = json.loads((THRESHOLDS / f"snap_bbce_fy{fy}.json").read_text())
+    assert bbce["_metadata"]["verification_status"] == "verified"
+    assert bbce["_metadata"]["chart_last_updated"] == CHART_DATE[fy]
+    assert len(bbce_states(fy)) == BBCE_COUNT[fy]
+    general = _snap(fy)["asset_limit_general"]
     for code, row in bbce["states"].items():
-        if row["bbce"]:
-            assert row["verification_status"] == "estimated", code
-        else:
+        assert row["verification_status"] == "verified", code
+        if not row["bbce"]:
             assert row["asset_limit"] == general, code  # non-BBCE states use that year's federal limit
+
+
+@pytest.mark.parametrize(("state", "fy"), sorted(BBCE_PINNED))
+def test_bbce_values_pinned_to_the_charts(state: str, fy: int) -> None:
+    row = json.loads((THRESHOLDS / f"snap_bbce_fy{fy}.json").read_text())["states"][state]
+    assert (row["bbce"], row["gross_income_limit_pct_fpl"], row["asset_limit"]) == BBCE_PINNED[(state, fy)]
+
+
+def test_bbce_citation_names_the_years_chart() -> None:
+    gen = SNAPEligibilityGenerator(fiscal_year=2021, state="MD")
+    assert gen._bbce_chart_citation == "USDA FNS SNAP BBCE States Chart (May 2020)"
+    assert SNAPEligibilityGenerator(state="MD")._bbce_chart_citation == "USDA FNS SNAP BBCE States Chart (August 2025)"
 
 
 def test_standard_deduction_is_read_from_the_fiscal_year() -> None:
