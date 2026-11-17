@@ -56,7 +56,7 @@ def test_no_sampling_path_produces_the_contradiction() -> None:
             assert not (profile.age_of_head >= 60 and not profile.has_elderly_or_disabled)
 
 
-def _make_profile(**overrides) -> USHouseholdProfile:
+def _make_profile(**overrides: object) -> USHouseholdProfile:
     defaults = dict(
         household_size=3,
         monthly_gross_income=2400.0,

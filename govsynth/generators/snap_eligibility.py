@@ -233,7 +233,13 @@ class SNAPEligibilityGenerator(Generator):
                 case_seed = rng.randint(0, 2**31) if seed is not None else None
                 profile = USHouseholdProfile.random(state=self.state, seed=case_seed, strategy=profile_strategy)
                 try:
-                    case = self._build_case(profile, case_seed, i, phrasing_style=phrasing_style, scenario_phrasing_style=scenario_phrasing_style)
+                    case = self._build_case(
+                        profile,
+                        case_seed,
+                        i,
+                        phrasing_style=phrasing_style,
+                        scenario_phrasing_style=scenario_phrasing_style,
+                    )
                     cases.append(case)
                 except Exception as exc:
                     raise RuntimeError(
@@ -259,7 +265,13 @@ class SNAPEligibilityGenerator(Generator):
             case_seed = rng.randint(0, 2**31) if seed is not None else None
             profile = self._sample_edge_profile(rng, case_seed)
             try:
-                case = self._build_case(profile, case_seed, i, phrasing_style=phrasing_style, scenario_phrasing_style=scenario_phrasing_style)
+                case = self._build_case(
+                    profile,
+                    case_seed,
+                    i,
+                    phrasing_style=phrasing_style,
+                    scenario_phrasing_style=scenario_phrasing_style,
+                )
                 edge_cases.append(case)
             except Exception as exc:
                 raise RuntimeError(

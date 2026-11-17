@@ -139,7 +139,7 @@ def test_phrasing_style_random_does_not_change_sampled_facts() -> None:
     # And the actual point of turning it on: prose must differ on at least
     # the threshold-boundary cases (special-population cases write their own
     # bespoke prose regardless of phrasing_style, so not every summary changes).
-    assert any(p.scenario.summary != s.scenario.summary for p, s in zip(plain, styled))
+    assert any(p.scenario.summary != s.scenario.summary for p, s in zip(plain, styled, strict=True))
 
 
 def test_phrasing_style_random_is_deterministic_with_seed() -> None:
