@@ -108,6 +108,43 @@ PRESETS: dict[str, PresetConfig] = {
         profile_strategy="edge_saturated",
         description="Medicare Savings Programs (QMB/SLMB/QI) and Extra Help CY2026 — federal limits",
     ),
+    # ── LIHEAP ────────────────────────────────────────────────────────────
+    "liheap.va": PresetConfig(
+        program="liheap",
+        source_class="govsynth.sources.us.liheap.LIHEAPSource",
+        source_kwargs={"fiscal_year": 2026, "state": "VA"},
+        generator_class="govsynth.generators.liheap_eligibility.LIHEAPEligibilityGenerator",
+        generator_kwargs={"fiscal_year": 2026, "state": "VA"},
+        profile_strategy="edge_saturated",
+        description="Virginia LIHEAP FY2026 — 150% FPL heating/crisis, 60% SMI weatherization",
+    ),
+    "liheap.ca": PresetConfig(
+        program="liheap",
+        source_class="govsynth.sources.us.liheap.LIHEAPSource",
+        source_kwargs={"fiscal_year": 2026, "state": "CA"},
+        generator_class="govsynth.generators.liheap_eligibility.LIHEAPEligibilityGenerator",
+        generator_kwargs={"fiscal_year": 2026, "state": "CA"},
+        profile_strategy="edge_saturated",
+        description="California LIHEAP FY2026 — 60% SMI for every component",
+    ),
+    "liheap.tx": PresetConfig(
+        program="liheap",
+        source_class="govsynth.sources.us.liheap.LIHEAPSource",
+        source_kwargs={"fiscal_year": 2026, "state": "TX"},
+        generator_class="govsynth.generators.liheap_eligibility.LIHEAPEligibilityGenerator",
+        generator_kwargs={"fiscal_year": 2026, "state": "TX"},
+        profile_strategy="edge_saturated",
+        description="Texas LIHEAP FY2026 — 150% FPL for heating, cooling, crisis and weatherization",
+    ),
+    "liheap.md": PresetConfig(
+        program="liheap",
+        source_class="govsynth.sources.us.liheap.LIHEAPSource",
+        source_kwargs={"fiscal_year": 2026, "state": "MD"},
+        generator_class="govsynth.generators.liheap_eligibility.LIHEAPEligibilityGenerator",
+        generator_kwargs={"fiscal_year": 2026, "state": "MD"},
+        profile_strategy="edge_saturated",
+        description="Maryland LIHEAP FY2026 — %SMI rate by household size + SNAP/TANF/SSI categorical eligibility",
+    ),
     # ── SSI ───────────────────────────────────────────────────────────────
     "ssi.national": PresetConfig(
         program="ssi",

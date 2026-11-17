@@ -1,0 +1,24 @@
+LIHEAP (LOW INCOME HOME ENERGY ASSISTANCE PROGRAM) — POLICY SEED
+Source: 42 U.S.C. 8624(b)(2); 45 CFR 96.85; HHS LIHEAP IM2025-02; FY2026 state LIHEAP plans (VA, CA, TX, MD)
+For use in rationale trace generation. Not a complete regulatory text.
+
+=== FEDERAL FRAME (42 U.S.C. 8624(b)(2)) ===
+A state's income ceiling may not exceed the GREATER of 150% of the poverty guidelines or
+60% of state median income (SMI), and may not be set below 110% of the poverty guidelines.
+States may treat households receiving TANF, SSI, SNAP, or certain means-tested veterans'
+benefits as income-eligible (categorical eligibility).
+
+=== STATE MEDIAN INCOME (45 CFR 96.85; IM2025-02, mandatory FY2026) ===
+60% SMI for household size k = SMI(4-person) x 60% x size factor:
+52% (1), 68% (2), 84% (3), 100% (4), 116% (5), 132% (6), then +3 points per person.
+
+=== FY2026 STATE CHOICES ===
+Virginia:   heating and crisis 150% FPL; weatherization 60% SMI. Gross income.
+California: 60% SMI for heating, crisis and weatherization.
+Texas:      150% FPL for heating, cooling, crisis and weatherization.
+Maryland:   % of SMI that rises with household size (39% for 1, 40% for 2, 41% for 3,
+            41.7% for 4, 42% for 5, 42.4% for 6, 46% for 7, 50.9% for 8, 54.89% for 9,
+            58.7% for 10, 60% for 11+); categorically income-eligible if receiving SNAP,
+            TANF, SSI or means-tested veterans' benefits (Chapter 207, 2023 session).
+
+Income eligibility does not guarantee assistance: LIHEAP is not an entitlement.
