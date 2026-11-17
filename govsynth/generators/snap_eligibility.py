@@ -20,7 +20,7 @@ from govsynth.reasoning.rules_engine import build_short_uid
 from govsynth.sources.base import HouseholdThreshold
 from govsynth.sources.us.census import CensusVintage, census_years_for_strategy
 from govsynth.sources.us.snap import get_standard_deduction
-from govsynth.sources.us.snap_bbce import SNAPBBCESource
+from govsynth.sources.us.snap_bbce import SNAPBBCESource, _load_bbce_table
 
 # Threshold types used in edge-saturated generation
 _SNAP_THRESHOLD_TYPES = [
@@ -369,20 +369,18 @@ class SNAPEligibilityGenerator(Generator):
 
     @property
     def _bbce_chart_label(self) -> str:
-        """Which BBCE source backs this fiscal year's state parameters."""
-        if self.fiscal_year == 2026:
-            return "State BBCE options (August 2025)"
-        return f"State BBCE options, FY{self.fiscal_year} (adoption per SNAP State Options Report; limits estimated)"
+        """Which BBCE chart backs this fiscal year's state parameters, e.g. 'State BBCE options (May 2020)'."""
+        return f"State BBCE options ({self._bbce_chart_date})"
 
     @property
     def _bbce_chart_citation(self) -> str:
         """Source citation for the BBCE parameters used in this fiscal year."""
-        if self.fiscal_year == 2026:
-            return "USDA FNS SNAP BBCE States Chart (August 2025)"
-        return (
-            f"USDA FNS SNAP State Options Report (BBCE adoption, FY{self.fiscal_year}); "
-            "BBCE limits carried back from the August 2025 BBCE States Chart (estimated)"
-        )
+        return f"USDA FNS SNAP BBCE States Chart ({self._bbce_chart_date})"
+
+    @property
+    def _bbce_chart_date(self) -> str:
+        """'Last updated' date of the FNS BBCE chart in effect at the start of this fiscal year."""
+        return str(_load_bbce_table(self.fiscal_year)["_metadata"]["chart_last_updated"])
 
     @property
     def supports_bbce_expanded_income(self) -> bool:

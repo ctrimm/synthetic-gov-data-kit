@@ -164,8 +164,7 @@ that off.
 | | FY2021–FY2025 | FY2026 |
 |---|---|---|
 | Income limits, allotments, deductions, asset limits | ✅ verified, FNS tables | ✅ verified |
-| Which states had BBCE | ✅ FY2023–25 per State Options Reports; FY2021–22 carried back | ✅ BBCE chart |
-| Each BBCE state's gross % and asset rule | ⚠️ estimated: carried back from the FY2026 chart | ✅ |
+| BBCE states, gross % and asset rule | ✅ verified, each year's FNS BBCE chart (May 2020 – Aug 2024) | ✅ Aug 2025 chart |
 | Noncitizen builder (P.L. 119-21) | skipped: law not yet enacted | ✅ |
 | Student builder | skipped FY2021–23 (pandemic exemptions); ✅ FY2024–25 | ✅ |
 
@@ -174,9 +173,8 @@ allotment increase (Jan–Sep 2021) and COVID-19 emergency allotments (through F
 These raised benefit *amounts*; eligibility determinations are unaffected, but the
 `monthly_allotment` in FY2021–FY2023 cases is the regular COLA amount.
 
-**Check:** the FNS State Options Reports list Alaska and Arkansas as "No BBCE" as of
-October 2022, 2023 and 2024, while `snap_bbce_fy2026.json` (August 2025 chart) has both
-as BBCE. Either they adopted it in 2025 or the FY2026 rows need re-checking.
+Alaska and Arkansas adopted BBCE during 2025: both are absent from every chart through
+August 2024 and present in the August 2025 chart (FY2026).
 
 ## Policy Data Sources
 

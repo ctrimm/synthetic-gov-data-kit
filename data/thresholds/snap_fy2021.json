@@ -13,6 +13,11 @@
     "cfr_reference": "7 CFR 273.9",
     "verification_status": "verified",
     "verification_note": "Transcribed by scripts/import_snap_cola.py from the official FNS tables (pdftotext). Every gross (130%), net (100%) and 165% income limit was checked against ceil(annual FPL x pct / 12) using us_fpl_2020.json.",
+    "cola_memo": {
+      "date": "July 2, 2020",
+      "signer": "Sasha Gersten-Paal, Director, Program Development Division (signature block OCR-ambiguous)",
+      "note": "Memo values (maximum allotment for 4, minimum benefit, shelter caps, deductions, asset limits) match these tables; the memo lists no temporary pandemic changes (issue #24)."
+    },
     "not_modeled": [
       "Temporary 15% increase in maximum allotments, January-September 2021 (Consolidated Appropriations Act, 2021, sec. 702; extended by the American Rescue Plan Act, sec. 1101). The allotments here are the regular FY2021 COLA tables.",
       "COVID-19 emergency allotments (Families First Coronavirus Response Act, sec. 2302), which raised most households to the maximum allotment in states with an emergency declaration.",

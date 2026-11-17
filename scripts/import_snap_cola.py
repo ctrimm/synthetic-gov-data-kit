@@ -69,6 +69,35 @@ SOURCES: dict[int, dict[str, str]] = {
     },
 }
 
+# Signed COLA memos (cover memos for the tables above), retrieved 2026-11-17 by the
+# documents pass on issue #24. Dates and signers are as extracted from the PDFs;
+# where the extraction was ambiguous it is said so rather than resolved by guesswork.
+_JOHNSTON = (
+    "Johnston, Acting Director, Program Development Division "
+    "(digital signature reads Margaret; printed block reads Moira)"
+)
+MEMOS: dict[int, dict[str, str]] = {
+    2021: {
+        "date": "July 2, 2020",
+        "signer": "Sasha Gersten-Paal, Director, Program Development Division (signature block OCR-ambiguous)",
+    },
+    2022: {"date": "August 16, 2021", "signer": "Sasha Gersten-Paal, Director, Program Development Division"},
+    2023: {
+        "date": "August 2022 (day left blank on the memo)",
+        "signer": "Sasha Gersten-Paal, Director, Program Development Division",
+    },
+    2024: {
+        "date": "August 3, 2023",
+        "signer": _JOHNSTON,
+        "url": "https://www.usda.gov/sites/default/files/guidance-documents/fns.FY24-SNAP-COLA-Memo_0.pdf",
+    },
+    2025: {
+        "date": "August 2, 2024",
+        "signer": _JOHNSTON,
+        "url": "https://www.usda.gov/sites/default/files/guidance-documents/FNS.snap-colafy25.pdf",
+    },
+}
+
 # Temporary federal changes in force during a fiscal year that this kit's
 # threshold model (regular COLA tables) does not represent. Recorded in each
 # file so a generated case's provenance says what was left out.
@@ -269,6 +298,11 @@ def build(fy: int, income: dict[str, Any], tables: dict[str, Any], minimum: list
                 f"Every gross (130%), net (100%) and 165% income limit was checked against "
                 f"ceil(annual FPL x pct / 12) using us_fpl_{fy - 1}.json."
             ),
+            "cola_memo": {
+                **MEMOS.get(fy, {}),
+                "note": "Memo values (maximum allotment for 4, minimum benefit, shelter caps, deductions, asset "
+                "limits) match these tables; the memo lists no temporary pandemic changes (issue #24).",
+            },
             "not_modeled": NOT_MODELED.get(fy, []),
         },
         "gross_income_pct_fpl": 130,

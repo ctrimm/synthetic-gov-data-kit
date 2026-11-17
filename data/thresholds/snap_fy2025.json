@@ -13,6 +13,12 @@
     "cfr_reference": "7 CFR 273.9",
     "verification_status": "verified",
     "verification_note": "Transcribed by scripts/import_snap_cola.py from the official FNS tables (pdftotext). Every gross (130%), net (100%) and 165% income limit was checked against ceil(annual FPL x pct / 12) using us_fpl_2024.json.",
+    "cola_memo": {
+      "date": "August 2, 2024",
+      "signer": "Johnston, Acting Director, Program Development Division (digital signature reads Margaret; printed block reads Moira)",
+      "url": "https://www.usda.gov/sites/default/files/guidance-documents/FNS.snap-colafy25.pdf",
+      "note": "Memo values (maximum allotment for 4, minimum benefit, shelter caps, deductions, asset limits) match these tables; the memo lists no temporary pandemic changes (issue #24)."
+    },
     "not_modeled": []
   },
   "gross_income_pct_fpl": 130,
