@@ -1,0 +1,1279 @@
+{
+  "_metadata": {
+    "program": "snap",
+    "fiscal_year": 2024,
+    "source": "USDA FNS, Characteristics of Supplemental Nutrition Assistance Program Households: Fiscal Year 2024 (SNAP Quality Control sample)",
+    "source_url": "https://fns-prod.azureedge.us/sites/default/files/resource-files/snap-fy2024householdcharacteristics-report.pdf",
+    "tables": "National: A.3, A.4, A.6, A.17. States: B.2, B.3, B.5, B.6, B.16.",
+    "fpl_basis_year": 2023,
+    "units": "national: thousands of households; states: row percents unless named otherwise",
+    "definitions": {
+      "elderly": "household has a member 60+",
+      "disabled_only": "household has a non-elderly member with a disability and no elderly member",
+      "pov bins": "gross countable monthly income as a percent of the HHS poverty guideline, none, le25, 26_50, 51_75, 76_100, 101_130, gt130",
+      "pct_noncitizen_participants": "refugees + other noncitizens as a share of participants (person level, Table B.16)"
+    },
+    "imported": "2026-11-17",
+    "verification_status": "verified",
+    "verification_note": "Parsed from the report PDF; row sums checked against the report's totals."
+  },
+  "national": {
+    "total_households_000": 21595.0,
+    "kids_by_ed": {
+      "1": {
+        "elderly": 230.0,
+        "disabled_only": 917.0,
+        "none": 6180.0
+      },
+      "0": {
+        "elderly": 6989.0,
+        "disabled_only": 2654.0,
+        "none": 4625.0
+      }
+    },
+    "size": {
+      "1": 13004.0,
+      "2": 3587.0,
+      "3": 2232.0,
+      "4": 1466.0,
+      "5": 765.0,
+      "6": 541.0
+    },
+    "size_by_group": {
+      "1": {
+        "children": 279.0,
+        "elderly": 5968.0,
+        "disabled_only": 2458.0
+      },
+      "2": {
+        "children": 2167.0,
+        "elderly": 1071.0,
+        "disabled_only": 414.0
+      },
+      "3": {
+        "children": 2134.0,
+        "elderly": 100.0,
+        "disabled_only": 287.0
+      },
+      "4": {
+        "children": 1443.0,
+        "elderly": 50.0,
+        "disabled_only": 208.0
+      },
+      "5": {
+        "children": 761.0,
+        "elderly": 21.0,
+        "disabled_only": 110.0
+      },
+      "6": {
+        "children": 541.0,
+        "elderly": 10.0,
+        "disabled_only": 92.0
+      }
+    },
+    "pov": {
+      "none": 4153.0,
+      "le25": 1653.0,
+      "26_50": 1824.0,
+      "51_75": 2847.0,
+      "76_100": 5740.0,
+      "101_130": 2864.0,
+      "gt130": 2512.0
+    },
+    "pov_by_group": {
+      "none": {
+        "children": 1155.0,
+        "elderly": 498.0,
+        "disabled_only": 2.0
+      },
+      "le25": {
+        "children": 837.0,
+        "elderly": 146.0,
+        "disabled_only": 26.0
+      },
+      "26_50": {
+        "children": 1145.0,
+        "elderly": 263.0,
+        "disabled_only": 242.0
+      },
+      "51_75": {
+        "children": 1279.0,
+        "elderly": 897.0,
+        "disabled_only": 777.0
+      },
+      "76_100": {
+        "children": 1062.0,
+        "elderly": 3030.0,
+        "disabled_only": 1649.0
+      },
+      "101_130": {
+        "children": 1032.0,
+        "elderly": 1317.0,
+        "disabled_only": 557.0
+      },
+      "gt130": {
+        "children": 817.0,
+        "elderly": 1068.0,
+        "disabled_only": 319.0
+      }
+    },
+    "pov_by_size": {
+      "none": {
+        "1": 2931.0,
+        "2": 592.0,
+        "3": 334.0,
+        "4": 176.0,
+        "5": 74.0,
+        "6": 48.0
+      },
+      "le25": {
+        "1": 794.0,
+        "2": 289.0,
+        "3": 277.0,
+        "4": 156.0,
+        "5": 80.0,
+        "6": 56.0
+      },
+      "26_50": {
+        "1": 646.0,
+        "2": 373.0,
+        "3": 376.0,
+        "4": 227.0,
+        "5": 109.0,
+        "6": 93.0
+      },
+      "51_75": {
+        "1": 1376.0,
+        "2": 604.0,
+        "3": 361.0,
+        "4": 251.0,
+        "5": 143.0,
+        "6": 113.0
+      },
+      "76_100": {
+        "1": 4366.0,
+        "2": 566.0,
+        "3": 324.0,
+        "4": 256.0,
+        "5": 127.0,
+        "6": 102.0
+      },
+      "101_130": {
+        "1": 1529.0,
+        "2": 537.0,
+        "3": 335.0,
+        "4": 248.0,
+        "5": 130.0,
+        "6": 85.0
+      },
+      "gt130": {
+        "1": 1362.0,
+        "2": 625.0,
+        "3": 225.0,
+        "4": 153.0,
+        "5": 103.0,
+        "6": 44.0
+      }
+    },
+    "income_type": {
+      "earned": 5950.0,
+      "ssi": 4770.0,
+      "social_security": 7048.0
+    },
+    "income_type_by_group": {
+      "earned": {
+        "children": 3973.0,
+        "elderly": 512.0,
+        "disabled_only": 438.0
+      },
+      "ssi": {
+        "children": 819.0,
+        "elderly": 2417.0,
+        "disabled_only": 2348.0
+      },
+      "social_security": {
+        "children": 644.0,
+        "elderly": 5085.0,
+        "disabled_only": 1722.0
+      }
+    },
+    "group_totals": {
+      "children": 7327.0,
+      "elderly": 7219.0,
+      "disabled_only": 3571.0
+    }
+  },
+  "states": {
+    "AK": {
+      "households_000": 26.0,
+      "pov4_pct": [
+        32.2,
+        21.7,
+        36.4,
+        9.7
+      ],
+      "pct_children": 33.8,
+      "pct_elderly": 29.2,
+      "pct_nonelderly_disabled": 10.9,
+      "pct_elderly_or_disabled": 39.9,
+      "pct_earned": 26.7,
+      "pct_ga": 22.9,
+      "pct_ssi": 12.8,
+      "pct_social_security": 27.1,
+      "pct_tanf": 3.7,
+      "avg_gross_income": 1048.0,
+      "avg_household_size": 2.2,
+      "pct_noncitizen_participants": 1.75
+    },
+    "AL": {
+      "households_000": 367.0,
+      "pov4_pct": [
+        18.2,
+        17.3,
+        47.8,
+        16.8
+      ],
+      "pct_children": 42.0,
+      "pct_elderly": 28.9,
+      "pct_nonelderly_disabled": 20.9,
+      "pct_elderly_or_disabled": 49.4,
+      "pct_earned": 27.8,
+      "pct_ga": 0.3,
+      "pct_ssi": 25.1,
+      "pct_social_security": 35.1,
+      "pct_tanf": 1.0,
+      "avg_gross_income": 1006.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 0.27
+    },
+    "AR": {
+      "households_000": 119.0,
+      "pov4_pct": [
+        20.0,
+        19.2,
+        52.0,
+        8.9
+      ],
+      "pct_children": 34.6,
+      "pct_elderly": 29.6,
+      "pct_nonelderly_disabled": 26.8,
+      "pct_elderly_or_disabled": 56.1,
+      "pct_earned": 17.0,
+      "pct_ga": 0.4,
+      "pct_ssi": 34.6,
+      "pct_social_security": 35.3,
+      "pct_tanf": 1.3,
+      "avg_gross_income": 870.0,
+      "avg_household_size": 1.9,
+      "pct_noncitizen_participants": 0.44
+    },
+    "AZ": {
+      "households_000": 442.0,
+      "pov4_pct": [
+        32.5,
+        17.8,
+        26.1,
+        23.5
+      ],
+      "pct_children": 37.2,
+      "pct_elderly": 26.7,
+      "pct_nonelderly_disabled": 11.3,
+      "pct_elderly_or_disabled": 37.1,
+      "pct_earned": 27.7,
+      "pct_ga": 0.0,
+      "pct_ssi": 14.8,
+      "pct_social_security": 23.9,
+      "pct_tanf": 0.7,
+      "avg_gross_income": 986.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 5.27
+    },
+    "CA": {
+      "households_000": 3080.0,
+      "pov4_pct": [
+        18.4,
+        16.9,
+        38.2,
+        26.6
+      ],
+      "pct_children": 27.4,
+      "pct_elderly": 36.9,
+      "pct_nonelderly_disabled": 9.0,
+      "pct_elderly_or_disabled": 45.6,
+      "pct_earned": 26.7,
+      "pct_ga": 9.1,
+      "pct_ssi": 22.0,
+      "pct_social_security": 27.4,
+      "pct_tanf": 6.4,
+      "avg_gross_income": 1159.0,
+      "avg_household_size": 1.7,
+      "pct_noncitizen_participants": 6.76
+    },
+    "CO": {
+      "households_000": 305.0,
+      "pov4_pct": [
+        25.3,
+        18.4,
+        32.3,
+        24.0
+      ],
+      "pct_children": 34.2,
+      "pct_elderly": 28.0,
+      "pct_nonelderly_disabled": 12.5,
+      "pct_elderly_or_disabled": 40.3,
+      "pct_earned": 31.2,
+      "pct_ga": 3.8,
+      "pct_ssi": 15.8,
+      "pct_social_security": 26.4,
+      "pct_tanf": 4.1,
+      "avg_gross_income": 1030.0,
+      "avg_household_size": 1.9,
+      "pct_noncitizen_participants": 3.7
+    },
+    "CT": {
+      "households_000": 226.0,
+      "pov4_pct": [
+        17.6,
+        11.9,
+        37.3,
+        33.2
+      ],
+      "pct_children": 25.4,
+      "pct_elderly": 36.0,
+      "pct_nonelderly_disabled": 19.7,
+      "pct_elderly_or_disabled": 55.1,
+      "pct_earned": 25.5,
+      "pct_ga": 5.7,
+      "pct_ssi": 23.2,
+      "pct_social_security": 37.1,
+      "pct_tanf": 1.5,
+      "avg_gross_income": 1271.0,
+      "avg_household_size": 1.7,
+      "pct_noncitizen_participants": 4.96
+    },
+    "DC": {
+      "households_000": 82.0,
+      "pov4_pct": [
+        36.8,
+        17.5,
+        28.8,
+        17.0
+      ],
+      "pct_children": 28.8,
+      "pct_elderly": 28.2,
+      "pct_nonelderly_disabled": 13.8,
+      "pct_elderly_or_disabled": 42.0,
+      "pct_earned": 13.3,
+      "pct_ga": 0.4,
+      "pct_ssi": 20.6,
+      "pct_social_security": 23.5,
+      "pct_tanf": 13.8,
+      "avg_gross_income": 842.0,
+      "avg_household_size": 1.6,
+      "pct_noncitizen_participants": 1.52
+    },
+    "DE": {
+      "households_000": 57.0,
+      "pov4_pct": [
+        20.6,
+        20.9,
+        31.7,
+        26.8
+      ],
+      "pct_children": 40.6,
+      "pct_elderly": 29.3,
+      "pct_nonelderly_disabled": 12.5,
+      "pct_elderly_or_disabled": 41.4,
+      "pct_earned": 28.7,
+      "pct_ga": 6.4,
+      "pct_ssi": 13.6,
+      "pct_social_security": 29.7,
+      "pct_tanf": 3.6,
+      "avg_gross_income": 1092.0,
+      "avg_household_size": 1.9,
+      "pct_noncitizen_participants": 2.73
+    },
+    "FL": {
+      "households_000": 1595.0,
+      "pov4_pct": [
+        18.0,
+        14.4,
+        45.1,
+        22.4
+      ],
+      "pct_children": 32.3,
+      "pct_elderly": 40.8,
+      "pct_nonelderly_disabled": 13.6,
+      "pct_elderly_or_disabled": 53.9,
+      "pct_earned": 26.0,
+      "pct_ga": 0.7,
+      "pct_ssi": 23.3,
+      "pct_social_security": 36.1,
+      "pct_tanf": 3.4,
+      "avg_gross_income": 1070.0,
+      "avg_household_size": 1.8,
+      "pct_noncitizen_participants": 13.3
+    },
+    "GA": {
+      "households_000": 659.0,
+      "pov4_pct": [
+        18.1,
+        16.3,
+        41.5,
+        24.1
+      ],
+      "pct_children": 39.7,
+      "pct_elderly": 34.4,
+      "pct_nonelderly_disabled": 17.6,
+      "pct_elderly_or_disabled": 51.5,
+      "pct_earned": 28.7,
+      "pct_ga": 0.0,
+      "pct_ssi": 21.6,
+      "pct_social_security": 36.5,
+      "pct_tanf": 0.8,
+      "avg_gross_income": 1116.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 3.85
+    },
+    "HI": {
+      "households_000": 83.0,
+      "pov4_pct": [
+        16.2,
+        26.1,
+        43.9,
+        13.8
+      ],
+      "pct_children": 31.1,
+      "pct_elderly": 40.5,
+      "pct_nonelderly_disabled": 11.0,
+      "pct_elderly_or_disabled": 51.3,
+      "pct_earned": 27.6,
+      "pct_ga": 6.1,
+      "pct_ssi": 20.5,
+      "pct_social_security": 34.7,
+      "pct_tanf": 3.1,
+      "avg_gross_income": 1042.0,
+      "avg_household_size": 1.8,
+      "pct_noncitizen_participants": 4.61
+    },
+    "IA": {
+      "households_000": 127.0,
+      "pov4_pct": [
+        17.5,
+        14.8,
+        43.5,
+        24.2
+      ],
+      "pct_children": 36.7,
+      "pct_elderly": 26.1,
+      "pct_nonelderly_disabled": 24.5,
+      "pct_elderly_or_disabled": 49.7,
+      "pct_earned": 33.5,
+      "pct_ga": 0.1,
+      "pct_ssi": 23.6,
+      "pct_social_security": 33.0,
+      "pct_tanf": 2.5,
+      "avg_gross_income": 1129.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 3.94
+    },
+    "ID": {
+      "households_000": 65.0,
+      "pov4_pct": [
+        15.6,
+        18.7,
+        49.7,
+        16.0
+      ],
+      "pct_children": 37.0,
+      "pct_elderly": 28.5,
+      "pct_nonelderly_disabled": 23.4,
+      "pct_elderly_or_disabled": 51.3,
+      "pct_earned": 31.0,
+      "pct_ga": 16.4,
+      "pct_ssi": 26.3,
+      "pct_social_security": 32.4,
+      "pct_tanf": 0.8,
+      "avg_gross_income": 1017.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 3.85
+    },
+    "IL": {
+      "households_000": 1045.0,
+      "pov4_pct": [
+        28.2,
+        10.7,
+        34.3,
+        26.9
+      ],
+      "pct_children": 34.2,
+      "pct_elderly": 30.0,
+      "pct_nonelderly_disabled": 14.2,
+      "pct_elderly_or_disabled": 43.5,
+      "pct_earned": 31.0,
+      "pct_ga": 1.5,
+      "pct_ssi": 15.9,
+      "pct_social_security": 30.2,
+      "pct_tanf": 3.2,
+      "avg_gross_income": 1072.0,
+      "avg_household_size": 1.8,
+      "pct_noncitizen_participants": 4.3
+    },
+    "IN": {
+      "households_000": 285.0,
+      "pov4_pct": [
+        23.8,
+        21.1,
+        42.5,
+        12.7
+      ],
+      "pct_children": 40.3,
+      "pct_elderly": 22.9,
+      "pct_nonelderly_disabled": 21.1,
+      "pct_elderly_or_disabled": 43.6,
+      "pct_earned": 27.2,
+      "pct_ga": 0.1,
+      "pct_ssi": 22.6,
+      "pct_social_security": 26.0,
+      "pct_tanf": 3.1,
+      "avg_gross_income": 874.0,
+      "avg_household_size": 2.1,
+      "pct_noncitizen_participants": 3.07
+    },
+    "KS": {
+      "households_000": 87.0,
+      "pov4_pct": [
+        15.5,
+        16.6,
+        50.1,
+        17.8
+      ],
+      "pct_children": 37.7,
+      "pct_elderly": 27.8,
+      "pct_nonelderly_disabled": 26.6,
+      "pct_elderly_or_disabled": 53.9,
+      "pct_earned": 27.8,
+      "pct_ga": 0.0,
+      "pct_ssi": 27.7,
+      "pct_social_security": 36.7,
+      "pct_tanf": 2.2,
+      "avg_gross_income": 1049.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 2.87
+    },
+    "KY": {
+      "households_000": 265.0,
+      "pov4_pct": [
+        22.8,
+        17.0,
+        41.0,
+        19.3
+      ],
+      "pct_children": 40.7,
+      "pct_elderly": 27.9,
+      "pct_nonelderly_disabled": 24.2,
+      "pct_elderly_or_disabled": 51.2,
+      "pct_earned": 25.9,
+      "pct_ga": 0.5,
+      "pct_ssi": 25.6,
+      "pct_social_security": 29.9,
+      "pct_tanf": 2.6,
+      "avg_gross_income": 1040.0,
+      "avg_household_size": 2.1,
+      "pct_noncitizen_participants": 2.28
+    },
+    "LA": {
+      "households_000": 414.0,
+      "pov4_pct": [
+        20.4,
+        17.1,
+        44.2,
+        18.3
+      ],
+      "pct_children": 42.9,
+      "pct_elderly": 28.6,
+      "pct_nonelderly_disabled": 18.7,
+      "pct_elderly_or_disabled": 47.1,
+      "pct_earned": 30.7,
+      "pct_ga": 0.3,
+      "pct_ssi": 22.5,
+      "pct_social_security": 30.3,
+      "pct_tanf": 0.3,
+      "avg_gross_income": 1033.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 0.48
+    },
+    "MA": {
+      "households_000": 662.0,
+      "pov4_pct": [
+        18.9,
+        12.7,
+        33.9,
+        34.4
+      ],
+      "pct_children": 25.1,
+      "pct_elderly": 35.7,
+      "pct_nonelderly_disabled": 20.1,
+      "pct_elderly_or_disabled": 55.6,
+      "pct_earned": 24.6,
+      "pct_ga": 3.9,
+      "pct_ssi": 22.4,
+      "pct_social_security": 36.2,
+      "pct_tanf": 7.8,
+      "avg_gross_income": 1289.0,
+      "avg_household_size": 1.6,
+      "pct_noncitizen_participants": 10.26
+    },
+    "MD": {
+      "households_000": 363.0,
+      "pov4_pct": [
+        19.2,
+        15.6,
+        39.5,
+        25.7
+      ],
+      "pct_children": 35.1,
+      "pct_elderly": 37.7,
+      "pct_nonelderly_disabled": 16.3,
+      "pct_elderly_or_disabled": 53.8,
+      "pct_earned": 26.0,
+      "pct_ga": 2.1,
+      "pct_ssi": 24.2,
+      "pct_social_security": 35.7,
+      "pct_tanf": 4.3,
+      "avg_gross_income": 1083.0,
+      "avg_household_size": 1.8,
+      "pct_noncitizen_participants": 4.5
+    },
+    "ME": {
+      "households_000": 98.0,
+      "pov4_pct": [
+        14.9,
+        9.7,
+        40.0,
+        35.5
+      ],
+      "pct_children": 26.1,
+      "pct_elderly": 35.9,
+      "pct_nonelderly_disabled": 25.2,
+      "pct_elderly_or_disabled": 60.3,
+      "pct_earned": 23.6,
+      "pct_ga": 23.4,
+      "pct_ssi": 22.4,
+      "pct_social_security": 46.6,
+      "pct_tanf": 4.4,
+      "avg_gross_income": 1277.0,
+      "avg_household_size": 1.7,
+      "pct_noncitizen_participants": 1.83
+    },
+    "MI": {
+      "households_000": 762.0,
+      "pov4_pct": [
+        17.2,
+        10.4,
+        39.7,
+        32.6
+      ],
+      "pct_children": 30.2,
+      "pct_elderly": 30.1,
+      "pct_nonelderly_disabled": 22.7,
+      "pct_elderly_or_disabled": 51.9,
+      "pct_earned": 30.0,
+      "pct_ga": 0.3,
+      "pct_ssi": 24.0,
+      "pct_social_security": 36.9,
+      "pct_tanf": 0.6,
+      "avg_gross_income": 1305.0,
+      "avg_household_size": 1.9,
+      "pct_noncitizen_participants": 2.46
+    },
+    "MN": {
+      "households_000": 233.0,
+      "pov4_pct": [
+        11.8,
+        21.7,
+        36.5,
+        30.0
+      ],
+      "pct_children": 32.1,
+      "pct_elderly": 31.5,
+      "pct_nonelderly_disabled": 18.7,
+      "pct_elderly_or_disabled": 50.1,
+      "pct_earned": 28.8,
+      "pct_ga": 6.3,
+      "pct_ssi": 24.3,
+      "pct_social_security": 31.3,
+      "pct_tanf": 9.2,
+      "avg_gross_income": 1211.0,
+      "avg_household_size": 1.9,
+      "pct_noncitizen_participants": 3.33
+    },
+    "MO": {
+      "households_000": 306.0,
+      "pov4_pct": [
+        21.6,
+        15.8,
+        45.9,
+        16.6
+      ],
+      "pct_children": 40.6,
+      "pct_elderly": 26.7,
+      "pct_nonelderly_disabled": 26.9,
+      "pct_elderly_or_disabled": 53.3,
+      "pct_earned": 23.6,
+      "pct_ga": 0.0,
+      "pct_ssi": 26.5,
+      "pct_social_security": 36.8,
+      "pct_tanf": 1.7,
+      "avg_gross_income": 957.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 2.72
+    },
+    "MS": {
+      "households_000": 184.0,
+      "pov4_pct": [
+        21.7,
+        18.6,
+        47.5,
+        12.2
+      ],
+      "pct_children": 41.0,
+      "pct_elderly": 26.1,
+      "pct_nonelderly_disabled": 23.9,
+      "pct_elderly_or_disabled": 49.5,
+      "pct_earned": 22.6,
+      "pct_ga": 0.0,
+      "pct_ssi": 30.5,
+      "pct_social_security": 28.9,
+      "pct_tanf": 0.9,
+      "avg_gross_income": 892.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 0.27
+    },
+    "MT": {
+      "households_000": 40.0,
+      "pov4_pct": [
+        16.0,
+        15.0,
+        43.6,
+        25.4
+      ],
+      "pct_children": 35.4,
+      "pct_elderly": 37.5,
+      "pct_nonelderly_disabled": 17.9,
+      "pct_elderly_or_disabled": 54.6,
+      "pct_earned": 26.0,
+      "pct_ga": 2.9,
+      "pct_ssi": 22.2,
+      "pct_social_security": 43.9,
+      "pct_tanf": 3.4,
+      "avg_gross_income": 1173.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 0.0
+    },
+    "NC": {
+      "households_000": 693.0,
+      "pov4_pct": [
+        16.9,
+        15.3,
+        33.9,
+        34.0
+      ],
+      "pct_children": 41.3,
+      "pct_elderly": 31.2,
+      "pct_nonelderly_disabled": 18.8,
+      "pct_elderly_or_disabled": 49.8,
+      "pct_earned": 33.6,
+      "pct_ga": 0.5,
+      "pct_ssi": 19.0,
+      "pct_social_security": 35.3,
+      "pct_tanf": 0.5,
+      "avg_gross_income": 1271.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 2.32
+    },
+    "ND": {
+      "households_000": 24.0,
+      "pov4_pct": [
+        19.2,
+        16.1,
+        40.3,
+        24.5
+      ],
+      "pct_children": 39.0,
+      "pct_elderly": 25.3,
+      "pct_nonelderly_disabled": 22.5,
+      "pct_elderly_or_disabled": 47.4,
+      "pct_earned": 31.3,
+      "pct_ga": 0.2,
+      "pct_ssi": 18.2,
+      "pct_social_security": 34.8,
+      "pct_tanf": 2.4,
+      "avg_gross_income": 1067.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 4.17
+    },
+    "NE": {
+      "households_000": 74.0,
+      "pov4_pct": [
+        18.2,
+        17.9,
+        41.0,
+        22.9
+      ],
+      "pct_children": 36.3,
+      "pct_elderly": 26.7,
+      "pct_nonelderly_disabled": 18.3,
+      "pct_elderly_or_disabled": 44.8,
+      "pct_earned": 32.6,
+      "pct_ga": 4.2,
+      "pct_ssi": 19.3,
+      "pct_social_security": 32.5,
+      "pct_tanf": 3.3,
+      "avg_gross_income": 1090.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 9.33
+    },
+    "NH": {
+      "households_000": 41.0,
+      "pov4_pct": [
+        13.1,
+        6.5,
+        44.5,
+        35.9
+      ],
+      "pct_children": 31.3,
+      "pct_elderly": 34.5,
+      "pct_nonelderly_disabled": 30.9,
+      "pct_elderly_or_disabled": 65.0,
+      "pct_earned": 22.4,
+      "pct_ga": 9.2,
+      "pct_ssi": 24.6,
+      "pct_social_security": 50.0,
+      "pct_tanf": 2.7,
+      "avg_gross_income": 1334.0,
+      "avg_household_size": 1.8,
+      "pct_noncitizen_participants": 1.35
+    },
+    "NJ": {
+      "households_000": 420.0,
+      "pov4_pct": [
+        11.7,
+        14.2,
+        42.2,
+        31.9
+      ],
+      "pct_children": 37.3,
+      "pct_elderly": 42.6,
+      "pct_nonelderly_disabled": 14.7,
+      "pct_elderly_or_disabled": 56.8,
+      "pct_earned": 22.5,
+      "pct_ga": 2.6,
+      "pct_ssi": 23.4,
+      "pct_social_security": 37.0,
+      "pct_tanf": 1.7,
+      "avg_gross_income": 1268.0,
+      "avg_household_size": 1.9,
+      "pct_noncitizen_participants": 5.44
+    },
+    "NM": {
+      "households_000": 233.0,
+      "pov4_pct": [
+        23.9,
+        18.6,
+        33.8,
+        23.7
+      ],
+      "pct_children": 31.3,
+      "pct_elderly": 24.9,
+      "pct_nonelderly_disabled": 13.0,
+      "pct_elderly_or_disabled": 37.6,
+      "pct_earned": 34.1,
+      "pct_ga": 0.5,
+      "pct_ssi": 15.1,
+      "pct_social_security": 25.2,
+      "pct_tanf": 3.4,
+      "avg_gross_income": 1021.0,
+      "avg_household_size": 1.8,
+      "pct_noncitizen_participants": 4.04
+    },
+    "NV": {
+      "households_000": 264.0,
+      "pov4_pct": [
+        26.4,
+        12.7,
+        30.4,
+        30.5
+      ],
+      "pct_children": 33.4,
+      "pct_elderly": 27.2,
+      "pct_nonelderly_disabled": 11.3,
+      "pct_elderly_or_disabled": 37.9,
+      "pct_earned": 32.4,
+      "pct_ga": 0.1,
+      "pct_ssi": 14.2,
+      "pct_social_security": 27.2,
+      "pct_tanf": 1.9,
+      "avg_gross_income": 1167.0,
+      "avg_household_size": 1.9,
+      "pct_noncitizen_participants": 6.54
+    },
+    "NY": {
+      "households_000": 1627.0,
+      "pov4_pct": [
+        10.0,
+        22.2,
+        43.5,
+        24.2
+      ],
+      "pct_children": 25.4,
+      "pct_elderly": 42.7,
+      "pct_nonelderly_disabled": 17.4,
+      "pct_elderly_or_disabled": 59.4,
+      "pct_earned": 21.7,
+      "pct_ga": 18.9,
+      "pct_ssi": 26.2,
+      "pct_social_security": 38.0,
+      "pct_tanf": 1.3,
+      "avg_gross_income": 1143.0,
+      "avg_household_size": 1.7,
+      "pct_noncitizen_participants": 9.81
+    },
+    "OH": {
+      "households_000": 696.0,
+      "pov4_pct": [
+        16.6,
+        15.4,
+        45.9,
+        22.1
+      ],
+      "pct_children": 34.9,
+      "pct_elderly": 32.4,
+      "pct_nonelderly_disabled": 25.9,
+      "pct_elderly_or_disabled": 57.4,
+      "pct_earned": 25.8,
+      "pct_ga": 0.1,
+      "pct_ssi": 27.8,
+      "pct_social_security": 35.3,
+      "pct_tanf": 3.3,
+      "avg_gross_income": 1070.0,
+      "avg_household_size": 1.9,
+      "pct_noncitizen_participants": 0.53
+    },
+    "OK": {
+      "households_000": 325.0,
+      "pov4_pct": [
+        22.4,
+        20.7,
+        41.1,
+        15.8
+      ],
+      "pct_children": 38.9,
+      "pct_elderly": 24.4,
+      "pct_nonelderly_disabled": 16.7,
+      "pct_elderly_or_disabled": 40.5,
+      "pct_earned": 32.0,
+      "pct_ga": 16.7,
+      "pct_ssi": 19.4,
+      "pct_social_security": 27.4,
+      "pct_tanf": 2.0,
+      "avg_gross_income": 969.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 2.88
+    },
+    "OR": {
+      "households_000": 419.0,
+      "pov4_pct": [
+        22.0,
+        15.7,
+        31.0,
+        31.3
+      ],
+      "pct_children": 27.3,
+      "pct_elderly": 31.1,
+      "pct_nonelderly_disabled": 13.1,
+      "pct_elderly_or_disabled": 43.5,
+      "pct_earned": 31.1,
+      "pct_ga": 0.6,
+      "pct_ssi": 13.9,
+      "pct_social_security": 30.2,
+      "pct_tanf": 6.6,
+      "avg_gross_income": 1151.0,
+      "avg_household_size": 1.7,
+      "pct_noncitizen_participants": 4.37
+    },
+    "PA": {
+      "households_000": 1048.0,
+      "pov4_pct": [
+        15.1,
+        10.4,
+        40.9,
+        33.5
+      ],
+      "pct_children": 30.6,
+      "pct_elderly": 34.8,
+      "pct_nonelderly_disabled": 23.0,
+      "pct_elderly_or_disabled": 57.1,
+      "pct_earned": 30.8,
+      "pct_ga": 0.0,
+      "pct_ssi": 25.8,
+      "pct_social_security": 36.8,
+      "pct_tanf": 2.2,
+      "avg_gross_income": 1301.0,
+      "avg_household_size": 1.8,
+      "pct_noncitizen_participants": 2.34
+    },
+    "RI": {
+      "households_000": 89.0,
+      "pov4_pct": [
+        11.5,
+        11.6,
+        43.9,
+        33.0
+      ],
+      "pct_children": 25.8,
+      "pct_elderly": 37.2,
+      "pct_nonelderly_disabled": 26.1,
+      "pct_elderly_or_disabled": 62.4,
+      "pct_earned": 22.4,
+      "pct_ga": 1.8,
+      "pct_ssi": 28.3,
+      "pct_social_security": 42.7,
+      "pct_tanf": 3.5,
+      "avg_gross_income": 1247.0,
+      "avg_household_size": 1.6,
+      "pct_noncitizen_participants": 7.86
+    },
+    "SC": {
+      "households_000": 273.0,
+      "pov4_pct": [
+        18.7,
+        18.3,
+        46.0,
+        17.0
+      ],
+      "pct_children": 44.4,
+      "pct_elderly": 32.2,
+      "pct_nonelderly_disabled": 19.6,
+      "pct_elderly_or_disabled": 51.2,
+      "pct_earned": 25.5,
+      "pct_ga": 0.1,
+      "pct_ssi": 22.6,
+      "pct_social_security": 35.7,
+      "pct_tanf": 1.9,
+      "avg_gross_income": 979.0,
+      "avg_household_size": 2.1,
+      "pct_noncitizen_participants": 1.23
+    },
+    "SD": {
+      "households_000": 37.0,
+      "pov4_pct": [
+        25.1,
+        14.3,
+        39.1,
+        21.4
+      ],
+      "pct_children": 39.7,
+      "pct_elderly": 26.1,
+      "pct_nonelderly_disabled": 21.1,
+      "pct_elderly_or_disabled": 46.6,
+      "pct_earned": 26.5,
+      "pct_ga": 0.9,
+      "pct_ssi": 20.2,
+      "pct_social_security": 34.4,
+      "pct_tanf": 3.4,
+      "avg_gross_income": 981.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 2.74
+    },
+    "TN": {
+      "households_000": 333.0,
+      "pov4_pct": [
+        20.2,
+        19.2,
+        48.6,
+        12.0
+      ],
+      "pct_children": 40.9,
+      "pct_elderly": 27.9,
+      "pct_nonelderly_disabled": 23.8,
+      "pct_elderly_or_disabled": 51.0,
+      "pct_earned": 23.2,
+      "pct_ga": 0.0,
+      "pct_ssi": 28.6,
+      "pct_social_security": 31.9,
+      "pct_tanf": 3.0,
+      "avg_gross_income": 915.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 1.04
+    },
+    "TX": {
+      "households_000": 1442.0,
+      "pov4_pct": [
+        25.4,
+        17.9,
+        38.8,
+        18.0
+      ],
+      "pct_children": 48.8,
+      "pct_elderly": 30.0,
+      "pct_nonelderly_disabled": 16.6,
+      "pct_elderly_or_disabled": 46.5,
+      "pct_earned": 31.7,
+      "pct_ga": 0.0,
+      "pct_ssi": 17.8,
+      "pct_social_security": 27.6,
+      "pct_tanf": 0.6,
+      "avg_gross_income": 999.0,
+      "avg_household_size": 2.2,
+      "pct_noncitizen_participants": 4.38
+    },
+    "UT": {
+      "households_000": 82.0,
+      "pov4_pct": [
+        25.6,
+        20.6,
+        38.9,
+        14.9
+      ],
+      "pct_children": 36.7,
+      "pct_elderly": 22.3,
+      "pct_nonelderly_disabled": 17.8,
+      "pct_elderly_or_disabled": 39.6,
+      "pct_earned": 27.6,
+      "pct_ga": 1.4,
+      "pct_ssi": 17.6,
+      "pct_social_security": 26.8,
+      "pct_tanf": 1.4,
+      "avg_gross_income": 895.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 3.05
+    },
+    "VA": {
+      "households_000": 412.0,
+      "pov4_pct": [
+        18.1,
+        17.4,
+        39.2,
+        25.3
+      ],
+      "pct_children": 39.5,
+      "pct_elderly": 31.9,
+      "pct_nonelderly_disabled": 18.5,
+      "pct_elderly_or_disabled": 50.0,
+      "pct_earned": 28.4,
+      "pct_ga": 0.1,
+      "pct_ssi": 22.3,
+      "pct_social_security": 34.8,
+      "pct_tanf": 3.6,
+      "avg_gross_income": 1115.0,
+      "avg_household_size": 2.0,
+      "pct_noncitizen_participants": 4.22
+    },
+    "VT": {
+      "households_000": 39.0,
+      "pov4_pct": [
+        10.9,
+        9.5,
+        41.7,
+        37.8
+      ],
+      "pct_children": 25.1,
+      "pct_elderly": 41.3,
+      "pct_nonelderly_disabled": 25.8,
+      "pct_elderly_or_disabled": 65.8,
+      "pct_earned": 21.1,
+      "pct_ga": 3.9,
+      "pct_ssi": 24.0,
+      "pct_social_security": 52.1,
+      "pct_tanf": 5.2,
+      "avg_gross_income": 1359.0,
+      "avg_household_size": 1.7,
+      "pct_noncitizen_participants": 1.54
+    },
+    "WA": {
+      "households_000": 504.0,
+      "pov4_pct": [
+        19.9,
+        18.5,
+        39.2,
+        22.4
+      ],
+      "pct_children": 28.7,
+      "pct_elderly": 31.2,
+      "pct_nonelderly_disabled": 19.5,
+      "pct_elderly_or_disabled": 50.1,
+      "pct_earned": 22.0,
+      "pct_ga": 13.3,
+      "pct_ssi": 23.4,
+      "pct_social_security": 32.3,
+      "pct_tanf": 5.3,
+      "avg_gross_income": 1085.0,
+      "avg_household_size": 1.7,
+      "pct_noncitizen_participants": 5.54
+    },
+    "WI": {
+      "households_000": 366.0,
+      "pov4_pct": [
+        19.5,
+        12.0,
+        34.5,
+        34.0
+      ],
+      "pct_children": 35.4,
+      "pct_elderly": 27.8,
+      "pct_nonelderly_disabled": 19.0,
+      "pct_elderly_or_disabled": 46.4,
+      "pct_earned": 34.7,
+      "pct_ga": 2.7,
+      "pct_ssi": 17.9,
+      "pct_social_security": 34.0,
+      "pct_tanf": 0.5,
+      "avg_gross_income": 1268.0,
+      "avg_household_size": 1.9,
+      "pct_noncitizen_participants": 1.73
+    },
+    "WV": {
+      "households_000": 141.0,
+      "pov4_pct": [
+        22.4,
+        12.6,
+        42.2,
+        22.8
+      ],
+      "pct_children": 29.6,
+      "pct_elderly": 34.0,
+      "pct_nonelderly_disabled": 24.1,
+      "pct_elderly_or_disabled": 57.2,
+      "pct_earned": 20.4,
+      "pct_ga": 0.9,
+      "pct_ssi": 26.2,
+      "pct_social_security": 36.7,
+      "pct_tanf": 2.0,
+      "avg_gross_income": 1028.0,
+      "avg_household_size": 1.8,
+      "pct_noncitizen_participants": 0.0
+    },
+    "WY": {
+      "households_000": 13.0,
+      "pov4_pct": [
+        21.0,
+        17.2,
+        45.6,
+        16.3
+      ],
+      "pct_children": 44.0,
+      "pct_elderly": 22.9,
+      "pct_nonelderly_disabled": 20.2,
+      "pct_elderly_or_disabled": 42.7,
+      "pct_earned": 30.1,
+      "pct_ga": 0.5,
+      "pct_ssi": 18.6,
+      "pct_social_security": 33.9,
+      "pct_tanf": 1.1,
+      "avg_gross_income": 1005.0,
+      "avg_household_size": 2.1,
+      "pct_noncitizen_participants": 0.0
+    }
+  }
+}

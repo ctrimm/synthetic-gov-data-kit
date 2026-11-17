@@ -66,9 +66,50 @@ Pipeline.from_preset("snap.va", profile_strategy="edge_saturated")
 Pipeline.from_preset("snap.va", profile_strategy="realistic")
 # Census ACS distributions; SNAP rules follow each profile's census year
 
+Pipeline.from_preset("snap.va", profile_strategy="realistic", population="caseload")
+# Households that actually receive SNAP (FNS SNAP QC characteristics, FY2024)
+
 Pipeline.from_preset("snap.va", profile_strategy="uniform")
 # National approximations, no census data required
 ```
+
+### Caseload population
+
+`population="caseload"` draws from the SNAP Quality Control tables in
+`data/caseload/snap_qc_fy2024.json`, imported from the FNS report *Characteristics of
+Supplemental Nutrition Assistance Program Households: Fiscal Year 2024* (SNAP-24-CHAR,
+revised August 2026 with corrected weights) by `scripts/import_snap_qc.py`.
+
+| Report table | Used for |
+|---|---|
+| A.3 | composition x gross income as % of poverty (national) |
+| A.4 | household size x % of poverty (national) |
+| A.6 | composition x earned income, SSI, Social Security (national) |
+| A.17 | children x elderly / disabled, composition x size (national) |
+| B.2 | state average gross income (calibrates the open top income bin) |
+| B.3, B.5, B.6 | state % of poverty bins, composition, income sources |
+| B.16 | state noncitizen share of participants |
+
+The national cross-tabs are fit jointly with iterative proportional fitting, then raked to
+each state's marginals. Within a cell, gross income is uniform over its poverty bin, evaluated
+with the poverty guideline of the rules year (FY *Y* uses the year *Y*-1 guideline). The
+report's top bin ("131 percent or greater") is open, because elderly and disabled households
+have no gross limit; its upper end is set per state, between 140% and 400%, so mean gross
+income matches Table B.2. Known simplifications:
+
+- Earned income is all of gross for earners without SSI or Social Security, and half for those
+  with either. The report gives source shares, not per-household amounts.
+- One-person households with children (child-only units, 1.3% nationally) are rendered
+  without dependent children.
+- Countable resources are nonzero for 1.6% of households (Table A.17), averaging $550 (A.5).
+- Noncitizen participants are rendered as qualified aliens.
+- Shelter costs come from the state's ACS rents. The general eligibility path does not apply
+  the excess shelter deduction, so some caseload households in the top income bin fail the
+  net income test even though real ones would pass.
+
+`govsynth validate-distribution --population caseload` compares sampled profiles with the
+state's QC figures (poverty bins, elderly/disabled, elderly head, earnings, SSI, Social
+Security, average gross income). The test suite runs it for all 51 jurisdictions.
 
 ---
 
@@ -185,6 +226,7 @@ August 2024 and present in the August 2025 chart (FY2026).
 | FNS FY2021–FY2025 COLA tables | Per-year PDFs listed in `scripts/import_snap_cola.py` and each file's `_metadata` |
 | [FNS State Options Report](https://www.fns.usda.gov/snap/state-options-report) | BBCE state list, categorical eligibility options |
 | [FNS BBCE States Chart](https://www.fns.usda.gov/snap/broad-based-categorical-eligibility) | Per-state BBCE gross income limits and asset rules (basis for `snap_bbce_fy2026.json`) |
+| [FNS Characteristics of SNAP Households: FY2024](https://fns-prod.azureedge.us/sites/default/files/resource-files/snap-fy2024householdcharacteristics-report.pdf) | SNAP QC caseload tables behind `population="caseload"` (`data/caseload/snap_qc_fy2024.json`) |
 | `data/thresholds/snap_fy2026.json` | Bundled threshold table (income limits, asset limits, deductions) |
 | `data/thresholds/snap_bbce_fy2026.json` | Per-state BBCE parameters (gross % FPL, asset rule, conferring benefit) |
 | `data/seeds/us/snap/` | CFR excerpts used as rationale grounding context |

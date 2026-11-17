@@ -54,6 +54,7 @@ class Pipeline:
         console: Console | None = None,
         census_years: CensusYearsArg = None,
         match_census_year: bool = True,
+        population: str = "general",
     ) -> None:
         """Create a Pipeline.
 
@@ -67,15 +68,28 @@ class Pipeline:
             match_census_year: For generators that support it (SNAP), judge each
                 realistic profile by the program rules of its census year. False
                 applies the preset's fiscal year to every case.
+            population: 'general' (default) or 'caseload' -- with 'realistic'
+                profiles, sample households that actually receive SNAP from the
+                SNAP Quality Control tables. SNAP generators only.
 
         Raises:
             ValueError: If census_years is set with a non-'realistic' strategy,
-                or the generator doesn't sample census data.
+                or the generator doesn't sample census data, or population is
+                'caseload' with another strategy or a generator that lacks it.
         """
         self.generator = generator
         self.profile_strategy = profile_strategy
         self.census_years = census_years_for_strategy(census_years, profile_strategy)
         self.match_census_year = match_census_year
+        self.population = population
+        if population != "general":
+            if profile_strategy != "realistic":
+                raise ValueError(f"population={population!r} only applies to profile_strategy='realistic'")
+            if generator is not None and "population" not in inspect.signature(generator.generate).parameters:
+                raise ValueError(
+                    f"{type(generator).__name__} does not support population={population!r}: caseload data is "
+                    "bundled for SNAP only."
+                )
         if (
             not match_census_year
             and generator is not None
@@ -103,6 +117,7 @@ class Pipeline:
         console: Console | None = None,
         census_years: CensusYearsArg = None,
         match_census_year: bool = True,
+        population: str = "general",
         **generator_kwargs: object,
     ) -> Pipeline:
         """Create a Pipeline from a named preset.
@@ -114,6 +129,7 @@ class Pipeline:
             console: Optional Rich Console instance. Defaults to a stderr console.
             census_years: ACS release(s) for 'realistic' profiles; see __init__.
             match_census_year: See __init__.
+            population: See __init__.
             **generator_kwargs: Override specific generator constructor args.
         """
         if preset_name not in PRESETS:
@@ -132,6 +148,7 @@ class Pipeline:
             console=console,
             census_years=census_years,
             match_census_year=match_census_year,
+            population=population,
         )
 
     def generate(self, n: int, seed: int | None = None) -> list[TestCase]:
@@ -169,6 +186,8 @@ class Pipeline:
             while remaining > 0:
                 batch_n = min(batch_size, remaining)
                 extra: dict[str, Any] = {} if self.match_census_year else {"match_census_year": False}
+                if self.population != "general":
+                    extra["population"] = self.population
                 if self.census_years:
                     # Generators assign years round-robin from index 0 of each
                     # call; rotate by cases done so far so the spread stays even

@@ -247,3 +247,85 @@ def pums_crosscheck(state: str, vintage: CensusVintage | int | str | None = None
         check("household_size_1", dist.household_size_weights[0] / total_w, types.size_share(1)),
     ]
     return checks
+
+
+def check_caseload(state: str, n: int = 3000, seed: int = 42) -> list[MetricCheck]:
+    """Sample n SNAP caseload profiles for a state and compare them with the QC tables (#9).
+
+    Targets come straight from the FNS 'Characteristics of SNAP Households' state
+    tables: gross income as a percent of poverty (four bins), elderly, elderly or
+    disabled, earnings, SSI, Social Security, and average gross income. The
+    children share is compared with the fitted table's share of households of two or
+    more with children, because one-person child-only units are rendered without
+    dependent children.
+
+    Raises:
+        ValueError: If the state has no caseload data.
+    """
+    from govsynth.sources.us.snap_caseload import POV_RANGES, caseload_table, poverty_guideline_annual
+
+    table = caseload_table(state)
+    target = table.qc["states"][state.upper()]
+    profiles = [
+        USHouseholdProfile.random(state=state, seed=seed + i, strategy="realistic", population="caseload")
+        for i in range(n)
+    ]
+
+    def pov4(p: USHouseholdProfile) -> int:
+        if p.monthly_gross_income <= 0:
+            return 0
+        pct = (
+            100
+            * p.monthly_gross_income
+            * 12
+            / poverty_guideline_annual(p.household_size, state, (p.income_dollar_year or table.fiscal_year) - 1)
+        )
+        edges = [POV_RANGES["26_50"][1], POV_RANGES["76_100"][1]]
+        return 1 if pct <= edges[0] else 2 if pct <= edges[1] else 3
+
+    bins = Counter(pov4(p) for p in profiles)
+    sources = [p.income_sources or () for p in profiles]
+    checks = [
+        _share_check(f"pov_bin_{label}", target["pov4_pct"][i] / 100, bins[i] / n, n)
+        for i, label in enumerate(("zero", "1_50", "51_100", "101_plus"))
+    ]
+    checks += [
+        _share_check(
+            "pct_children_size2plus",
+            table.share(lambda c: bool(c.kids) and c.size > 1),
+            sum(p.has_dependent_children for p in profiles) / n,
+            n,
+        ),
+        _share_check(
+            "pct_elderly_or_disabled",
+            target["pct_elderly_or_disabled"] / 100,
+            sum(p.has_elderly_or_disabled for p in profiles) / n,
+            n,
+        ),
+        _share_check(
+            "pct_elderly_head", target["pct_elderly"] / 100, sum((p.age_of_head or 0) >= 60 for p in profiles) / n, n
+        ),
+        _share_check("pct_earned", target["pct_earned"] / 100, sum("earned" in s for s in sources) / n, n),
+        _share_check("pct_ssi", target["pct_ssi"] / 100, sum("ssi" in s for s in sources) / n, n),
+        _share_check(
+            "pct_social_security",
+            target["pct_social_security"] / 100,
+            sum("social_security" in s for s in sources) / n,
+            n,
+        ),
+    ]
+    incomes = [p.monthly_gross_income for p in profiles]
+    mean = sum(incomes) / n
+    sd = math.sqrt(sum((x - mean) ** 2 for x in incomes) / max(n - 1, 1))
+    # 4 standard errors plus 5% for the within-bin income model (the report gives bin shares, not amounts).
+    tol = 4 * sd / math.sqrt(n) + 0.05 * target["avg_gross_income"]
+    checks.append(
+        MetricCheck(
+            "avg_gross_income",
+            target["avg_gross_income"],
+            round(mean, 2),
+            round(tol, 2),
+            abs(mean - target["avg_gross_income"]) <= tol,
+        )
+    )
+    return checks

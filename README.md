@@ -212,11 +212,37 @@ Other vintages use the summary rates until their types are built:
 python scripts/build_pums_households.py --state VA --year 2023 --survey acs5
 ```
 
-### Checking representativeness
+### Who applies, not just who lives here: the SNAP caseload
+
+The census describes everyone who *might* ask an eligibility question. The people SNAP actually
+serves look different: 60% are one-person households, half include someone elderly or disabled,
+19% have no countable income, and 22% receive SSI. `population="caseload"` samples that
+population instead, from the USDA FNS *Characteristics of SNAP Households: FY2024* tables built
+from the SNAP Quality Control sample (`data/caseload/snap_qc_fy2024.json`,
+`scripts/import_snap_qc.py`):
+
+```python
+Pipeline.from_preset("snap.va", profile_strategy="realistic", population="caseload")
+```
+
+```bash
+govsynth generate snap.va -s realistic --population caseload -n 500 -o out/
+govsynth validate-distribution --state all --population caseload
+```
+
+Each profile is one cell of a joint table -- children, elderly/disabled, household size, gross
+income as a percent of poverty, earnings, SSI, Social Security -- fit to every national
+cross-tabulation in the report and then raked to the state's own figures, so traits keep their
+real correlations (elderly households stay mostly single-person and on Social Security). Incomes
+are placed against the poverty guideline of the rules year, and cases record
+`metadata["household_model"] = "snap_qc_fy2024"`. Caseload data is bundled for SNAP only; the
+QC microdata site refuses automated access, so the published tables are used.
+
 
 ```bash
 govsynth validate-distribution --state VA          # one state, every metric
 govsynth validate-distribution --state all --json  # all 51 jurisdictions; exits 1 on any failure
+govsynth validate-distribution --state VA --population caseload  # SNAP caseload vs. the QC tables
 ```
 
 This samples `realistic` profiles and compares them with their census targets (children,

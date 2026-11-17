@@ -25,6 +25,8 @@ if TYPE_CHECKING:
 
 _faker = Faker("en_US")
 
+POPULATIONS = ("general", "caseload")
+
 # See `USHouseholdProfile.natural_language_summary_styled`. Named as a public
 # constant, not a magic set of strings scattered at call sites, so a caller
 # building a diverse corpus can iterate `PHRASING_STYLES` to get all of them
@@ -97,6 +99,10 @@ class USHouseholdProfile:
     # household types from ACS PUMS, #8) or "acs_marginals" (independent per-trait
     # summary-table rates); None for other strategies / built-in fallback numbers.
     household_model: str | None = None
+    # For 'caseload' profiles: the household's countable income sources in the SNAP QC
+    # model (subset of "earned", "ssi", "social_security"). Provenance only -- not
+    # rendered into the scenario.
+    income_sources: tuple[str, ...] | None = None
 
     def __post_init__(self) -> None:
         if not self.head_of_household_name:
@@ -141,6 +147,7 @@ class USHouseholdProfile:
         strategy: str = "uniform",
         census_vintage: CensusVintage | int | str | None = None,
         income_dollar_year: int | None = None,
+        population: str = "general",
     ) -> USHouseholdProfile:
         """Generate a random profile using the given strategy.
 
@@ -154,12 +161,24 @@ class USHouseholdProfile:
             income_dollar_year: For 'realistic' profiles, restate income in this
                 calendar year's dollars using CPI-U (census incomes are in the
                 vintage's own dollars). None leaves them in the vintage's dollars.
+            population: For 'realistic' profiles, 'general' (default) samples the
+                whole population from the ACS; 'caseload' samples households that
+                actually receive SNAP, from the SNAP Quality Control tables (#9).
+                Caseload incomes are placed against the poverty guideline of the
+                SNAP fiscal year `income_dollar_year` (default: the census vintage's
+                year), so they sit where real caseload incomes sit relative to
+                that year's limits.
 
         Raises:
             ValueError: If `census_vintage` or `income_dollar_year` is given with a
                 strategy other than 'realistic' (only that strategy reads census
-                data), or a vintage has no data for this state.
+                data), or a vintage has no data for this state, or `population`
+                is unknown or 'caseload' with another strategy.
         """
+        if population not in POPULATIONS:
+            raise ValueError(f"population must be one of {POPULATIONS}, got {population!r}")
+        if population != "general" and strategy != "realistic":
+            raise ValueError(f"population={population!r} only applies to strategy='realistic'")
         for name, value in (("census_vintage", census_vintage), ("income_dollar_year", income_dollar_year)):
             if value is not None and strategy != "realistic":
                 raise ValueError(
@@ -170,6 +189,10 @@ class USHouseholdProfile:
         if seed is not None:
             Faker.seed(seed)
 
+        if strategy == "realistic" and population == "caseload":
+            return _build_caseload_profile(
+                state=state, rng=rng, census_vintage=census_vintage, income_dollar_year=income_dollar_year
+            )
         if strategy == "realistic":
             return _build_realistic_profile(
                 state=state, rng=rng, census_vintage=census_vintage, income_dollar_year=income_dollar_year
@@ -677,6 +700,86 @@ def _build_from_household_types(
         census_vintage=dist.vintage,
         income_dollar_year=dollar_year,
         household_model="pums_household_types",
+    )
+
+
+def _build_caseload_profile(
+    state: str,
+    rng: random.Random,
+    census_vintage: CensusVintage | int | str | None,
+    income_dollar_year: int | None,
+) -> USHouseholdProfile:
+    """Build a profile of a household that receives SNAP, from the QC caseload tables (#9).
+
+    One caseload cell fixes children, elderly/disabled group, size, gross income as a
+    percent of poverty, and income sources. Within it: income is uniform over the
+    poverty bin (the open top bin's upper end is calibrated per state to the
+    report's mean gross income); earned income is all of gross for earners without SSI or Social
+    Security and half of it for those with either (the report gives source shares,
+    not amounts per household); countable resources are nonzero for 1.6% of
+    households (Table A.17), averaging $550 (Table A.5). Shelter costs follow the
+    state's ACS rents. A one-person cell with children (a child-only SNAP unit) is
+    rendered without dependent children, since the profile has no adult to parent them.
+    """
+    import warnings
+
+    from govsynth.sources.us.census import CensusDataSource, CensusVintage
+    from govsynth.sources.us.snap_caseload import DEFAULT_QC_FY, caseload_table, poverty_guideline_annual
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        dist = CensusDataSource(state, vintage=census_vintage).load()
+    if dist is None:
+        if census_vintage is not None:
+            raise ValueError(f"No census data for {state} in vintage {census_vintage}")
+        vintage_year = None
+    else:
+        vintage_year = CensusVintage.parse(dist.vintage).year if dist.vintage else None
+    fiscal_year = income_dollar_year or vintage_year or DEFAULT_QC_FY
+    table = caseload_table(state, DEFAULT_QC_FY)
+    cell = table.sample(rng)
+
+    lo, hi = table.income_range_pct(cell.pov)
+    fpl = poverty_guideline_annual(cell.size, state, fiscal_year - 1)  # SNAP FY Y uses year Y-1 guidelines
+    gross = 0.0 if hi == 0 else max(1.0, float(round(rng.uniform(lo, hi) / 100 * fpl / 12)))
+    sources = tuple(
+        name for name, flag in (("earned", cell.earned), ("ssi", cell.ssi), ("social_security", cell.social_security))
+        if flag
+    )  # fmt: skip
+    if not cell.earned:
+        earned = 0.0
+    elif cell.ssi or cell.social_security:
+        earned = float(round(gross / 2))
+    else:
+        earned = gross
+
+    elderly = cell.group == "elderly"
+    age = rng.randint(60, 85) if elderly else rng.randint(18, 59)
+    noncitizen_share = table.qc["states"].get(state.upper(), {}).get("pct_noncitizen_participants", 0.0) / 100
+    citizenship = CitizenshipStatus.QUALIFIED_ALIEN if rng.random() < noncitizen_share else CitizenshipStatus.CITIZEN
+    assets = float(round(rng.uniform(1, 1100), -1)) if rng.random() < 0.016 else 0.0
+    if dist is not None and rng.random() < dist.pct_renter:
+        sigma = dist.median_gross_rent_monthly * 0.3
+        shelter = max(0.0, round(rng.normalvariate(dist.median_gross_rent_monthly, sigma), -1))
+    else:
+        shelter = round(rng.uniform(400, 1200), -1)
+
+    return USHouseholdProfile(
+        household_size=cell.size,
+        monthly_gross_income=gross,
+        state=state.upper(),
+        liquid_assets=assets,
+        has_elderly_or_disabled=cell.group != "none",
+        has_dependent_children=bool(cell.kids) and cell.size > 1,
+        citizenship_status=citizenship,
+        earned_income=earned,
+        unearned_income=gross - earned,
+        shelter_costs=shelter,
+        age_of_head=age,
+        census_vintage=dist.vintage if dist is not None else None,
+        income_dollar_year=fiscal_year,
+        household_model=f"snap_qc_fy{table.fiscal_year}",
+        income_sources=sources,
     )
 
 

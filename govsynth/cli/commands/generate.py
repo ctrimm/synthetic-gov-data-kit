@@ -49,6 +49,14 @@ def generate(
             "instead of the rules of each profile's census year (SNAP).",
         ),
     ] = False,
+    population: Annotated[
+        str,
+        typer.Option(
+            "--population",
+            help="With --profile-strategy realistic: 'general' (ACS population, default) or 'caseload' "
+            "(households that actually receive SNAP, from the SNAP Quality Control tables; SNAP presets).",
+        ),
+    ] = "general",
     quiet: Annotated[bool, typer.Option("--quiet", "-q")] = False,
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
@@ -65,6 +73,7 @@ def generate(
             console=console,
             census_years=census_years,
             match_census_year=not fixed_policy_year,
+            population=population,
         )
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")
@@ -92,6 +101,7 @@ def generate(
             "preset": preset,
             "n": len(cases),
             **({"census_years": [v.label for v in pipeline.census_years]} if pipeline.census_years else {}),
+            **({"population": population} if population != "general" else {}),
             "output": str(output),
             "status": "ok",
         },

@@ -172,6 +172,7 @@ class SNAPEligibilityGenerator(Generator):
         builder_weights: dict[str, float] | None = None,
         census_years: Sequence[CensusVintage | int | str] | CensusVintage | int | str | None = None,
         match_census_year: bool = True,
+        population: str = "general",
     ) -> list[TestCase]:
         """Generate n SNAP eligibility test cases.
 
@@ -220,6 +221,11 @@ class SNAPEligibilityGenerator(Generator):
             population it was drawn from. Set False to apply this generator's
             own `fiscal_year` to every case instead. Ignored by other strategies.
 
+        population: With 'realistic' profiles, 'general' (default) draws from the
+            whole ACS population; 'caseload' draws households that actually
+            receive SNAP, from the SNAP Quality Control tables (#9). Each case
+            records metadata["household_model"] ("snap_qc_fy2024" for caseload).
+
         When profile_strategy is 'edge_saturated', 20% of cases (minimum 1 per special
         type if n >= 6) are special-population edge cases. The remainder use threshold-boundary
         profiles.
@@ -245,6 +251,8 @@ class SNAPEligibilityGenerator(Generator):
         """
         rng = random.Random(seed)
         years = census_years_for_strategy(census_years, profile_strategy)
+        if population != "general" and profile_strategy != "realistic":
+            raise ValueError(f"population={population!r} only applies to profile_strategy='realistic'")
 
         if profile_strategy != "edge_saturated":
             # Non-edge-saturated strategies: use existing random profile path
@@ -261,6 +269,7 @@ class SNAPEligibilityGenerator(Generator):
                     income_dollar_year=(
                         None if match_census_year or profile_strategy != "realistic" else self.fiscal_year
                     ),
+                    population=population,
                 )
                 builder = self._generator_for_profile(profile) if match_census_year else self
                 try:
