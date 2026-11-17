@@ -11,14 +11,14 @@ def test_homeless_shelter_deduction() -> None:
 
     assert "homeless_shelter_deduction" in case.variation_tags
     assert case.is_valid()
-    # Rationale must cite 7 CFR 273.9(c)(6)
+    # Rationale must cite 7 CFR 273.9(d)(6)(i)
     rationale_text = " ".join(step.rule_applied for step in case.rationale_trace.steps)
-    assert "273.9(c)(6)" in rationale_text
+    assert "273.9(d)(6)(i)" in rationale_text
     # Must NOT cite (c)(5) as the homeless deduction rule
     # (c)(5) is the excess shelter deduction which is replaced, not used)
     for step in case.rationale_trace.steps:
         if "homeless" in (step.computation or "").lower():
-            assert "273.9(c)(6)" in step.rule_applied
+            assert "273.9(d)(6)(i)" in step.rule_applied
 
 
 def test_student_exclusion() -> None:

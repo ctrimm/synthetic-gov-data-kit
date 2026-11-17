@@ -36,8 +36,8 @@ as the source.
 
 | Files | Source | Status |
 |---|---|---|
-| `thresholds/chip_cy2026.json` | KFF, *Medicaid and CHIP Income Eligibility Limits for Children as a Percent of the Federal Poverty Level*, as of January 2026 (survey by KFF and the Georgetown University Center for Children and Families) | Restructured from the KFF table |
-| `thresholds/medicaid_cy2026.json` | KFF State Health Facts, *Medicaid Income Eligibility Limits* (2026) | Restructured from the KFF table; `verification_status: "estimated"` |
+| `thresholds/chip_cy2026.json` | KFF, *Medicaid and CHIP Income Eligibility Limits for Children as a Percent of the Federal Poverty Level*, as of January 2026 (survey by KFF and the Georgetown University Center for Children and Families) | Restructured from the KFF table, with citation |
+| `thresholds/medicaid_cy2026.json` | KFF State Health Facts, *Medicaid Income Eligibility Limits* (2026) | Restructured from the KFF table, with citation; `verification_status: "estimated"` |
 
 KFF's [permissions page](https://www.kff.org/about-us/permissions-citations-reprints/) says
 that "most of KFF's State Health Facts information is public and may be reproduced for free with
@@ -45,11 +45,14 @@ appropriate citation", unless an indicator's sourcing note says otherwise. It al
 website content is licensed under CC BY-NC-ND 4.0 ("with proper attribution and without
 alteration").
 
-These two files reorganize KFF's tables into a machine-readable structure. The underlying limits are
-state policy parameters set in state Medicaid and CHIP plans. **The maintainers have not yet decided
-whether that reuse fits KFF's terms.** Until they do, treat these two files as KFF-attributed and
-non-commercial. Re-sourcing them from primary sources (Medicaid.gov eligibility tables, CMS State
-Plan Amendments; see issue #24) would remove the question.
+These two files reorganize KFF's tables into a machine-readable structure; the underlying limits are
+state policy parameters set in state Medicaid and CHIP plans. **The maintainers have determined that
+bundling them is consistent with KFF's terms:** this project is free and open source, distributed
+at no charge and not for commercial gain, and KFF is cited as the source in each file's `_metadata`
+and below. The MIT license covers this project's code, not KFF's data: if you reuse these two
+tables outside this project, particularly commercially, check KFF's terms for your use. Re-sourcing
+them from primary sources (Medicaid.gov eligibility tables, CMS State Plan Amendments; see issue #24)
+remains a welcome improvement.
 
 Citation, in KFF's format:
 

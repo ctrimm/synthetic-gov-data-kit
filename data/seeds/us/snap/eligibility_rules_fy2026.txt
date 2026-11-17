@@ -28,7 +28,7 @@ FY2026 INCOME LIMITS (48 States + DC, effective Oct 1 2025):
   Each add'l     | +$596/month      | +$459/month    | +$218
 Source: USDA FNS SNAP COLA FY2026 Memo, August 13, 2025 (VERIFIED)
 
-=== DEDUCTIONS (7 CFR 273.9(c)) ===
+=== DEDUCTIONS (7 CFR 273.9(d)) ===
 
 (c)(1) EARNED INCOME DEDUCTION: 20 percent of earned income is deducted.
   Earned income = wages, salaries, self-employment net earnings.

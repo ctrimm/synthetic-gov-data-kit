@@ -334,7 +334,7 @@ rationale_trace:
       computation: "$2,311 <= $2,311 — AT limit, passes gross test"
       result: PASS
     - step: 3
-      rule: "7 CFR 273.9(c)(1),(c)(2)"
+      rule: "7 CFR 273.9(d)(1),(d)(2)"
       description: Calculate net income after deductions
       computation: "2311 - (2311 × 0.20) - 198 = $1,651"
       result: net_income = $1,651
@@ -403,7 +403,7 @@ govsynth verify-thresholds && echo "All thresholds verified"
 ## Policy Data Sources
 
 Thresholds and policy rules come from official US government publications, except the
-Medicaid and CHIP state limit tables, which are restructured from KFF's State Health Facts.
+Medicaid and CHIP state limit tables, which are restructured (with citation) from KFF's State Health Facts.
 **[DATA_SOURCES.md](DATA_SOURCES.md)** lists every bundled dataset with its source and terms.
 
 - **SNAP**: [7 CFR Part 273](https://www.ecfr.gov/current/title-7/part-273) + FNS SNAP Handbook
@@ -415,12 +415,9 @@ All generated profiles are entirely synthetic. No real applicant data is used or
 
 ## Known Limitations (0.2.0a1)
 
-- SNAP rationale traces on the general (`realistic`/`uniform`) path can contradict the case's own
-  net income: earned-income deduction applied to unearned income, and no shelter step
-  ([#33](https://github.com/ctrimm/synthetic-gov-data-kit/issues/33)). Outcomes are correct.
 - TANF and the ACA marketplace are not modeled yet (#17, #18).
-- Medicaid and CHIP limits come from KFF tables whose reuse terms are still being settled; see
-  [DATA_SOURCES.md](DATA_SOURCES.md).
+- Joint census household types cover the acs5-2024 vintage only; the SNAP caseload population is
+  FY2024 only.
 
 Full list: [CHANGELOG.md](CHANGELOG.md#020a1--2026-11-17).
 
@@ -450,4 +447,5 @@ for any threshold values you add or modify.
 ## License
 
 Code: MIT. See [LICENSE](LICENSE). Bundled data: see [DATA_SOURCES.md](DATA_SOURCES.md); federal
-data are public domain, and the two KFF-derived tables carry KFF's attribution terms.
+data are public domain, and the two KFF-derived tables are bundled with citation under KFF's terms for this
+free, open-source project.
