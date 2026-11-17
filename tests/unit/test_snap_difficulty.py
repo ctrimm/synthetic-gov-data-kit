@@ -103,12 +103,20 @@ def test_constructor_docstring_documents_exactly_its_parameters() -> None:
     signature = inspect.signature(SNAPEligibilityGenerator.__init__)
     actual = {p for p in signature.parameters if p != "self"}
 
-    doc = SNAPEligibilityGenerator.__doc__ or ""
+    # cleandoc normalizes indentation: Python 3.13+ already strips docstring
+    # indentation at compile time, 3.10-3.12 keep it, so matching a fixed
+    # absolute indent passed on one and found nothing on the other.
+    doc = inspect.cleandoc(SNAPEligibilityGenerator.__doc__ or "")
     args_block = doc.split("Args:", 1)[1] if "Args:" in doc else ""
+    args_lines = []
+    for line in args_block.splitlines()[1:]:
+        if not line.strip():
+            break  # the Args block ends at the first blank line
+        args_lines.append(line)
     documented = {
         line.strip().split(":", 1)[0].strip()
-        for line in args_block.splitlines()
-        if line.strip() and ":" in line and line.startswith(" " * 8)
+        for line in args_lines
+        if ":" in line and line.startswith(" " * 4) and not line.startswith(" " * 5)
     }
     documented = {d for d in documented if d.isidentifier()}
 

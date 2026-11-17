@@ -47,6 +47,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `is_homeless` parameter on `SNAPSource.calculate_net_income()` for homeless shelter deduction
 
 ### Fixed
+- CI on `main` was red (first failing step: `ruff check`): split over-long strings in
+  `us_household.py`, fixed two test lint errors, reformatted two files, and made
+  `test_constructor_docstring_documents_exactly_its_parameters` independent of Python
+  3.13's docstring dedenting (#14)
 - **Case ID determinism**: SNAP/WIC (and the new Medicaid) generators built each case_id's
   random suffix with `uuid.uuid4()` instead of the generator's own seeded `random.Random`,
   so `generate(n, seed=42)` was not actually reproducible — case_ids (and therefore any

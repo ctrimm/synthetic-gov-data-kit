@@ -430,25 +430,29 @@ class USHouseholdProfile:
         if style == "exploratory":
             return (
                 f"What factors determine whether this household qualifies for {program.upper()}? "
-                f"Walk through the relevant eligibility criteria and explain how this household meets or fails each one."
+                "Walk through the relevant eligibility criteria and explain how this household "
+                "meets or fails each one."
             )
 
         if style == "constraint_focused":
             return (
                 f"Evaluate this household against the key constraints for {program.upper()} eligibility. "
-                f"What income limits, asset limits, and other thresholds apply? Where does this household stand relative to each?"
+                "What income limits, asset limits, and other thresholds apply? "
+                "Where does this household stand relative to each?"
             )
 
         if style == "outcome_focused":
             return (
-                f"Based on the household's situation, what would be your eligibility determination for {program.upper()}? "
+                "Based on the household's situation, what would be your eligibility determination "
+                f"for {program.upper()}? "
                 f"Provide the specific policy justification and reference the applicable regulations."
             )
 
         # style == "policy_grounded"
         return (
             f"Using federal policy regulations, determine {program.upper()} eligibility for this household. "
-            f"Cite the specific CFR sections that apply and explain how this household's circumstances align with or diverge from the requirements."
+            "Cite the specific CFR sections that apply and explain how this household's circumstances "
+            "align with or diverge from the requirements."
         )
 
 
