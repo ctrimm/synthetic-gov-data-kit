@@ -129,7 +129,12 @@ class MedicaidEligibilityGenerator(Generator):
         else:
             # Household size and income come from the sampled profile itself.
             profile = USHouseholdProfile.random(
-                state=self.state, seed=seed, strategy=profile_strategy, census_vintage=census_vintage
+                state=self.state,
+                seed=seed,
+                strategy=profile_strategy,
+                census_vintage=census_vintage,
+                # Census incomes are in the vintage's dollars; judge them in the rules year's (CPI-U).
+                income_dollar_year=self.calendar_year if profile_strategy == "realistic" else None,
             )
             hh_size = profile.household_size
             magi = round(profile.monthly_gross_income, 2)
@@ -200,6 +205,7 @@ class MedicaidEligibilityGenerator(Generator):
                 "applicant_type": applicant_type,
                 "profile_strategy": profile_strategy,
                 **({"census_vintage": profile.census_vintage} if profile.census_vintage else {}),
+                **({"income_dollar_year": profile.income_dollar_year} if profile.income_dollar_year else {}),
             },
         )
 

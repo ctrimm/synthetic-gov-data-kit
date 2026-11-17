@@ -20,6 +20,7 @@ def _register_commands() -> None:
     from govsynth.cli.commands.refresh_census import refresh_census_data
     from govsynth.cli.commands.show import show
     from govsynth.cli.commands.validate import validate
+    from govsynth.cli.commands.validate_distribution import validate_distribution
     from govsynth.cli.commands.verify import verify_thresholds
 
     app.add_typer(list_presets_app, name="list-presets")
@@ -31,6 +32,7 @@ def _register_commands() -> None:
     app.command("show")(show)
     app.command("parse-policy")(parse_policy)
     app.command("refresh-census-data")(refresh_census_data)
+    app.command("validate-distribution")(validate_distribution)
 
 
 _register_commands()

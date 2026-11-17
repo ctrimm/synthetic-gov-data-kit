@@ -256,6 +256,11 @@ class SNAPEligibilityGenerator(Generator):
                     seed=case_seed,
                     strategy=profile_strategy,
                     census_vintage=years[i % len(years)] if years else None,
+                    # Matching the census year already puts income in the rules year's
+                    # dollars; a fixed fiscal year needs it restated (CPI-U).
+                    income_dollar_year=(
+                        None if match_census_year or profile_strategy != "realistic" else self.fiscal_year
+                    ),
                 )
                 builder = self._generator_for_profile(profile) if match_census_year else self
                 try:
@@ -2870,6 +2875,7 @@ class SNAPEligibilityGenerator(Generator):
                 "state": self.state,
                 "fiscal_year": self.fiscal_year,
                 **({"census_vintage": profile.census_vintage} if profile.census_vintage else {}),
+                **({"income_dollar_year": profile.income_dollar_year} if profile.income_dollar_year else {}),
             },
         )
 

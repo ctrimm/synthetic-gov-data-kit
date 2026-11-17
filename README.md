@@ -187,6 +187,24 @@ cases whose rule wasn't in force that year are skipped (the 2025 noncitizen chan
 FY2026; student rules during the 2021–2023 pandemic exemptions). See
 [docs/programs/snap.md](docs/programs/snap.md#fiscal-years).
 
+**Incomes are in the rules year's dollars.** Census incomes are in their vintage's dollars.
+When a case's rules come from a different year (SNAP with `--fixed-policy-year`, or Medicaid's
+CY2026 limits), income is restated with the BLS CPI-U annual average
+(`data/thresholds/cpi_u_annual.json`, built by `scripts/import_cpi.py`), and each case records
+`metadata["income_dollar_year"]`.
+
+### Checking representativeness
+
+```bash
+govsynth validate-distribution --state VA          # one state, every metric
+govsynth validate-distribution --state all --json  # all 51 jurisdictions; exits 1 on any failure
+```
+
+This samples `realistic` profiles and compares them with their census targets (children,
+elderly/disabled, citizenship, earnings, household size, median income), using tolerances of
+4 standard errors. It also checks the census targets themselves against plausible ranges, since
+a sampler faithfully reproduces wrong data. The same checks run in the test suite for every state.
+
 ### Batch Generation
 
 **CLI (recommended):**
@@ -296,6 +314,7 @@ difficulty: hard
 | `govsynth show <file> [case_id]` | Pretty-print a single case |
 | `govsynth verify-thresholds [--program]` | Check bundled threshold data is up to date |
 | `govsynth refresh-census-data [--state] [--year] [--survey]` | Fetch ACS Census distributions for one vintage (keyless for 2021+) |
+| `govsynth validate-distribution [--state] [--census-year] [-n]` | Check realistic profiles against their census targets |
 | `govsynth parse-policy <file>` | *(coming soon)* Extract thresholds from a policy PDF |
 
 All commands support `--json` for machine-readable output and are safe to use in CI pipelines and agentic workflows. Rich progress and status output always goes to **stderr**; data always goes to **stdout**.
