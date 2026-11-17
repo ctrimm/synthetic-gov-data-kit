@@ -21,7 +21,7 @@ jobs:
 
       - name: Check the tag matches the package version
         run: |
-          version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          version=$(python -c "exec(open('govsynth/_version.py').read()); print(__version__)")
           [ "v$version" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME != pyproject version v$version"; exit 1; }
 
       - name: Build sdist and wheel

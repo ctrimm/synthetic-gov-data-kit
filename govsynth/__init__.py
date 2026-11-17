@@ -11,6 +11,7 @@ Quick start:
     pipeline.save(cases, "./output/", formats=["yaml", "jsonl", "csv"])
 """
 
+from govsynth._version import __version__ as __version__
 from govsynth.evaluation import RationaleEvaluator, RationaleScore
 from govsynth.fiscal_year import (
     DEFAULT_MEDICAID_CY,
@@ -35,8 +36,6 @@ from govsynth.models import (
 )
 from govsynth.pipeline import BatchPipeline, Pipeline
 from govsynth.presets import PRESETS, list_presets
-
-__version__ = "0.1.0"
 
 __all__ = [
     # Top-level API

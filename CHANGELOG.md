@@ -9,6 +9,36 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.2.0a1] — 2026-11-17
+
+First PyPI pre-release: `pip install --pre synthetic-gov-data-kit`.
+
+### Upgrading from 0.1.0
+- **Generated output changes for the same seed.** `realistic` profiles for the default census
+  vintage (acs5-2024) now draw joint PUMS household types (#8), and SNAP difficulty offsets,
+  WIC/SNAP difficulty labels and BBCE handling changed (see *Changed*). Regenerate any pinned
+  fixtures or corpora rather than diffing against 0.1.0 output.
+- `realistic` SNAP cases are judged by the rules of their census year by default
+  (`match_census_year=True`). Pass `match_census_year=False` (`--fixed-policy-year`) to apply one
+  fiscal year to every case, as before.
+- `SNAPEligibilityGenerator(difficulty_distribution=...)` was removed (it was never read).
+- `TestCase.validate()` was renamed `check_output_contract()`.
+- Cases are stamped `generated_by: synthetic-gov-data-kit@<version>` from the package version
+  (`govsynth/_version.py`, which `pyproject.toml` also reads). 0.1.0 hardcoded `@0.1.0`.
+
+### Known limitations
+- **SNAP rationale traces on the general path can contradict the case's net income** (#33).
+  They take the 20% earned-income deduction from unearned income and omit the excess shelter,
+  dependent-care and medical steps. Outcomes are correct; the step-by-step trace is not. This
+  mostly affects `realistic` and `uniform` cases (about 3% of traces under the `edge_saturated`
+  default).
+- TANF (#17) and the ACA marketplace (#18) are not modeled yet; both wait on source documents.
+- The Medicaid and CHIP limit tables are restructured from KFF State Health Facts, and their
+  redistribution terms are not settled yet (see `DATA_SOURCES.md`). The Medicaid limits are marked
+  `verification_status: "estimated"`.
+- Joint household types cover acs5-2024 only; other census vintages use independent per-trait rates.
+- The caseload population (`population="caseload"`) covers SNAP only, from FY2024 data.
+
 ### Fixed
 - **Installed packages had no data.** The wheel shipped only `govsynth/`, so a `pip install`ed
   `govsynth generate` failed with `FileNotFoundError` on its first threshold file. `data/` now
