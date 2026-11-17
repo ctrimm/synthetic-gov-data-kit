@@ -108,6 +108,43 @@ PRESETS: dict[str, PresetConfig] = {
         profile_strategy="edge_saturated",
         description="Medicare Savings Programs (QMB/SLMB/QI) and Extra Help CY2026 — federal limits",
     ),
+    # ── CHIP / children's Medicaid ───────────────────────────────────────
+    "chip.va": PresetConfig(
+        program="chip",
+        source_class="govsynth.sources.us.chip.CHIPSource",
+        source_kwargs={"calendar_year": 2026, "state": "VA"},
+        generator_class="govsynth.generators.chip_eligibility.CHIPEligibilityGenerator",
+        generator_kwargs={"calendar_year": 2026, "state": "VA"},
+        profile_strategy="edge_saturated",
+        description="Virginia children's Medicaid (148%) + separate CHIP (205%) CY2026",
+    ),
+    "chip.ca": PresetConfig(
+        program="chip",
+        source_class="govsynth.sources.us.chip.CHIPSource",
+        source_kwargs={"calendar_year": 2026, "state": "CA"},
+        generator_class="govsynth.generators.chip_eligibility.CHIPEligibilityGenerator",
+        generator_kwargs={"calendar_year": 2026, "state": "CA"},
+        profile_strategy="edge_saturated",
+        description="California children's Medicaid + Medicaid-expansion CHIP (to 266%) CY2026",
+    ),
+    "chip.tx": PresetConfig(
+        program="chip",
+        source_class="govsynth.sources.us.chip.CHIPSource",
+        source_kwargs={"calendar_year": 2026, "state": "TX"},
+        generator_class="govsynth.generators.chip_eligibility.CHIPEligibilityGenerator",
+        generator_kwargs={"calendar_year": 2026, "state": "TX"},
+        profile_strategy="edge_saturated",
+        description="Texas children's Medicaid + separate CHIP (206%) CY2026",
+    ),
+    "chip.md": PresetConfig(
+        program="chip",
+        source_class="govsynth.sources.us.chip.CHIPSource",
+        source_kwargs={"calendar_year": 2026, "state": "MD"},
+        generator_class="govsynth.generators.chip_eligibility.CHIPEligibilityGenerator",
+        generator_kwargs={"calendar_year": 2026, "state": "MD"},
+        profile_strategy="edge_saturated",
+        description="Maryland children's Medicaid + Medicaid-expansion CHIP (to 322%) CY2026",
+    ),
     # ── LIHEAP ────────────────────────────────────────────────────────────
     "liheap.va": PresetConfig(
         program="liheap",

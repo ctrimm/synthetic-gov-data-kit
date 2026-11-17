@@ -47,7 +47,7 @@ class FiscalCalendar(str, Enum):
 PROGRAM_FISCAL_CALENDARS: dict[str, FiscalCalendar] = {
     "snap": FiscalCalendar.FEDERAL_FY,
     "wic": FiscalCalendar.WIC_CALENDAR,  # Jul 1–Jun 30, NOT Oct 1–Sep 30
-    "chip": FiscalCalendar.FEDERAL_FY,
+    "chip": FiscalCalendar.HHS_CALENDAR,  # eligibility uses the current calendar year's poverty guidelines
     "section_8": FiscalCalendar.FEDERAL_FY,
     "liheap": FiscalCalendar.FEDERAL_FY,
     "tanf": FiscalCalendar.FEDERAL_FY,

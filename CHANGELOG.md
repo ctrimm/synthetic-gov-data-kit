@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- CHIP and children's Medicaid (#18): `CHIPSource` and `CHIPEligibilityGenerator` (Medicaid /
+  CHIP-funded Medicaid / separate CHIP / ineligible, by age group and insurance status), CY2026,
+  all 50 states + DC from the KFF/Georgetown January 2026 table; presets `chip.va|ca|tx|md`.
 - LIHEAP (#18): `LIHEAPSource` and `LIHEAPEligibilityGenerator` for heating/cooling/crisis/
   weatherization income eligibility in VA, CA, TX and MD, FY2026 (presets `liheap.va|ca|tx|md`).
   Uses the HHS IM2025-02 state median income table (all 51 jurisdictions, every cell checked
